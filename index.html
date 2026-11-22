@@ -1512,11 +1512,11 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
           </div>
           <p class="gpc-auth-eyebrow">Selamat datang kembali</p>
           <h2 id="gpcAuthTitle">Masuk ke akun Anda</h2>
-          <form id="gpcAuthForm" novalidate>
+          <form id="gpcAuthForm" name="gpc_login_form" autocomplete="off" novalidate>
             <label for="gpcAuthUsername">Username</label>
             <div class="gpc-auth-field">
               <svg class="gpc-auth-field-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="8" r="3.6" stroke="currentColor" stroke-width="1.7"/><path d="M4.8 20c.7-3.2 3.2-5 7.2-5s6.5 1.8 7.2 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-              <input id="gpcAuthUsername" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="Masukkan username Anda" aria-label="Username akun">
+              <input id="gpcAuthUsername" name="gpc_login_identifier" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" readonly required placeholder="Masukkan username Anda" aria-label="Username akun">
             </div>
             <label for="gpcAuthPassword">Password</label>
             <div class="gpc-auth-field">
@@ -1570,14 +1570,35 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
 
   function openAuthModal() {
     ensureAuthModal();
+    const usernameInput = $('gpcAuthUsername');
+    const passwordInput = $('gpcAuthPassword');
+
+    // Always open a clean login form. Disable browser autofill for the username field
+    // so a previously saved email address is not inserted automatically.
+    if (usernameInput) {
+      usernameInput.value = '';
+      usernameInput.setAttribute('readonly', 'readonly');
+    }
+    if (passwordInput) passwordInput.value = '';
     $('gpcAuthError').style.display = 'none';
     $('gpcAuthModal').style.display = 'flex';
-    setTimeout(() => $('gpcAuthUsername')?.focus(), 30);
+    setTimeout(() => {
+      if (usernameInput) {
+        usernameInput.value = '';
+        usernameInput.removeAttribute('readonly');
+        usernameInput.focus();
+      }
+      if (passwordInput) passwordInput.value = '';
+    }, 80);
   }
 
   function closeAuthModal() {
     const modal = $('gpcAuthModal');
     if (modal) modal.style.display = 'none';
+    const usernameInput = $('gpcAuthUsername');
+    const passwordInput = $('gpcAuthPassword');
+    if (usernameInput) usernameInput.value = '';
+    if (passwordInput) passwordInput.value = '';
   }
 
   function setViewerState() {
