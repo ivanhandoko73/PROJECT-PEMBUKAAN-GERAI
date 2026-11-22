@@ -630,24 +630,24 @@ window.addEventListener(&#x27;message&#x27;,e=&gt;{if(!e.data||e.data.type!==&#x
 <div class="crud-actions"><button type="button" class="crud-btn save" onclick="crudSaveProgress()">SIMPAN</button><button type="button" class="crud-btn search" onclick="crudSearchProgress()">CARI</button><button type="button" class="crud-btn edit" onclick="crudEditProgress()">EDIT</button><button type="button" class="crud-btn delete" onclick="crudDeleteProgress()">DELETE</button><button type="button" class="crud-btn reset" onclick="crudResetProgress()">RESET</button></div><div class="notice hidden" id="progressCrudNotice" style="margin-top:10px"></div><div class="crud-match hidden" id="progressCrudMatches"></div></div>
 <div class="card" style="margin-top:14px">
 <h3>Uji Import Excel — BPD / Input Progress</h3>
-<div class="notice">Data Progress saat ini dibaca dan disimpan melalui Supabase. Preview Excel dapat digunakan untuk memeriksa workbook. Fitur upload Excel langsung dari halaman ini akan diaktifkan setelah alur staging dan validasi database selesai disiapkan.</div>
+<div class="notice">Preview memeriksa 13 kolom pada sheet DTB_PROGRESS. Data yang lolos validasi disimpan permanen ke Supabase dan memperbarui monitoring serta Gantt.</div>
 <label><b>File Excel V.01 (.xlsx / .xlsm)</b></label>
 <input accept=".xlsx,.xls,.xlsm" id="progressExcelFile" style="margin:8px 0;max-width:100%" type="file"/>
-<button class="btn import-action-btn" onclick="testProgressExcelImport()">Uji &amp; Preview Import</button><button class="btn import-action-btn" onclick="applyProgressExcelImport()">Update Data Excel</button>
+<button class="btn import-action-btn" onclick="testProgressExcelImport()">Uji &amp; Preview Import</button><button class="btn import-action-btn" onclick="applyProgressExcelImport()">Update Data Excel</button><button class="btn soft" type="button" onclick="clearProgressExcelInputs()">Reset Input</button>
 <div id="progressExcelResult" style="margin-top:12px"></div>
 </div>
 </div>
 <div class="project-view hidden" id="input-equipment">
 <div class="pagehead"><div><h2>INPUT PERLENGKAPAN</h2><p>Input progress item perlengkapan melalui website atau import Excel. Akses khusus user login/Admin.</p></div></div>
-<div class="card"><div class="notice">Form input mobile-ready (prototype). Import workbook Master Timeline &amp; Tracking Project Gerai 2027 untuk validasi struktur; penyimpanan permanen belum aktif.</div>
-<div class="form formgrid"><div><label>Cabang</label><select id="equipmentInputCab" onchange="updateEquipmentStores()"><option value="">Pilih Cabang</option></select><label>Gerai</label><select id="equipmentInputStore"><option value="">Pilih Gerai</option></select><label>Item / Aktivitas Perlengkapan</label><input id="equipmentInputItem" placeholder="Nama item / aktivitas"/><label>Status</label><select id="equipmentInputStatus"><option>Belum Mulai</option><option>On Progress</option><option>Selesai</option><option>Tertunda</option></select></div><div><label>Progress (%)</label><input id="equipmentInputProgress" max="100" min="0" placeholder="0–100" type="number"/><label>Tanggal Update</label><input id="equipmentInputDate" type="date"/><label>Catatan / Follow-up</label><textarea id="equipmentInputNote" placeholder="Catatan update"></textarea></div></div>
+<div class="card"><div class="notice">Input dan import tersimpan permanen ke Supabase. Fase Proyek dan Aktivitas / Milestone disimpan terpisah persis sesuai kolom sumber; Aktivitas boleh kosong jika kosong di Excel.</div>
+<div class="form formgrid" id="equipmentManualForm"><div><label>Cabang</label><select id="equipmentInputCab" onchange="updateEquipmentStores()"><option value="">Pilih Cabang</option></select><label>Gerai</label><select id="equipmentInputStore"><option value="">Pilih Gerai</option></select><label>Fase Proyek</label><input id="equipmentInputPhase" placeholder="Nama fase proyek"/><label>Aktivitas / Milestone</label><input id="equipmentInputItem" placeholder="Nama aktivitas / milestone"/><label>Target Mulai</label><input id="equipmentInputStart" type="date"/><label>Target Selesai</label><input id="equipmentInputEnd" type="date"/></div><div><label>Durasi (Hari)</label><input id="equipmentInputDuration" min="0" step="1" type="number" placeholder="Contoh: 14"/><label>Status</label><select id="equipmentInputStatus"><option>Belum Mulai</option><option>Dalam Proses</option><option>Tertunda</option><option>Selesai</option></select><label>Progress (%)</label><input id="equipmentInputProgress" max="100" min="0" placeholder="0–100" type="number"/><label>Penanggung Jawab (PIC)</label><input id="equipmentInputPIC" placeholder="Nama / fungsi PIC"/><label>Keterangan / Output</label><textarea id="equipmentInputNote" placeholder="Keterangan atau output pekerjaan"></textarea></div></div>
 <div class="crud-actions"><button type="button" class="crud-btn save" onclick="crudSaveEquipment()">SIMPAN</button><button type="button" class="crud-btn search" onclick="crudSearchEquipment()">CARI</button><button type="button" class="crud-btn edit" onclick="crudEditEquipment()">EDIT</button><button type="button" class="crud-btn delete" onclick="crudDeleteEquipment()">DELETE</button><button type="button" class="crud-btn reset" onclick="crudResetEquipment()">RESET</button></div><div class="notice hidden" id="equipmentCrudNotice" style="margin-top:10px"></div><div class="crud-match hidden" id="equipmentCrudMatches"></div>
-<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"/><label><b>Import Excel Master Timeline</b></label><input accept=".xlsx,.xls" id="equipmentImportFile" onchange="EQUIPMENT_IMPORT_PREVIEW=null;document.getElementById('equipmentImportResult').innerHTML=''" type="file"/><button class="btn import-action-btn" onclick="previewEquipmentExcelImport()">Uji &amp; Preview Import</button><button class="btn import-action-btn" onclick="applyEquipmentExcelImport()">Update Data Excel</button><div class="notice hidden" id="equipmentImportResult" style="margin-top:10px"></div>
+<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"/><label><b>Import Excel Master Timeline</b></label><input accept=".xlsx,.xls" id="equipmentImportFile" onchange="EQUIPMENT_IMPORT_PREVIEW=null;document.getElementById('equipmentImportResult').innerHTML=''" type="file"/><button class="btn import-action-btn" onclick="previewEquipmentExcelImport()">Uji &amp; Preview Import</button><button class="btn import-action-btn" onclick="applyEquipmentExcelImport()">Update Data Excel</button><button class="btn soft" type="button" onclick="clearEquipmentExcelInputs()">Reset Input</button><div class="notice hidden" id="equipmentImportResult" style="margin-top:10px"></div>
 </div>
 </div>
 <div class="project-view hidden" id="people-mpp-import">
 <div class="pagehead"><div><h2>INPUT MPP</h2><p>MPP dapat diperbarui melalui input website atau import Excel oleh user login/Admin.</p></div></div>
-<div class="card"><h3>INPUT MPP MANUAL</h3><div class="form formgrid mpp-input-order" id="manualMPPForm"><div><label>Cabang</label><select id="manualMPPCab" onchange="updateManualMPPStores()"><option value="">Pilih Cabang</option><option>BEKASI</option><option>BSD</option><option>CIKUPA</option><option>DEPOK</option><option>JAKBAR</option><option>KELAPA GADING</option><option>TANGERANG</option></select></div><div><label>Gerai</label><select id="manualMPPGerai"></select></div><div><label>PIC</label><select id="manualMPPRole"><option value="">Pilih PIC</option><option>ADMIN</option><option>MCS</option><option>MOH</option></select></div><div><label>Kebutuhan</label><input id="manualMPPNeed" min="0" type="number"/></div><div><label>Kekurangan</label><input id="manualMPPShort" min="0" type="number"/></div><div><label>Pelamar</label><input id="manualMPPApp" min="0" type="number"/></div><div><label>Interview</label><input id="manualMPPInterview" min="0" type="number"/></div><div><label>Lanjut Proses</label><input id="manualMPPFollow" min="0" type="number"/></div><div><label>Join</label><input id="manualMPPJoin" min="0" type="number"/></div><div><label>Training</label><input id="manualMPPTraining" min="0" type="number"/></div><div><label>Selesai Training</label><input id="manualMPPComplete" min="0" type="number"/></div></div><div class="crud-actions"><button type="button" class="crud-btn save" onclick="saveManualMPP()">SIMPAN</button><button type="button" class="crud-btn search" onclick="crudSearchMPP()">CARI</button><button type="button" class="crud-btn edit" onclick="crudEditMPP()">EDIT</button><button type="button" class="crud-btn delete" onclick="crudDeleteMPP()">DELETE</button><button type="button" class="crud-btn reset" onclick="clearManualMPPInputs()">RESET</button></div><div class="notice hidden" id="manualMPPResult" style="margin-top:10px"></div><div class="crud-match hidden" id="mppCrudMatches"></div></div><hr style="border:0;border-top:1px solid var(--line);margin:16px 0"/><div class="card"><h3>IMPORT EXCEL MPP</h3> <div class="notice">Import Excel hanya tersedia di menu Input MPP setelah login. Data import atau input manual langsung memperbarui Summary MPP.</div><label><b>Import Excel MPP</b></label><input accept=".xlsx,.xls,.xlsm" id="mppImportFile" onchange="MPP_IMPORT_PREVIEW=null;document.getElementById('mppImportResult').innerHTML=''" type="file"/><button class="btn import-action-btn" onclick="previewMPPExcelImport()">Uji &amp; Preview Import</button><button class="btn import-action-btn" onclick="applyMPPExcelImport()">Update Data Excel</button><button class="btn soft" type="button" onclick="clearMPPImportInputs()">Reset Input</button><div class="notice hidden" id="mppImportResult" style="margin-top:10px"></div><div id="mppUpdateResult" style="margin-top:10px"></div>
+<div class="card"><h3>INPUT MPP MANUAL</h3><div class="form formgrid mpp-input-order" id="manualMPPForm"><div><label>Cabang</label><select id="manualMPPCab" onchange="updateManualMPPStores()"><option value="">Pilih Cabang</option><option>BEKASI</option><option>BSD</option><option>CIKUPA</option><option>DEPOK</option><option>JAKBAR</option><option>KELAPA GADING</option><option>TANGERANG</option></select></div><div><label>Gerai</label><select id="manualMPPGerai"></select></div><div><label>PIC</label><select id="manualMPPRole"><option value="">Pilih PIC</option><option>ADMIN</option><option>MCS</option><option>MOH</option></select></div><div><label>Kebutuhan</label><input id="manualMPPNeed" min="0" type="number"/></div><div><label>Kekurangan</label><input id="manualMPPShort" min="0" type="number"/></div><div><label>Pelamar</label><input id="manualMPPApp" min="0" type="number"/></div><div><label>Interview</label><input id="manualMPPInterview" min="0" type="number"/></div><div><label>Lanjut Proses</label><input id="manualMPPFollow" min="0" type="number"/></div><div><label>Join</label><input id="manualMPPJoin" min="0" type="number"/></div><div><label>Training</label><input id="manualMPPTraining" min="0" type="number"/></div><div><label>Selesai Training</label><input id="manualMPPComplete" min="0" type="number"/></div></div><div class="crud-actions"><button type="button" class="crud-btn save" onclick="saveManualMPP()">SIMPAN</button><button type="button" class="crud-btn search" onclick="crudSearchMPP()">CARI</button><button type="button" class="crud-btn edit" onclick="crudEditMPP()">EDIT</button><button type="button" class="crud-btn delete" onclick="crudDeleteMPP()">DELETE</button><button type="button" class="crud-btn reset" onclick="clearManualMPPInputs()">RESET</button></div><div class="notice hidden" id="manualMPPResult" style="margin-top:10px"></div><div class="crud-match hidden" id="mppCrudMatches"></div></div><hr style="border:0;border-top:1px solid var(--line);margin:16px 0"/><div class="card"><h3>IMPORT EXCEL MPP</h3> <div class="notice">Import membaca kolom CABANG, GERAI, PIC, KEBUTUHAN, KEKURANGAN, PELAMAR, INTERVIEW, LANJUT PROSES, JOIN, TRAINING, dan SELESAI TRAINING. Hasil disimpan permanen ke Supabase.</div><label><b>Import Excel MPP</b></label><input accept=".xlsx,.xls,.xlsm" id="mppImportFile" onchange="MPP_IMPORT_PREVIEW=null;document.getElementById('mppImportResult').innerHTML=''" type="file"/><button class="btn import-action-btn" onclick="previewMPPExcelImport()">Uji &amp; Preview Import</button><button class="btn import-action-btn" onclick="applyMPPExcelImport()">Update Data Excel</button><button class="btn soft" type="button" onclick="clearMPPImportInputs()">Reset Input</button><div class="notice hidden" id="mppImportResult" style="margin-top:10px"></div><div id="mppUpdateResult" style="margin-top:10px"></div>
 </div></div>
 
 <div class="project-view hidden" id="people-import">
@@ -820,7 +820,7 @@ function showView(id){const allowed={summary:'SUMMARY',dashboard:'DASHBOARD PEMB
 // Delegated sub-navigation click handling (ensures every tile, including MPP, is clickable).
 document.getElementById('subnav')?.addEventListener('click',function(ev){const btn=ev.target.closest('button[data-view]');if(!btn)return;ev.preventDefault();showView(btn.dataset.view);});
 
-function parseEquipmentWorkbook(buffer){const wb=XLSX.read(buffer,{type:'array',cellDates:true}),names=wb.SheetNames.filter(n=>n.trim().toLowerCase()!=='master'),stores=[];const normDate=v=>{if(!v)return '';if(v instanceof Date&&!isNaN(v))return v.toISOString().slice(0,10);if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);return d?`${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`:'';}const z=String(v).trim(),m=z.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);return m?`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`:z.slice(0,10);};names.forEach(name=>{const rows=XLSX.utils.sheet_to_json(wb.Sheets[name],{header:1,raw:true,defval:''});let hr=rows.findIndex(row=>row.some(v=>String(v||'').trim().toLowerCase()==='no')&&row.some(v=>String(v||'').toLowerCase().includes('fase proyek')));if(hr<0)hr=7;const hs=(rows[hr]||[]).map(v=>String(v||'').trim().toLowerCase()),ix=(keys,fb)=>{const j=hs.findIndex(h=>keys.some(k=>h.includes(k)));return j>=0?j:fb;},cNo=ix(['no'],1),cPhase=ix(['fase proyek'],2),cAct=ix(['aktivitas','milestone'],3),cStart=ix(['target mulai'],4),cEnd=ix(['target selesai'],5),cDur=ix(['durasi'],6),cStatus=ix(['status'],7),cProg=ix(['progres','progress'],8),cPic=ix(['penanggung jawab','pic'],9),cNote=ix(['keterangan','output'],10),tasks=[];for(let i=hr+1;i<rows.length;i++){const r=rows[i]||[],num=Number(r[cNo]),phase=String(r[cPhase]||'').trim(),activity=String(r[cAct]||'').trim();if(!Number.isFinite(num)||num<=0||(!phase&&!activity))continue;let status=String(r[cStatus]||'Belum Mulai').trim(),prog=r[cProg];if(typeof prog==='string'&&prog.includes('%'))prog=parseFloat(prog)/100;else if(typeof prog==='string')prog=parseFloat(prog);else if(typeof prog!=='number')prog=0;if(!isFinite(prog))prog=0;if(prog>1)prog/=100;prog=Math.max(0,Math.min(1,prog));if(/selesai/i.test(status))prog=1;if(/proses/i.test(status)&&prog===0)prog=.5;tasks.push({num,phase:phase||activity,activity:activity||phase,start:normDate(r[cStart]),end:normDate(r[cEnd]),duration:Number(r[cDur])||0,status,progress:prog,pic:String(r[cPic]||'').trim(),note:String(r[cNote]||'').trim()});}if(tasks.length)stores.push({name,cab:'',tasks});});return {stores,total:stores.reduce((n,s)=>n+s.tasks.length,0)};}
+function parseEquipmentWorkbook(buffer){const wb=XLSX.read(buffer,{type:'array',cellDates:true}),names=wb.SheetNames.filter(n=>n.trim().toLowerCase()!=='master'),stores=[];const normDate=v=>{if(!v)return '';if(v instanceof Date&&!isNaN(v))return v.toISOString().slice(0,10);if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);return d?`${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`:'';}const z=String(v).trim(),m=z.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);return m?`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`:z.slice(0,10);};names.forEach(name=>{const rows=XLSX.utils.sheet_to_json(wb.Sheets[name],{header:1,raw:true,defval:''});let hr=rows.findIndex(row=>row.some(v=>String(v||'').trim().toLowerCase()==='no')&&row.some(v=>String(v||'').toLowerCase().includes('fase proyek')));if(hr<0)hr=7;const hs=(rows[hr]||[]).map(v=>String(v||'').trim().toLowerCase()),ix=(keys,fb)=>{const j=hs.findIndex(h=>keys.some(k=>h.includes(k)));return j>=0?j:fb;},cNo=ix(['no'],1),cPhase=ix(['fase proyek'],2),cAct=ix(['aktivitas','milestone'],3),cStart=ix(['target mulai'],4),cEnd=ix(['target selesai'],5),cDur=ix(['durasi'],6),cStatus=ix(['status'],7),cProg=ix(['progres','progress'],8),cPic=ix(['penanggung jawab','pic'],9),cNote=ix(['keterangan','output'],10),tasks=[];for(let i=hr+1;i<rows.length;i++){const r=rows[i]||[],num=Number(r[cNo]),phase=String(r[cPhase]||'').trim(),activity=String(r[cAct]||'').trim();if(!Number.isFinite(num)||num<=0||(!phase&&!activity))continue;let status=String(r[cStatus]||'Belum Mulai').trim(),prog=r[cProg];if(typeof prog==='string'&&prog.includes('%'))prog=parseFloat(prog)/100;else if(typeof prog==='string')prog=parseFloat(prog);else if(typeof prog!=='number')prog=0;if(!isFinite(prog))prog=0;if(prog>1)prog/=100;prog=Math.max(0,Math.min(1,prog));tasks.push({num,phase,activity,start:normDate(r[cStart]),end:normDate(r[cEnd]),duration:Number(r[cDur])||0,status,progress:prog,pic:String(r[cPic]||'').trim(),note:String(r[cNote]||'').trim()});}if(tasks.length)stores.push({name,cab:'',tasks});});return {stores,total:stores.reduce((n,s)=>n+s.tasks.length,0)};}
 let EQUIPMENT_IMPORT_PREVIEW=null;
 function previewEquipmentExcelImport(){const f=document.getElementById('equipmentImportFile')?.files?.[0],out=document.getElementById('equipmentImportResult');if(!f){out.classList.remove('hidden');out.textContent='PILIH FILE EXCEL PERLENGKAPAN TERLEBIH DAHULU.';return;}if(!window.XLSX){out.classList.remove('hidden');out.textContent='LIBRARY EXCEL BELUM TERSEDIA. PASTIKAN INTERNET AKTIF.';return;}out.classList.remove('hidden');const rd=new FileReader();rd.onload=e=>{try{const p=parseEquipmentWorkbook(e.target.result);EQUIPMENT_IMPORT_PREVIEW={filename:f.name,data:p};const valid=p.stores.length===15&&p.total===494;const all=p.stores.flatMap(st=>st.tasks.map(t=>({...t,store:st.name})));const head=['GERAI','NO','FASE','AKTIVITAS','TARGET MULAI','TARGET SELESAI','DURASI','STATUS','PROGRESS','PIC','CATATAN'];const rows=all.map(t=>[t.store,t.num,t.phase,t.activity,t.start,t.end,t.duration,t.status,(t.progress*100).toFixed(0)+'%',t.pic,t.note]);out.innerHTML=`<div class="notice" style="border-color:${valid?'#5cae8b':'#e4a35a'}"><b>${valid?'VALID — PREVIEW SIAP':'PERLU VALIDASI'}</b><br>FILE: ${f.name} · SHEET GERAI: ${p.stores.length}/15 · TOTAL AKTIVITAS: ${p.total}/494</div><div class="preview-kpis">${[['GERAI',p.stores.length],['AKTIVITAS',p.total],['SELESAI',all.filter(x=>x.status==='Selesai').length],['DALAM PROSES',all.filter(x=>x.status==='Dalam Proses').length],['TERTUNDA',all.filter(x=>x.status==='Tertunda').length],['RATA-RATA PROGRESS',all.length?(all.reduce((a,x)=>a+x.progress,0)/all.length*100).toFixed(1)+'%':'0%']].map(x=>`<div class="preview-kpi"><small>${x[0]}</small><strong>${x[1]}</strong></div>`).join('')}</div><p><b>PREVIEW DATA — ${all.length} BARIS</b></p><div class="import-preview-table"><table><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(v=>`<td>${v??'—'}</td>`).join('')}</tr>`).join('')}</tbody></table></div><p class="notice">SEBELUM UPDATE, PERIKSA DATA DI TABEL PREVIEW. UPDATE AKAN DITOLAK JIKA JUMLAH SHEET GERAI / AKTIVITAS TIDAK SESUAI FORMAT FINAL.</p>`;}catch(err){out.textContent='GAGAL MEMBACA WORKBOOK: '+err.message;}};rd.readAsArrayBuffer(f);}
 function applyEquipmentExcelImport(){const f=document.getElementById('equipmentImportFile')?.files?.[0],out=document.getElementById('equipmentImportResult');if(!f||!EQUIPMENT_IMPORT_PREVIEW||EQUIPMENT_IMPORT_PREVIEW.filename!==f.name){out.classList.remove('hidden');out.textContent='Pilih file dan klik Periksa File terlebih dahulu.';return;}const p=EQUIPMENT_IMPORT_PREVIEW.data;if(p.stores.length!==15||p.total!==494){out.innerHTML='Update ditolak: validasi harus 15 gerai dan 494 aktivitas.';return;}MASTER_TIMELINE_DATA=p.stores;GA_IMPORT_SUMMARY={totalStores:15,totalTasks:494};if(typeof renderEquipmentDashboard==='function')renderEquipmentDashboard();if(typeof renderEquipmentGantt==='function')renderEquipmentGantt();document.getElementById('equipmentFrame')?.contentWindow?.postMessage({type:'MASTER_TIMELINE_IMPORTED',data:p.stores,filename:f.name,storeCount:15,taskCount:494},'*');renderSummaryTab('ga');out.innerHTML=`<div class="notice" style="border-color:#5cae8b;color:#116c45"><b>UPDATE BERHASIL (SEMENTARA)</b><br>${p.stores.length} gerai · ${p.total} aktivitas dari ${f.name}. Dashboard GA dan Summary GA diperbarui. Data belum permanen.</div>`;}
@@ -1643,6 +1643,7 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
     closeAuthModal();
     if (role === 'dita') enableProgressModule();
     if (role === 'osa' || role === 'jily') lockNotYetConnectedInput(role);
+    if (typeof window.gpcInitModule === 'function') window.gpcInitModule(role).catch((e) => console.error('GPC V9 module init failed:', e));
   }
 
   async function loadProfileForUser(user) {
@@ -1979,27 +1980,17 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
     if (followupInput && !$('progressInputStatus')) {
       followupInput.insertAdjacentHTML('afterend', '<label for="progressInputStatus">Status / Keterangan Progress</label><textarea id="progressInputStatus" rows="4" placeholder="Keterangan status, hasil meeting, atau update aktivitas"></textarea>');
     }
-    const deleteButton = document.querySelector('#input-progress .crud-actions .delete');
-    if (deleteButton) { deleteButton.disabled = true; deleteButton.textContent = 'DELETE (NONAKTIF)'; deleteButton.title = 'Penghapusan belum diaktifkan oleh kebijakan database.'; }
-    const updateExcelButton = [...document.querySelectorAll('#input-progress button')].find((b) => /Update Data Excel/i.test(b.textContent));
-    if (updateExcelButton) { updateExcelButton.disabled = true; updateExcelButton.textContent = 'Update Data Excel (belum aktif)'; updateExcelButton.title = 'Import Excel langsung dari website akan diaktifkan setelah alur staging disiapkan.'; }
     const excelNote = document.querySelector('#input-progress .card[style*="margin-top:14px"] .notice');
     if (excelNote) {
-      excelNote.textContent = 'Data Excel Progress sudah tersimpan di Supabase. Preview Excel tersedia untuk pemeriksaan lokal; tombol update langsung dari browser belum diaktifkan agar tidak melewati proses staging dan validasi.';
+      excelNote.textContent = 'Preview, validasi, dan update Excel Progress memakai Supabase. Data yang lolos validasi disimpan permanen.';
       excelNote.classList.add('gpc-db-note');
     }
   }
 
   function lockNotYetConnectedInput(role) {
-    const selector = role === 'osa' ? '#people-mpp-import' : '#input-equipment';
-    const root = document.querySelector(selector);
-    if (!root) return;
-    const note = document.createElement('div');
-    note.className = 'notice gpc-db-note';
-    note.style.marginBottom = '12px';
-    note.textContent = 'Login dan pembatasan role sudah menggunakan Supabase. Penyimpanan/input modul ini belum dihubungkan ke database pada versi ini; jangan simpan data operasional dari form ini dulu.';
-    root.insertBefore(note, root.firstChild);
-    root.querySelectorAll('.crud-actions button, .import-action-btn, button[onclick*="Import"]').forEach((button) => { button.disabled = true; button.title = 'Integrasi database modul ini belum diaktifkan.'; });
+    // V9: menu OSA/JILY sudah memakai RPC Supabase dengan pemeriksaan role di server.
+    // Tidak ada lagi tombol input/import yang dinonaktifkan di sisi browser.
+    return;
   }
 
   function renderSubnav() {
@@ -2167,4 +2158,314 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
   .gpc-auth-logo{max-width:min(205px,72vw)!important;max-height:68px!important;}
 }
 </style>
+<script id="gpc-v9-database-inputs">
+/* V9: Database-backed CRUD + Excel import for Progress, MPP, and Equipment. */
+(function(){
+  'use strict';
+  const APP = window.GPC_SUPABASE_STATE;
+  const $ = (id) => document.getElementById(id);
+  const txt = (v) => String(v == null ? '' : v);
+  const norm = (v) => txt(v).trim().toUpperCase();
+  const esc = (v) => txt(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const state = { current: { progress:null, mpp:null, equipment:null }, rows: { mpp:[], equipment:[] }, busy:false };
+  window.GPC_V9 = state;
+  const roleModule = { dita:'progress', osa:'mpp', jily:'equipment' };
+
+  function say(id, message, ok=true) {
+    const el = $(id); if (!el) return;
+    el.classList.remove('hidden'); el.style.borderColor = ok ? '#63b58b' : '#e4a35a';
+    el.style.color = ok ? '#176b45' : '#8a4b00'; el.textContent = message;
+  }
+  function clearSay(id) { const el=$(id); if(el){el.classList.add('hidden');el.textContent='';} }
+  function assertRole(module) {
+    if (!APP || !APP.supabase || !APP.profile) throw new Error('Sesi belum aktif. Silakan login kembali.');
+    const expected = module === 'progress' ? 'dita' : module === 'mpp' ? 'osa' : 'jily';
+    if (norm(APP.profile.app_role).toLowerCase() !== expected || APP.profile.is_active !== true) {
+      throw new Error('Akses ditolak. Modul ini hanya dapat digunakan oleh akun ' + expected.toUpperCase() + '.');
+    }
+  }
+  async function rpc(action, module, payload={}) {
+    assertRole(module);
+    const {data,error} = await APP.supabase.rpc('gpc_module_rpc', {
+      p_action: action, p_module: module, p_payload: payload
+    });
+    if (error) throw new Error(error.message || 'Permintaan database gagal.');
+    if (data && data.ok === false) throw new Error(data.message || 'Operasi database gagal.');
+    return data;
+  }
+  function canonicalStoreKey(name) {
+    let k = norm(name).replace(/[^A-Z0-9]/g,'');
+    if (k === 'JOHARBARU') k = 'JOHORBARU';
+    if (k === 'KEBONJERUK') k = 'KEBONJERUK2';
+    if (k === 'SINDANGJAYA1') k = 'SINDANGJAYA1TELAGABESTARI';
+    return k;
+  }
+  function resolveStore(cab, name) {
+    const key = canonicalStoreKey(name);
+    const all = APP && Array.isArray(APP.stores) ? APP.stores : [];
+    let found = all.filter(s => canonicalStoreKey(s.store_name) === key && (!cab || norm(s.district) === norm(cab)));
+    if (found.length === 1) return found[0];
+    if (!found.length) found = all.filter(s => canonicalStoreKey(s.store_name) === key);
+    return found.length === 1 ? found[0] : null;
+  }
+  function fillCabSelect(cabId, storeId, selectedCab='', selectedStore='') {
+    const cabEl=$(cabId), storeEl=$(storeId); if(!cabEl || !storeEl || !APP) return;
+    const districts=[...new Set((APP.stores||[]).map(s=>s.district).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+    cabEl.innerHTML='<option value="">Pilih Cabang</option>'+districts.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join('');
+    if(selectedCab) cabEl.value=selectedCab;
+    fillStoreSelect(cabId,storeId,selectedStore);
+  }
+  function fillStoreSelect(cabId,storeId,selectedStore='') {
+    const cab= $(cabId), store=$(storeId); if(!cab||!store||!APP) return;
+    const values=(APP.stores||[]).filter(s=>s.district===cab.value).sort((a,b)=>a.store_name.localeCompare(b.store_name));
+    store.innerHTML='<option value="">Pilih Gerai</option>'+values.map(s=>`<option value="${esc(s.store_name)}">${esc(s.store_name)}</option>`).join('');
+    if(selectedStore) store.value=selectedStore;
+  }
+  window.updateEquipmentStores = function(){ fillStoreSelect('equipmentInputCab','equipmentInputStore'); };
+  window.updateManualMPPStores = function(){ fillStoreSelect('manualMPPCab','manualMPPGerai'); };
+
+  function dateInput(v) {
+    if (!v) return '';
+    if (v instanceof Date && !isNaN(v)) return `${v.getFullYear()}-${String(v.getMonth()+1).padStart(2,'0')}-${String(v.getDate()).padStart(2,'0')}`;
+    if (typeof v === 'number' && window.XLSX) { const d=XLSX.SSF.parse_date_code(v); return d ? `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}` : ''; }
+    const s=txt(v).trim();
+    let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); if(m) return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+    m=s.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/); if(m) return `${m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
+    m=s.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
+    if(m){const months={jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'};return months[m[2].toLowerCase()]?`${m[3]}-${months[m[2].toLowerCase()]}-${m[1].padStart(2,'0')}`:'';}
+    return '';
+  }
+  function excelPercent(v) {
+    if (v == null || v === '') return 0;
+    let n = typeof v === 'string' ? parseFloat(v.replace('%','').replace(',','.')) : Number(v);
+    if (!Number.isFinite(n)) return 0;
+    if (typeof v === 'string' && v.includes('%')) n /= 100;
+    else if (n > 1) n /= 100;
+    return Math.max(0,Math.min(1,n));
+  }
+  function numberValue(v) { const n=Number(v); return Number.isFinite(n) ? n : 0; }
+  function ensureProgressFields() {
+    if ($('progressInputTimeline') && $('progressInputStatus')) return;
+    const activity=$('progressInputActivity');
+    if(activity && !$('progressInputTimeline')) activity.insertAdjacentHTML('afterend','<label for="progressInputTimeline">Timeline (hari)</label><input id="progressInputTimeline" type="number" min="0" step="1" placeholder="Contoh: 14">');
+    const follow=$('progressInputFollowup');
+    if(follow && !$('progressInputStatus')) follow.insertAdjacentHTML('afterend','<label for="progressInputStatus">Status / Keterangan Progress</label><textarea id="progressInputStatus" rows="4" placeholder="Status atau keterangan aktivitas"></textarea>');
+  }
+
+  function progressDataFromForm() {
+    const cab=$('progressInputCab')?.value||'', store=$('progressInputStore')?.value||'';
+    const activity=$('progressInputActivity')?.value.trim()||'';
+    const pct=numberValue($('progressInputProgress')?.value||0);
+    if(!cab||!store||!activity) throw new Error('Pilih Cabang, Gerai, dan isi Aktivitas / Parameter.');
+    if(pct<0||pct>100) throw new Error('Progress harus antara 0 dan 100.');
+    const s=resolveStore(cab,store); if(!s) throw new Error('Gerai tidak ditemukan pada Master Gerai Supabase.');
+    return {store:s,data:{
+      CAB:s.district,'NAMA GERAI':s.store_name,'AKTIVITAS / PARAMETER':activity,
+      TIMELINE:$('progressInputTimeline')?.value===''?null:numberValue($('progressInputTimeline')?.value),
+      'PLAN START':$('progressInputPlanStart')?.value||null,'PLAN FINISH':$('progressInputPlanFinish')?.value||null,
+      'ACTUAL START':$('progressInputActualStart')?.value||null,'ACTUAL FINISH':$('progressInputActualFinish')?.value||null,
+      '% PROGRESS':pct/100,CATATAN:$('progressInputNote')?.value||'',
+      'TINDAK LANJUT':$('progressInputFollowup')?.value||'',STATUS:$('progressInputStatus')?.value||''
+    }};
+  }
+  function progressRow(row) {
+    const d=row.data||{}, st=(APP.stores||[]).find(s=>s.id===row.store_id)||{};
+    return {id:row.id,store_id:row.store_id,cab:txt(d.CAB||st.district),store:txt(d['NAMA GERAI']||st.store_name),activity:txt(d['AKTIVITAS / PARAMETER']),timeline:d.TIMELINE==null?'':txt(d.TIMELINE),planStart:dateInput(d['PLAN START']),planFinish:dateInput(d['PLAN FINISH']),actualStart:dateInput(d['ACTUAL START']),actualFinish:dateInput(d['ACTUAL FINISH']),progress:excelPercent(d['% PROGRESS'])*100,note:txt(d.CATATAN),followup:txt(d['TINDAK LANJUT']),status:txt(d.STATUS),raw:d,source_file:row.source_file};
+  }
+  function fillProgressForm(r) {
+    fillCabSelect('progressInputCab','progressInputStore',r.cab,r.store);
+    $('progressInputActivity').value=r.activity||''; $('progressInputTimeline').value=r.timeline??'';
+    $('progressInputPlanStart').value=r.planStart||''; $('progressInputPlanFinish').value=r.planFinish||'';
+    $('progressInputActualStart').value=r.actualStart||''; $('progressInputActualFinish').value=r.actualFinish||'';
+    $('progressInputProgress').value=String(Number(r.progress||0)); $('progressInputNote').value=r.note||'';
+    $('progressInputFollowup').value=r.followup||''; $('progressInputStatus').value=r.status||'';
+  }
+  function resetProgress() {
+    ['progressInputCab','progressInputStore','progressInputActivity','progressInputTimeline','progressInputPlanStart','progressInputPlanFinish','progressInputActualStart','progressInputActualFinish','progressInputProgress','progressInputNote','progressInputFollowup','progressInputStatus'].forEach(id=>{if($(id))$(id).value='';});
+    fillCabSelect('progressInputCab','progressInputStore'); state.current.progress=null; APP.currentProgress=null;
+    if($('progressCrudMatches')){$('progressCrudMatches').innerHTML='';$('progressCrudMatches').classList.add('hidden');} clearSay('progressCrudNotice');
+  }
+  async function refreshProgressRows() {
+    const rows=await rpc('list','progress',{}); const storeById=new Map((APP.stores||[]).map(s=>[s.id,s]));
+    APP.progressRows=(rows||[]).map(r=>progressRow(r));
+    const gantt=APP.progressRows.map(r=>({id:r.id,cab:r.cab,store:r.store,task:r.activity,timeline:r.timeline,planStart:r.planStart,planFinish:r.planFinish,actualStart:r.actualStart,actualFinish:r.actualFinish,progress:Number(r.progress||0)/100,status:r.status,note:r.note,followup:r.followup}));
+    window.GANTT_SOURCE_DATA=gantt; try{GANTT_SOURCE_DATA=gantt;}catch(e){}
+    window.BPD_IMPORT_ACTIVE=true; window.BPD_IMPORT_SUMMARY={total:gantt.length,stores:[...new Set(gantt.map(x=>x.store))].length,done:gantt.filter(x=>/selesai|complete|done/i.test(x.status)||Number(x.progress)>=1).length,progress:gantt.filter(x=>Number(x.progress)>0&&Number(x.progress)<1).length};
+    if(typeof renderOpeningProgress==='function')renderOpeningProgress(); if(typeof updateDashboardFromBPD==='function')updateDashboardFromBPD();
+    if(typeof renderGantt==='function')renderGantt(); if(typeof drawGantt==='function')drawGantt();
+    if(typeof renderSummaryTab==='function')renderSummaryTab('bpd');
+    return APP.progressRows;
+  }
+  window.crudResetProgress=resetProgress;
+  window.crudSaveProgress=async function(){try{const x=progressDataFromForm();const out=await rpc('save','progress',{store_id:x.store.id,data:x.data,source_file:'Input Website'});state.current.progress=out.id;APP.currentProgress=out.id;await refreshProgressRows();say('progressCrudNotice','Data Progress berhasil disimpan permanen ke Supabase.');}catch(e){say('progressCrudNotice','Gagal menyimpan Progress: '+e.message,false);}};
+  window.crudSearchProgress=function(){try{const cab=$('progressInputCab').value,store=$('progressInputStore').value,activity=norm($('progressInputActivity').value);if(!cab||!store)throw new Error('Pilih Cabang dan Gerai terlebih dahulu.');const s=resolveStore(cab,store);const matches=(APP.progressRows||[]).filter(r=>r.store_id===s?.id&&(!activity||norm(r.activity).includes(activity)));if(!matches.length){state.current.progress=null;APP.currentProgress=null;say('progressCrudNotice','Data Progress tidak ditemukan.',false);return;}const pick=(r)=>{state.current.progress=r.id;APP.currentProgress=r.id;fillProgressForm(r);say('progressCrudNotice','Data ditemukan. Ubah kolom yang diperlukan lalu klik EDIT.');};if(matches.length===1){pick(matches[0]);return;}const box=$('progressCrudMatches');box.innerHTML='<label>Pilih aktivitas yang ditemukan:</label><select id="gpcV9ProgressPick">'+matches.map(r=>`<option value="${esc(r.id)}">${esc(r.activity)} · ${Number(r.progress).toFixed(0)}%</option>`).join('')+'</select><button type="button" class="crud-btn search" id="gpcV9ProgressLoad">LOAD DATA</button>';box.classList.remove('hidden');$('gpcV9ProgressLoad').onclick=()=>{const r=matches.find(x=>x.id===$('gpcV9ProgressPick').value);if(r)pick(r);box.classList.add('hidden');};say('progressCrudNotice',matches.length+' aktivitas cocok. Pilih salah satu lalu LOAD DATA.');}catch(e){say('progressCrudNotice',e.message,false);}};
+  window.crudEditProgress=async function(){try{if(!state.current.progress)throw new Error('Tekan CARI dan pilih data terlebih dahulu.');const x=progressDataFromForm();await rpc('save','progress',{record_id:state.current.progress,store_id:x.store.id,data:x.data,source_file:'Input Website'});await refreshProgressRows();say('progressCrudNotice','Data Progress berhasil diperbarui di Supabase.');}catch(e){say('progressCrudNotice','Gagal memperbarui Progress: '+e.message,false);}};
+  window.crudDeleteProgress=async function(){try{if(!state.current.progress)throw new Error('Tekan CARI dan pilih data terlebih dahulu.');if(!confirm('Hapus satu aktivitas Progress yang dipilih?'))return;await rpc('delete','progress',{record_id:state.current.progress});resetProgress();await refreshProgressRows();say('progressCrudNotice','Satu aktivitas Progress berhasil dihapus dari Supabase.');}catch(e){say('progressCrudNotice','Gagal menghapus Progress: '+e.message,false);}};
+
+  function previewBox(id,html,ok=true){const el=$(id);if(!el)return;el.classList.remove('hidden');el.innerHTML=html;}
+  function previewTable(headers, rows) {return '<div class="import-preview-table"><table><thead><tr>'+headers.map(h=>`<th>${esc(h)}</th>`).join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(v=>`<td>${esc(v==null||v===''?'—':v)}</td>`).join('')+'</tr>').join('')+'</tbody></table></div>';}
+  function mapProgressExcelRows(rows) {
+    const unknown=[]; const seen=new Set(); const records=[];
+    for(const r of rows){const store=resolveStore(r.cab,r.store);if(!store){unknown.push(`${r.cab} / ${r.store}`);continue;}
+      const activity=txt(r.activity).trim(); if(!activity)continue; const key=store.id+'|'+norm(activity); if(seen.has(key))throw new Error('Duplikasi Gerai + Aktivitas ditemukan: '+store.store_name+' / '+activity); seen.add(key);
+      records.push({cab:store.district,store:store.store_name,data:{ID:r.id,CAB:store.district,'NAMA GERAI':store.store_name,'AKTIVITAS / PARAMETER':activity,TIMELINE:r.timeline===''?null:numberValue(r.timeline),'PLAN START':dateInput(r.planStart)||null,'PLAN FINISH':dateInput(r.planFinish)||null,'ACTUAL START':dateInput(r.actualStart)||null,'ACTUAL FINISH':dateInput(r.actualFinish)||null,'% PROGRESS':excelPercent(r.progress),CATATAN:txt(r.note), 'TINDAK LANJUT':txt(r.followup),STATUS:txt(r.status)}});
+    }
+    return {records,unknown};
+  }
+  window.testProgressExcelImport=function(){
+    const f=$('progressExcelFile')?.files?.[0]; if(!f){say('progressExcelResult','Pilih file Excel Progress terlebih dahulu.',false);return;}
+    if(!window.XLSX){say('progressExcelResult','Library Excel belum termuat. Pastikan internet aktif lalu refresh halaman.',false);return;}
+    const reader=new FileReader(); reader.onload=ev=>{try{
+      const wb=XLSX.read(ev.target.result,{type:'array',cellDates:true}); const sh=wb.Sheets['DTB_PROGRESS']; if(!sh)throw new Error('Sheet DTB_PROGRESS tidak ditemukan. Sheet yang tersedia: '+wb.SheetNames.join(', '));
+      const rows=XLSX.utils.sheet_to_json(sh,{header:1,raw:true,defval:''});
+      const expected=['ID','CAB','NAMA GERAI','AKTIVITAS / PARAMETER','TIMELINE','PLAN START','PLAN FINISH','ACTUAL START','ACTUAL FINISH','% PROGRESS','CATATAN','TINDAK LANJUT','STATUS'];
+      const hdr=(rows[3]||[]).slice(0,13).map(v=>norm(v)); const missing=expected.filter((x,i)=>hdr[i]!==x); if(missing.length)throw new Error('Header kolom tidak sesuai: '+missing.join(', '));
+      const data=rows.slice(4).filter(r=>r&&r[0]!==''&&r[0]!=null).map(r=>({id:r[0],cab:txt(r[1]).trim(),store:txt(r[2]).trim(),activity:txt(r[3]).trim(),timeline:r[4],planStart:r[5],planFinish:r[6],actualStart:r[7],actualFinish:r[8],progress:r[9],note:r[10],followup:r[11],status:r[12]}));
+      if(!data.length)throw new Error('Tidak ada baris data Progress.'); const mapped=mapProgressExcelRows(data);
+      const valid=mapped.unknown.length===0&&mapped.records.length===data.length;
+      window.GPC_V9_PROGRESS_PREVIEW={filename:f.name,records:mapped.records,unknown:mapped.unknown,total:data.length,valid};
+      const kpi=`<div class="preview-kpis"><div class="preview-kpi"><small>BARIS</small><strong>${data.length}</strong></div><div class="preview-kpi"><small>GERAI</small><strong>${new Set(mapped.records.map(x=>x.store)).size}</strong></div><div class="preview-kpi"><small>VALID</small><strong>${mapped.records.length}</strong></div><div class="preview-kpi"><small>GERAI TIDAK COCOK</small><strong>${mapped.unknown.length}</strong></div></div>`;
+      const warning=mapped.unknown.length?`<div class="notice" style="border-color:#d55;color:#a00">Gerai belum cocok dengan Master Supabase: ${[...new Set(mapped.unknown)].map(esc).join('; ')}. Update diblokir sampai nama gerai diperbaiki.</div>`:'';
+      const table=previewTable(['ID','CAB','GERAI','AKTIVITAS','TIMELINE','PLAN START','PLAN FINISH','ACTUAL START','ACTUAL FINISH','PROGRESS (%)','CATATAN','TINDAK LANJUT','STATUS'],data.slice(0,100).map(r=>[r.id,r.cab,r.store,r.activity,r.timeline,dateInput(r.planStart),dateInput(r.planFinish),dateInput(r.actualStart),dateInput(r.actualFinish),(excelPercent(r.progress)*100).toFixed(0),r.note,r.followup,r.status]));
+      previewBox('progressExcelResult',`<div class="notice" style="border-color:${valid?'#5cae8b':'#e4a35a'}">${valid?'PREVIEW VALID':'PREVIEW PERLU PERBAIKAN'} · ${esc(f.name)}</div>${kpi}${warning}<p>Pratinjau menampilkan maksimal 100 baris pertama; seluruh ${data.length} baris dibaca dan akan divalidasi saat update.</p>${table}`,valid);
+    }catch(e){window.GPC_V9_PROGRESS_PREVIEW=null;say('progressExcelResult','Gagal membaca Excel Progress: '+e.message,false);}}; reader.readAsArrayBuffer(f);
+  };
+  window.applyProgressExcelImport=async function(){const f=$('progressExcelFile')?.files?.[0],p=window.GPC_V9_PROGRESS_PREVIEW;if(!f||!p||p.filename!==f.name){say('progressExcelResult','Pilih file dan jalankan Uji & Preview terlebih dahulu.',false);return;}if(!p.valid){say('progressExcelResult','Update diblokir karena ada gerai yang belum cocok atau baris tidak valid.',false);return;}try{const result=await rpc('import','progress',{file_name:f.name,records:p.records});await refreshProgressRows();say('progressExcelResult',`IMPORT PROGRESS BERHASIL. ${result.imported_rows} baris diproses; ${result.inserted_rows} baru dan ${result.updated_rows} diperbarui. Batch: ${result.batch_id}.`);}catch(e){say('progressExcelResult','IMPORT PROGRESS GAGAL: '+e.message,false);}};
+  window.clearProgressExcelInputs=function(){if($('progressExcelFile'))$('progressExcelFile').value='';window.GPC_V9_PROGRESS_PREVIEW=null;clearSay('progressExcelResult');};
+
+  function buildMppData(rec) {
+    const s=resolveStore(rec.cab,rec.gerai); if(!s)throw new Error('Gerai tidak cocok dengan Master Supabase: '+rec.cab+' / '+rec.gerai);
+    const d={CABANG:s.district,GERAI:s.store_name,PIC:norm(rec.role)};
+    const mapping=[['need','KEBUTUHAN'],['short','KEKURANGAN'],['app','PELAMAR'],['interview','INTERVIEW'],['follow','LANJUT PROSES'],['join','JOIN'],['training','TRAINING'],['complete','SELESAI TRAINING']];
+    mapping.forEach(([k,label])=>{d[label]=numberValue(rec[k]);});
+    return {store:s,data:d};
+  }
+  function refreshMppUi(rows) {
+    const storeById=new Map((APP.stores||[]).map(s=>[s.id,s]));
+    MPP_CURRENT_DETAIL=(rows||[]).map(r=>{const s=storeById.get(r.store_id)||{},d=r.data||{};return {_crudId:r.id,id:r.id,store_id:r.store_id,cab:txt(d.CABANG||s.district),gerai:txt(d.GERAI||s.store_name),role:txt(d.PIC),need:numberValue(d.KEBUTUHAN),short:numberValue(d.KEKURANGAN),app:numberValue(d.PELAMAR),interview:numberValue(d.INTERVIEW),follow:numberValue(d['LANJUT PROSES']),join:numberValue(d.JOIN),training:numberValue(d.TRAINING),complete:numberValue(d['SELESAI TRAINING'])};});
+    SUMMARY_HC_ROLES=MPP_CURRENT_DETAIL; const keys=['need','short','app','interview','follow','join','training','complete'];
+    const branches=[...new Set(MPP_CURRENT_DETAIL.map(x=>x.cab))];
+    SUMMARY_HC=branches.map(b=>[b,...keys.map(k=>MPP_CURRENT_DETAIL.filter(x=>x.cab===b).reduce((z,x)=>z+numberValue(x[k]),0))]);
+    SUMMARY_HC_TOTAL=['TOTAL',...keys.map(k=>MPP_CURRENT_DETAIL.reduce((z,x)=>z+numberValue(x[k]),0))];
+    $('summaryExactFrame')?.contentWindow?.postMessage({type:'MPP_UPDATE',detail:MPP_CURRENT_DETAIL},'*');
+    renderMppDetailTable();
+  }
+  function renderMppDetailTable() {
+    const body=$('mppDetailNative')?.querySelector('tbody'); if(!body)return;
+    const keys=['need','short','app','interview','follow','join','training','complete'];
+    const labels=['KEBUTUHAN','KEKURANGAN','PELAMAR','INTERVIEW','LANJUT PROSES','JOIN','TRAINING','SELESAI TRAINING'];
+    const total=keys.map(k=>MPP_CURRENT_DETAIL.reduce((s,r)=>s+numberValue(r[k]),0));
+    let html='<tr class="mpp-total"><td>TOTAL</td>'+total.map(v=>`<td>${v}</td>`).join('')+'</tr>';
+    [...new Set(MPP_CURRENT_DETAIL.map(r=>r.cab))].forEach((cab,bi)=>{
+      const branchRows=MPP_CURRENT_DETAIL.filter(r=>r.cab===cab); const sums=keys.map(k=>branchRows.reduce((s,r)=>s+numberValue(r[k]),0));
+      html+=`<tr class="mpp-branch"><td>${esc(cab)}</td>${sums.map(v=>`<td>${v}</td>`).join('')}</tr>`;
+      [...new Set(branchRows.map(r=>r.gerai))].forEach(store=>{const sr=branchRows.filter(r=>r.gerai===store),ss=keys.map(k=>sr.reduce((s,r)=>s+numberValue(r[k]),0));html+=`<tr class="mpp-store"><td>${esc(store)}</td>${ss.map(v=>`<td>${v}</td>`).join('')}</tr>`;sr.forEach(r=>{const vals=keys.map(k=>r[k]);html+=`<tr class="mpp-role"><td>↳ ${esc(r.role)}</td>${vals.map(v=>`<td>${numberValue(v)}</td>`).join('')}</tr>`;});});
+    });
+    body.innerHTML=html;
+  }
+  async function refreshMppRows(){const rows=await rpc('list','mpp',{});state.rows.mpp=rows||[];refreshMppUi(rows||[]);return rows||[];}
+  function getManualMpp(){const cab=$('manualMPPCab')?.value||'',gerai=$('manualMPPGerai')?.value||'',role=$('manualMPPRole')?.value||'';if(!cab||!gerai||!role)throw new Error('Pilih Cabang, Gerai, dan PIC.');const s=resolveStore(cab,gerai);if(!s)throw new Error('Gerai tidak ditemukan di Master Supabase.');const fields=[['need','manualMPPNeed'],['short','manualMPPShort'],['app','manualMPPApp'],['interview','manualMPPInterview'],['follow','manualMPPFollow'],['join','manualMPPJoin'],['training','manualMPPTraining'],['complete','manualMPPComplete']];const rec={cab:s.district,gerai:s.store_name,role:norm(role)};fields.forEach(([k,id])=>{const v=$(id)?.value||'0';if(Number(v)<0)throw new Error('Nilai '+k+' tidak boleh negatif.');rec[k]=numberValue(v);});return {store:s,data:buildMppData(rec).data,record:rec};}
+  function fillManualMpp(r){fillCabSelect('manualMPPCab','manualMPPGerai',r.cab,r.gerai);$('manualMPPRole').value=r.role||'';[['need','manualMPPNeed'],['short','manualMPPShort'],['app','manualMPPApp'],['interview','manualMPPInterview'],['follow','manualMPPFollow'],['join','manualMPPJoin'],['training','manualMPPTraining'],['complete','manualMPPComplete']].forEach(([k,id])=>$(id).value=numberValue(r[k]));}
+  function resetManualMpp(){['manualMPPNeed','manualMPPShort','manualMPPApp','manualMPPInterview','manualMPPFollow','manualMPPJoin','manualMPPTraining','manualMPPComplete'].forEach(id=>{if($(id))$(id).value='';});fillCabSelect('manualMPPCab','manualMPPGerai');$('manualMPPRole').value='';state.current.mpp=null;window.__currentMPPRecordId=null;clearSay('manualMPPResult');if($('mppCrudMatches')){$('mppCrudMatches').innerHTML='';$('mppCrudMatches').classList.add('hidden');}}
+  window.clearManualMPPInputs=resetManualMpp;
+  window.saveManualMPP=async function(){try{const x=getManualMpp();const out=await rpc('save','mpp',{store_id:x.store.id,data:x.data,source_file:'Input Website'});state.current.mpp=out.id;window.__currentMPPRecordId=out.id;await refreshMppRows();say('manualMPPResult','Data MPP berhasil disimpan permanen ke Supabase.');}catch(e){say('manualMPPResult','Gagal menyimpan MPP: '+e.message,false);}};
+  window.crudSearchMPP=function(){try{const cab=$('manualMPPCab')?.value||'',gerai=$('manualMPPGerai')?.value||'',role=norm($('manualMPPRole')?.value||'');if(!cab||!gerai)throw new Error('Pilih Cabang dan Gerai terlebih dahulu. PIC boleh dikosongkan untuk melihat semua posisi.');const store=resolveStore(cab,gerai);if(!store)throw new Error('Gerai tidak ditemukan pada Master Supabase.');const matches=state.rows.mpp.filter(r=>r.store_id===store.id&&(!role||norm(r.data?.PIC)===role));if(!matches.length){state.current.mpp=null;window.__currentMPPRecordId=null;say('manualMPPResult','Data MPP tidak ditemukan.',false);return;}const choose=r=>{state.current.mpp=r.id;window.__currentMPPRecordId=r.id;const s=(APP.stores||[]).find(z=>z.id===r.store_id)||{};const d=r.data||{};fillManualMpp({cab:s.district,gerai:s.store_name,role:d.PIC,need:d.KEBUTUHAN,short:d.KEKURANGAN,app:d.PELAMAR,interview:d.INTERVIEW,follow:d['LANJUT PROSES'],join:d.JOIN,training:d.TRAINING,complete:d['SELESAI TRAINING']});say('manualMPPResult','Data ditemukan. Ubah kolom lalu tekan EDIT.');};if(matches.length===1){choose(matches[0]);return;}const box=$('mppCrudMatches');box.innerHTML='<label>Pilih PIC:</label><select id="gpcV9MppPick">'+matches.map(r=>`<option value="${esc(r.id)}">${esc(r.data?.PIC||'')}</option>`).join('')+'</select><button type="button" class="crud-btn search" id="gpcV9MppLoad">LOAD DATA</button>';box.classList.remove('hidden');$('gpcV9MppLoad').onclick=()=>{const r=matches.find(v=>v.id===$('gpcV9MppPick').value);if(r)choose(r);box.classList.add('hidden');};say('manualMPPResult',matches.length+' posisi ditemukan. Pilih PIC lalu LOAD DATA.');}catch(e){say('manualMPPResult',e.message,false);}};
+  window.crudEditMPP=async function(){try{if(!state.current.mpp)throw new Error('Tekan CARI dan pilih data terlebih dahulu.');const x=getManualMpp();await rpc('save','mpp',{record_id:state.current.mpp,store_id:x.store.id,data:x.data,source_file:'Input Website'});await refreshMppRows();say('manualMPPResult','Data MPP berhasil diperbarui di Supabase.');}catch(e){say('manualMPPResult','Gagal memperbarui MPP: '+e.message,false);}};
+  window.crudDeleteMPP=async function(){try{if(!state.current.mpp)throw new Error('Tekan CARI dan pilih data terlebih dahulu.');if(!confirm('Hapus hanya satu data MPP yang dipilih?'))return;await rpc('delete','mpp',{record_id:state.current.mpp});resetManualMpp();await refreshMppRows();say('manualMPPResult','Satu data MPP berhasil dihapus dari Supabase.');}catch(e){say('manualMPPResult','Gagal menghapus MPP: '+e.message,false);}};
+
+  window.previewMPPExcelImport=function(){
+    const f=$('mppImportFile')?.files?.[0]; if(!f){say('mppImportResult','Pilih file Excel MPP terlebih dahulu.',false);return;}
+    if(!window.XLSX){say('mppImportResult','Library Excel belum termuat. Pastikan internet aktif lalu refresh halaman.',false);return;}
+    const reader=new FileReader(); reader.onload=ev=>{try{
+      const wb=XLSX.read(ev.target.result,{type:'array'}),ws=wb.Sheets[wb.SheetNames[0]]; if(!ws)throw new Error('Sheet pertama workbook tidak ditemukan.');
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:''});
+      const hi=rows.findIndex(r=>r.some(v=>norm(v)==='CABANG')&&r.some(v=>norm(v)==='GERAI')&&r.some(v=>norm(v)==='PIC'));
+      if(hi<0)throw new Error('Baris header CABANG / GERAI / PIC tidak ditemukan.');
+      const headers=(rows[hi]||[]).map(norm), ix=k=>headers.indexOf(k);
+      const names=['CABANG','GERAI','PIC','KEBUTUHAN','KEKURANGAN','PELAMAR','INTERVIEW','LANJUT PROSES','JOIN','TRAINING','SELESAI TRAINING'];
+      const missing=names.filter(k=>ix(k)<0); if(missing.length)throw new Error('Kolom wajib tidak ditemukan: '+missing.join(', '));
+      let cab='',gerai=''; const records=[],unknown=[],seen=new Set();
+      for(let i=hi+1;i<rows.length;i++){const r=rows[i]||[];if(r.every(v=>v===''||v==null))continue;if(r[ix('CABANG')])cab=txt(r[ix('CABANG')]).trim().toUpperCase();if(r[ix('GERAI')])gerai=txt(r[ix('GERAI')]).trim().toUpperCase();const role=norm(r[ix('PIC')]);if(!cab||!gerai||!role)continue;if(!['ADMIN','MCS','MOH'].includes(role))continue;
+        const s=resolveStore(cab,gerai);if(!s){unknown.push(cab+' / '+gerai);continue;}
+        const k=s.id+'|'+role;if(seen.has(k))throw new Error('Duplikasi baris Gerai + PIC ditemukan: '+s.store_name+' / '+role);seen.add(k);
+        const data={CABANG:s.district,GERAI:s.store_name,PIC:role,KEBUTUHAN:numberValue(r[ix('KEBUTUHAN')]),KEKURANGAN:numberValue(r[ix('KEKURANGAN')]),PELAMAR:numberValue(r[ix('PELAMAR')]),INTERVIEW:numberValue(r[ix('INTERVIEW')]),'LANJUT PROSES':numberValue(r[ix('LANJUT PROSES')]),JOIN:numberValue(r[ix('JOIN')]),TRAINING:numberValue(r[ix('TRAINING')]),'SELESAI TRAINING':numberValue(r[ix('SELESAI TRAINING')])};
+        records.push({cab:s.district,store:s.store_name,data});
+      }
+      if(!records.length)throw new Error('Tidak ada baris posisi ADMIN/MCS/MOH yang bisa dibaca.');
+      const branchCount=new Set(records.map(x=>x.cab)).size,storeCount=new Set(records.map(x=>x.store)).size;
+      const valid=unknown.length===0;
+      window.GPC_V9_MPP_PREVIEW={filename:f.name,records,unknown,total:records.length,valid,branchCount,storeCount};
+      const kpi=`<div class="preview-kpis"><div class="preview-kpi"><small>BARIS POSISI</small><strong>${records.length}</strong></div><div class="preview-kpi"><small>CABANG</small><strong>${branchCount}</strong></div><div class="preview-kpi"><small>GERAI</small><strong>${storeCount}</strong></div><div class="preview-kpi"><small>GERAI TIDAK COCOK</small><strong>${unknown.length}</strong></div></div>`;
+      const warn=unknown.length?`<div class="notice" style="border-color:#d55;color:#a00">Gerai tidak cocok dengan Master Supabase: ${[...new Set(unknown)].map(esc).join('; ')}. Update diblokir agar nilai tidak masuk ke gerai yang salah.</div>`:'';
+      const table=previewTable(names,records.slice(0,100).map(x=>names.map(n=>x.data[n])));
+      previewBox('mppImportResult',`<div class="notice" style="border-color:${valid?'#5cae8b':'#e4a35a'}">${valid?'PREVIEW MPP VALID':'PREVIEW PERLU PERBAIKAN'} · ${esc(f.name)}</div>${kpi}${warn}<p>Pratinjau menampilkan maksimal 100 baris pertama; seluruh baris diperiksa sebelum update.</p>${table}`,valid);
+    }catch(e){window.GPC_V9_MPP_PREVIEW=null;say('mppImportResult','Gagal membaca Excel MPP: '+e.message,false);}}; reader.readAsArrayBuffer(f);
+  };
+  window.applyMPPExcelImport=async function(){const f=$('mppImportFile')?.files?.[0],p=window.GPC_V9_MPP_PREVIEW;if(!f||!p||p.filename!==f.name){say('mppUpdateResult','Pilih file dan lakukan Uji & Preview terlebih dahulu.',false);return;}if(!p.valid){say('mppUpdateResult','Update diblokir karena ada gerai yang tidak cocok dengan Master Supabase.',false);return;}try{const result=await rpc('import','mpp',{file_name:f.name,records:p.records});await refreshMppRows();say('mppUpdateResult',`IMPORT MPP BERHASIL. ${result.imported_rows} baris diproses; ${result.inserted_rows} baru dan ${result.updated_rows} diperbarui. Batch: ${result.batch_id}.`);}catch(e){say('mppUpdateResult','IMPORT MPP GAGAL: '+e.message,false);}};
+  window.clearMPPImportInputs=function(){if($('mppImportFile'))$('mppImportFile').value='';window.GPC_V9_MPP_PREVIEW=null;clearSay('mppImportResult');clearSay('mppUpdateResult');};
+
+  function equipmentDataFromForm() {
+    const cab=$('equipmentInputCab')?.value||'',name=$('equipmentInputStore')?.value||'',phase=$('equipmentInputPhase')?.value.trim()||'',activity=$('equipmentInputItem')?.value.trim()||'';
+    if(!cab||!name||(!phase&&!activity))throw new Error('Pilih Cabang, Gerai, dan isi Fase atau Aktivitas.');
+    const s=resolveStore(cab,name);if(!s)throw new Error('Gerai tidak ditemukan di Master Supabase.');
+    const pct=numberValue($('equipmentInputProgress')?.value||0);if(pct<0||pct>100)throw new Error('Progress harus antara 0 dan 100.');
+    const finalPhase=phase, finalActivity=activity;
+    const current=state.current.equipment?state.rows.equipment.find(r=>r.id===state.current.equipment):null;
+    const nextNo=current?current.num:Math.max(0,...state.rows.equipment.filter(r=>r.store_id===s.id).map(r=>Number(r.num)||0))+1;
+    return {store:s,data:{NO:nextNo,'FASE PROYEK':finalPhase,'AKTIVITAS / MILESTONE':finalActivity,'TARGET MULAI':$('equipmentInputStart')?.value||null,'TARGET SELESAI':$('equipmentInputEnd')?.value||null,'DURASI (HARI)':numberValue($('equipmentInputDuration')?.value||0),STATUS:$('equipmentInputStatus')?.value||'Belum Mulai',PROGRES:pct/100,'PENANGGUNG JAWAB (PIC)':$('equipmentInputPIC')?.value||'','KETERANGAN / OUTPUT':$('equipmentInputNote')?.value||''}};
+  }
+  function equipmentRow(row){const d=row.data||{},s=(APP.stores||[]).find(x=>x.id===row.store_id)||{};return {id:row.id,store_id:row.store_id,cab:s.district||'',store:s.store_name||'',num:numberValue(d.NO),phase:txt(d['FASE PROYEK']),activity:txt(d['AKTIVITAS / MILESTONE']),start:dateInput(d['TARGET MULAI']),end:dateInput(d['TARGET SELESAI']),duration:numberValue(d['DURASI (HARI)']),status:txt(d.STATUS||'Belum Mulai'),progress:excelPercent(d.PROGRES),pic:txt(d['PENANGGUNG JAWAB (PIC)']),note:txt(d['KETERANGAN / OUTPUT']),raw:d};}
+  function fillEquipmentForm(r){fillCabSelect('equipmentInputCab','equipmentInputStore',r.cab,r.store);$('equipmentInputPhase').value=r.phase||'';$('equipmentInputItem').value=r.activity||'';$('equipmentInputStart').value=r.start||'';$('equipmentInputEnd').value=r.end||'';$('equipmentInputDuration').value=r.duration??'';$('equipmentInputStatus').value=r.status||'Belum Mulai';$('equipmentInputProgress').value=String(Number(r.progress||0)*100);$('equipmentInputPIC').value=r.pic||'';$('equipmentInputNote').value=r.note||'';}
+  function resetEquipmentForm(){fillCabSelect('equipmentInputCab','equipmentInputStore');['equipmentInputPhase','equipmentInputItem','equipmentInputStart','equipmentInputEnd','equipmentInputDuration','equipmentInputStatus','equipmentInputProgress','equipmentInputPIC','equipmentInputNote'].forEach(id=>{if($(id))$(id).value='';});$('equipmentInputStatus').value='Belum Mulai';state.current.equipment=null;clearSay('equipmentCrudNotice');if($('equipmentCrudMatches')){$('equipmentCrudMatches').innerHTML='';$('equipmentCrudMatches').classList.add('hidden');}}
+  async function refreshEquipmentRows(){const rows=await rpc('list','equipment',{});state.rows.equipment=(rows||[]).map(equipmentRow);const grouped=new Map();state.rows.equipment.forEach(r=>{if(!grouped.has(r.store))grouped.set(r.store,{name:r.store,cab:r.cab,tasks:[]});grouped.get(r.store).tasks.push({num:r.num,phase:r.phase,activity:r.activity||r.phase,start:r.start,end:r.end,duration:r.duration,status:r.status,progress:r.progress,pic:r.pic,note:r.note});});
+    MASTER_TIMELINE_DATA=[...grouped.values()].sort((a,b)=>a.name.localeCompare(b.name)); window.branchForStore=(name)=>{const x=MASTER_TIMELINE_DATA.find(s=>s.name===name);return x?.cab||'';};
+    GA_IMPORT_SUMMARY={totalStores:MASTER_TIMELINE_DATA.length,totalTasks:state.rows.equipment.length};
+    if(typeof renderEquipmentDashboard==='function')renderEquipmentDashboard();if(typeof renderEquipmentGantt==='function')renderEquipmentGantt();if(typeof renderSummaryTab==='function')renderSummaryTab('ga');
+    return state.rows.equipment;
+  }
+  window.crudResetEquipment=resetEquipmentForm;
+  window.crudSaveEquipment=async function(){try{const x=equipmentDataFromForm();x.data.NO=state.rows.equipment.filter(r=>r.store_id===x.store.id).length+1;const out=await rpc('save','equipment',{store_id:x.store.id,data:x.data,source_file:'Input Website'});state.current.equipment=out.id;await refreshEquipmentRows();say('equipmentCrudNotice','Data Perlengkapan berhasil disimpan permanen ke Supabase.');}catch(e){say('equipmentCrudNotice','Gagal menyimpan Perlengkapan: '+e.message,false);}};
+  window.crudSearchEquipment=function(){try{const cab=$('equipmentInputCab')?.value||'',name=$('equipmentInputStore')?.value||'',query=norm($('equipmentInputItem')?.value||$('equipmentInputPhase')?.value||'');if(!cab||!name)throw new Error('Pilih Cabang dan Gerai terlebih dahulu. Fase/Aktivitas boleh dikosongkan untuk melihat semua item.');const store=resolveStore(cab,name);if(!store)throw new Error('Gerai tidak ditemukan pada Master Supabase.');const matches=state.rows.equipment.filter(r=>r.store_id===store.id&&(!query||norm(r.activity).includes(query)||norm(r.phase).includes(query)));if(!matches.length){state.current.equipment=null;say('equipmentCrudNotice','Data Perlengkapan tidak ditemukan.',false);return;}const choose=r=>{state.current.equipment=r.id;fillEquipmentForm(r);say('equipmentCrudNotice','Data ditemukan. Ubah kolom lalu klik EDIT.');};if(matches.length===1){choose(matches[0]);return;}const box=$('equipmentCrudMatches');box.innerHTML='<label>Pilih aktivitas:</label><select id="gpcV9EquipmentPick">'+matches.map(r=>`<option value="${esc(r.id)}">${esc(r.phase)} · ${esc(r.activity)} · ${esc(r.status)}</option>`).join('')+'</select><button type="button" class="crud-btn search" id="gpcV9EquipmentLoad">LOAD DATA</button>';box.classList.remove('hidden');$('gpcV9EquipmentLoad').onclick=()=>{const r=matches.find(v=>v.id===$('gpcV9EquipmentPick').value);if(r)choose(r);box.classList.add('hidden');};say('equipmentCrudNotice',matches.length+' data ditemukan. Pilih lalu LOAD DATA.');}catch(e){say('equipmentCrudNotice',e.message,false);}};
+  window.crudEditEquipment=async function(){try{if(!state.current.equipment)throw new Error('Tekan CARI dan pilih data terlebih dahulu.');const x=equipmentDataFromForm();await rpc('save','equipment',{record_id:state.current.equipment,store_id:x.store.id,data:x.data,source_file:'Input Website'});await refreshEquipmentRows();say('equipmentCrudNotice','Data Perlengkapan berhasil diperbarui di Supabase.');}catch(e){say('equipmentCrudNotice','Gagal memperbarui Perlengkapan: '+e.message,false);}};
+  window.crudDeleteEquipment=async function(){try{if(!state.current.equipment)throw new Error('Tekan CARI dan pilih data terlebih dahulu.');if(!confirm('Hapus hanya satu aktivitas Perlengkapan yang dipilih?'))return;await rpc('delete','equipment',{record_id:state.current.equipment});resetEquipmentForm();await refreshEquipmentRows();say('equipmentCrudNotice','Satu data Perlengkapan berhasil dihapus dari Supabase.');}catch(e){say('equipmentCrudNotice','Gagal menghapus Perlengkapan: '+e.message,false);}};
+
+  window.previewEquipmentExcelImport=function(){
+    const f=$('equipmentImportFile')?.files?.[0];if(!f){say('equipmentImportResult','Pilih file Excel Perlengkapan terlebih dahulu.',false);return;}if(!window.XLSX){say('equipmentImportResult','Library Excel belum termuat. Pastikan internet aktif lalu refresh.',false);return;}
+    const reader=new FileReader();reader.onload=ev=>{try{
+      const p=parseEquipmentWorkbook(ev.target.result);const records=[],unknown=[];const matched=new Set(),seen=new Set();
+      p.stores.forEach(st=>{const s=resolveStore('',st.name);if(!s){unknown.push(st.name);return;}matched.add(s.id);st.tasks.forEach(t=>{const phase=txt(t.phase),activity=txt(t.activity),dupe=s.id+'|'+String(numberValue(t.num));if(!numberValue(t.num))throw new Error('Kolom NO kosong/tidak valid pada sheet '+st.name+'.');if(seen.has(dupe))throw new Error('Nomor NO duplikat pada gerai '+s.store_name+': '+t.num);seen.add(dupe);const data={NO:numberValue(t.num),'FASE PROYEK':phase,'AKTIVITAS / MILESTONE':activity,'TARGET MULAI':dateInput(t.start)||null,'TARGET SELESAI':dateInput(t.end)||null,'DURASI (HARI)':numberValue(t.duration),STATUS:txt(t.status||'Belum Mulai'),PROGRES:excelPercent(t.progress),'PENANGGUNG JAWAB (PIC)':txt(t.pic),'KETERANGAN / OUTPUT':txt(t.note)};records.push({cab:s.district,store:s.store_name,data});});});
+      const missing=(APP.stores||[]).filter(s=>!matched.has(s.id)).map(s=>s.store_name);
+      // Allow only exact Master Gerai matches. A source tab such as CILINCING is never silently mapped to KOJA.
+      const canApply=records.length>0;
+      window.GPC_V9_EQUIPMENT_PREVIEW={filename:f.name,records,unknown,missing,total:records.length,valid:canApply,partial:unknown.length>0||missing.length>0,sourceStoreCount:p.stores.length};
+      const kpi=`<div class="preview-kpis"><div class="preview-kpi"><small>SHEET SUMBER</small><strong>${p.stores.length}</strong></div><div class="preview-kpi"><small>GERAI COCOK</small><strong>${matched.size}</strong></div><div class="preview-kpi"><small>BARIS AKTIVITAS COCOK</small><strong>${records.length}</strong></div><div class="preview-kpi"><small>SHEET TIDAK COCOK</small><strong>${unknown.length}</strong></div></div>`;
+      const warn=(unknown.length||missing.length)?`<div class="notice" style="border-color:#e4a35a;color:#8a4b00">IMPORT PARSIAL. Hanya sheet yang cocok dengan Master Gerai yang akan dimasukkan (${records.length} aktivitas). Sheet tidak cocok dan TIDAK diimpor: ${unknown.length?unknown.map(esc).join(', '):'—'}. Gerai Master tanpa sheet sumber: ${missing.length?missing.map(esc).join(', '):'—'}. Data yang tidak cocok tidak akan dialihkan ke gerai lain.</div>`:'';
+      const rows=records.slice(0,100).map(x=>[x.store,x.data.NO,x.data['FASE PROYEK'],x.data['AKTIVITAS / MILESTONE'],x.data['TARGET MULAI'],x.data['TARGET SELESAI'],x.data['DURASI (HARI)'],x.data.STATUS,(x.data.PROGRES*100).toFixed(0)+'%',x.data['PENANGGUNG JAWAB (PIC)'],x.data['KETERANGAN / OUTPUT']]);
+      previewBox('equipmentImportResult',`<div class="notice" style="border-color:${canApply?'#5cae8b':'#e4a35a'}">${canApply?(unknown.length||missing.length?'PREVIEW PERLENGKAPAN — IMPORT PARSIAL':'PREVIEW PERLENGKAPAN VALID'):'TIDAK ADA SHEET YANG COCOK'} · ${esc(f.name)}</div>${kpi}${warn}<p>Pratinjau menampilkan maksimal 100 dari ${records.length} aktivitas yang cocok. Kolom sumber disimpan ke field JSON yang bersesuaian.</p>${previewTable(['GERAI','NO','FASE PROYEK','AKTIVITAS / MILESTONE','TARGET MULAI','TARGET SELESAI','DURASI','STATUS','PROGRES','PIC','KETERANGAN'],rows)}`,canApply);
+    }catch(e){window.GPC_V9_EQUIPMENT_PREVIEW=null;say('equipmentImportResult','Gagal membaca workbook Perlengkapan: '+e.message,false);}};reader.readAsArrayBuffer(f);
+  };
+  window.applyEquipmentExcelImport=async function(){const f=$('equipmentImportFile')?.files?.[0],p=window.GPC_V9_EQUIPMENT_PREVIEW;if(!f||!p||p.filename!==f.name){say('equipmentImportResult','Pilih file dan jalankan Uji & Preview terlebih dahulu.',false);return;}if(!p.valid){say('equipmentImportResult','Tidak ada sheet yang cocok dengan Master Gerai. Tidak ada data yang disimpan.',false);return;}if(p.partial){const detail=`Workbook berisi ${p.sourceStoreCount} sheet gerai. ${p.records.length} aktivitas dari sheet yang cocok akan diimpor.
+
+Sheet yang tidak cocok dan dilewati: ${p.unknown.join(', ')||'—'}.
+Gerai master tanpa data pada workbook: ${p.missing.join(', ')||'—'}.
+
+Data tidak cocok TIDAK akan dialihkan ke gerai lain. Lanjutkan import parsial?`;if(!confirm(detail))return;}try{const result=await rpc('import','equipment',{file_name:f.name,records:p.records});await refreshEquipmentRows();say('equipmentImportResult',`IMPORT PERLENGKAPAN BERHASIL. ${result.imported_rows} aktivitas diproses; ${result.inserted_rows} baru dan ${result.updated_rows} diperbarui. Batch: ${result.batch_id}.`);}catch(e){say('equipmentImportResult','IMPORT PERLENGKAPAN GAGAL: '+e.message,false);}};
+  window.clearEquipmentExcelInputs=function(){if($('equipmentImportFile'))$('equipmentImportFile').value='';window.GPC_V9_EQUIPMENT_PREVIEW=null;clearSay('equipmentImportResult');};
+
+  window.gpcInitModule=async function(role){
+    const module=roleModule[norm(role).toLowerCase()];if(!module)return;
+    for(let i=0;i<80&&(!APP?.supabase||!Array.isArray(APP.stores)||!APP.stores.length);i++)await new Promise(r=>setTimeout(r,100));
+    if(!APP?.supabase)throw new Error('Koneksi Supabase belum siap.');
+    if(module==='progress'){ensureProgressFields();fillCabSelect('progressInputCab','progressInputStore');await refreshProgressRows();}
+    if(module==='mpp'){fillCabSelect('manualMPPCab','manualMPPGerai');await refreshMppRows();}
+    if(module==='equipment'){fillCabSelect('equipmentInputCab','equipmentInputStore');await refreshEquipmentRows();}
+  };
+
+  // Clear stale previews when a different workbook is selected.
+  $('progressExcelFile')?.addEventListener('change',()=>{window.GPC_V9_PROGRESS_PREVIEW=null;clearSay('progressExcelResult');});
+  $('mppImportFile')?.addEventListener('change',()=>{window.GPC_V9_MPP_PREVIEW=null;clearSay('mppImportResult');clearSay('mppUpdateResult');});
+  $('equipmentImportFile')?.addEventListener('change',()=>{window.GPC_V9_EQUIPMENT_PREVIEW=null;clearSay('equipmentImportResult');});
+})();
+</script>
+
 </body></html>
