@@ -2081,7 +2081,7 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
 
     try {
       // Username is resolved securely on the server; the service-role key is never sent to this page.
-      const { data, error } = await APP.supabase.functions.invoke('login-with-username', {
+      const { data, error } = await APP.supabase.functions.invoke('smart-action', {
         body: { username, password }
       });
       if (error || !data?.access_token || !data?.refresh_token) {
