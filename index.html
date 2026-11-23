@@ -484,6 +484,30 @@ button[id*="reset" i]:hover, button[class*="reset" i]:hover, button[onclick*="re
 #summaryExactFrame{display:block!important;width:100%!important;max-width:100%!important;border:0!important;margin:0!important;box-sizing:border-box!important;}
 #summary{width:100%!important;max-width:100%!important;overflow:visible!important;}
 </style>
+
+<style id="gantt-scroll-fix-only">
+/* FIX SCROLL — ONLY OPENING & EQUIPMENT GANTT CHARTS */
+#gantt .gantt-scroll, #equipmentGanttContent .gantt-scroll{
+  display:block!important; width:100%!important; max-width:100%!important; min-width:0!important;
+  overflow-x:auto!important; overflow-y:auto!important;
+  max-height:72vh!important; min-height:220px!important;
+  -webkit-overflow-scrolling:touch!important; overscroll-behavior:contain!important;
+  touch-action:pan-x pan-y!important; scrollbar-width:thin!important;
+}
+#gantt .gantt-timeline, #equipmentGanttContent .gantt-timeline{
+  width:max-content!important; min-width:max-content!important;
+}
+#gantt .gantt-scroll::-webkit-scrollbar, #equipmentGanttContent .gantt-scroll::-webkit-scrollbar{
+  width:12px!important; height:12px!important;
+}
+#gantt .gantt-scroll::-webkit-scrollbar-thumb, #equipmentGanttContent .gantt-scroll::-webkit-scrollbar-thumb{
+  background:#9aafc2!important; border-radius:10px!important;
+}
+#gantt .gantt-scroll::-webkit-scrollbar-track, #equipmentGanttContent .gantt-scroll::-webkit-scrollbar-track{
+  background:#edf3f8!important; border-radius:10px!important;
+}
+</style>
+
 </head>
 <body>
 <header class="top">
@@ -963,8 +987,8 @@ function renderOpeningProgress(){
  const stores=[...new Set(data.filter(x=>cab.value==='ALL'||x.cab===cab.value).map(x=>x.store))].sort();const oldStore=store.value||'ALL';store.innerHTML='<option value="ALL">SEMUA GERAI</option>'+stores.map(x=>`<option value="${x}">${x}</option>`).join('');store.value=stores.includes(oldStore)?oldStore:'ALL';
  const search=(document.getElementById('openingSearch')?.value||'').toLowerCase(),status=document.getElementById('openingStatus')?.value||'ALL';
  const rows=data.filter(x=>(cab.value==='ALL'||x.cab===cab.value)&&(store.value==='ALL'||x.store===store.value)&&(!search||`${x.store} ${x.cab} ${x.task} ${x.note||''} ${x.followup||''}`.toLowerCase().includes(search))&&(status==='ALL'||getOpeningStatus(x)===status));
- const counts={'SELESAI SESUAI PLAN':0,'SELESAI TIDAK SESUAI PLAN':0,'ON PROGRESS':0,'BELUM DIKERJAKAN':0};rows.forEach(x=>counts[getOpeningStatus(x)]++);const done=counts['SELESAI SESUAI PLAN']+counts['SELESAI TIDAK SESUAI PLAN'],pct=rows.length?done/rows.length*100:0;
- const sum=document.getElementById('openingProgressSummary');if(sum)sum.innerHTML=`<div class="progress-stat"><small>Aktivitas Ditampilkan</small><strong>${rows.length}</strong></div><div class="progress-stat"><small><i class="labeldot" style="background:#16a34a"></i>Selesai Sesuai Plan</small><strong>${counts['SELESAI SESUAI PLAN']}</strong></div><div class="progress-stat"><small><i class="labeldot" style="background:#1683c7"></i>Selesai Tidak Sesuai Plan</small><strong>${counts['SELESAI TIDAK SESUAI PLAN']}</strong></div><div class="progress-stat"><small><i class="labeldot" style="background:#f97316"></i>On Progress</small><strong>${counts['ON PROGRESS']}</strong></div><div class="progress-stat"><small><i class="labeldot" style="background:#9ca3af"></i>Belum Dikerjakan</small><strong>${counts['BELUM DIKERJAKAN']}</strong></div><div class="progress-stat"><small>Progress Keseluruhan</small><strong style="color:${progressColor(pct)}">${pct.toFixed(1)}%</strong><div class="bar" style="margin-top:6px"><div class="fill" style="width:${pct}%;background:${progressColor(pct)}"></div></div></div>`;
+ const counts={'SELESAI SESUAI PLAN':0,'SELESAI TIDAK SESUAI PLAN':0,'ON PROGRESS':0,'BELUM DIKERJAKAN':0};rows.forEach(x=>counts[getOpeningStatus(x)]++);const done=counts['SELESAI SESUAI PLAN']+counts['SELESAI TIDAK SESUAI PLAN'],pct=rows.length?rows.reduce((s,x)=>s+Math.max(0,Math.min(100,(Number(x.progress)||0)*100)),0)/rows.length:0;
+ const sum=document.getElementById('openingProgressSummary');if(sum)sum.innerHTML=`<div class="progress-stat"><small>Aktivitas Ditampilkan</small><strong>${rows.length}</strong></div><div class="progress-stat"><small><i class="labeldot" style="background:#16a34a"></i>Selesai Sesuai Plan</small><strong>${counts['SELESAI SESUAI PLAN']}</strong></div><div class="progress-stat"><small><i class="labeldot" style="background:#1683c7"></i>Selesai Tidak Sesuai Plan</small><strong>${counts['SELESAI TIDAK SESUAI PLAN']}</strong></div><div class="progress-stat"><small><i class="labeldot" style="background:#f97316"></i>On Progress</small><strong>${counts['ON PROGRESS']}</strong></div><div class="progress-stat"><small><i class="labeldot" style="background:#9ca3af"></i>Belum Dikerjakan</small><strong>${counts['BELUM DIKERJAKAN']}</strong></div><div class="progress-stat"><small>Progress Rata-rata</small><strong style="color:${progressColor(pct)}">${pct.toFixed(1)}%</strong><div class="bar" style="margin-top:6px"><div class="fill" style="width:${pct}%;background:${progressColor(pct)}"></div></div></div>`;
  const tbody=document.getElementById('openingProgressRows');if(tbody)tbody.innerHTML=rows.map(x=>{const st=getOpeningStatus(x),color=st==='SELESAI SESUAI PLAN'?'#16a34a':st==='SELESAI TIDAK SESUAI PLAN'?'#1683c7':st==='ON PROGRESS'?'#f97316':'#9ca3af';return `<tr><td>${x.cab||'-'}</td><td>${x.store||'-'}</td><td>${x.task||'-'}</td><td>${x.planStart||'-'} – ${x.planFinish||'-'}</td><td>${x.actualStart||'-'} – ${x.actualFinish||'-'}</td><td><b style="color:${progressColor((Number(x.progress)||0)*100)}">${Math.round((Number(x.progress)||0)*100)}%</b></td><td><span class="status" style="background:${color}18;color:${color};border:1px solid ${color}55">${st}</span></td><td>${x.note||x.followup||'-'}</td></tr>`}).join('');
 }
 ['openingCab','openingStore','openingStatus'].forEach(id=>document.addEventListener('change',e=>{if(e.target.id===id)renderOpeningProgress()}));document.getElementById('openingSearch')?.addEventListener('input',renderOpeningProgress);
