@@ -273,11 +273,11 @@ main{padding:12px 14px 24px!important}
 <style id="map-layout-responsive-nav-preserved">
 /* MAP ONLY: keep app navigation visible, crop the embedded map's own title strip, and fill the remaining viewport responsively. */
 #map-page{width:100%;margin:0;padding:0;overflow:hidden;border-radius:8px;background:#eaf2f8}
-#map-page .mapframe-wrap{position:relative;width:100%;height:calc(100dvh - 150px);min-height:360px;overflow:hidden;border-radius:8px}
-#map-page .mapframe{position:absolute;left:0;top:calc(-1 * var(--map-crop, 76px));width:100%;height:calc(100% + var(--map-crop, 76px))!important;min-height:0!important;max-height:none!important;display:block;border:0!important;border-radius:0!important;background:#e9f0f5;transform:none!important;margin:0!important}
-@media(max-width:900px){#map-page .mapframe-wrap{height:calc(100dvh - 205px);min-height:340px;--map-crop:70px}}
-@media(max-width:600px){#map-page .mapframe-wrap{height:calc(100dvh - 225px);min-height:300px;--map-crop:64px}}
-@media(max-width:420px){#map-page .mapframe-wrap{height:calc(100dvh - 245px);min-height:280px;--map-crop:60px}}
+#map-page .mapframe-wrap{position:relative;width:100%;height:calc(100dvh - 76px);min-height:0;overflow:hidden;border-radius:0}
+#map-page .mapframe{position:absolute;left:0;top:0;width:100%;height:100%!important;min-height:0!important;max-height:none!important;display:block;border:0!important;border-radius:0!important;background:#e9f0f5;transform:none!important;margin:0!important}
+@media(max-width:900px){#map-page .mapframe-wrap{height:calc(100dvh - 110px);min-height:0}}
+@media(max-width:600px){#map-page .mapframe-wrap{height:calc(100dvh - 130px);min-height:0}}
+@media(max-width:420px){#map-page .mapframe-wrap{height:calc(100dvh - 145px);min-height:0}}
 </style>
 <style id="professional-balanced-main-navigation">
 /* Main navigation visual refinement only */
