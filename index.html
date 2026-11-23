@@ -931,7 +931,7 @@ function renderEquipmentDashboard(){
  </style>
  <div class="eq-overview">${[['🏬','TOTAL GERAI',S.length],['📋','TOTAL AKTIVITAS',total],['✅','SELESAI',done],['📈','PROGRESS RATA-RATA',pct.toFixed(1)+'%']].map(x=>`<div class="card eq-kpi"><span class="eq-icon">${x[0]}</span><div><small>${x[1]}</small><strong>${x[2]}</strong></div></div>`).join('')}</div>
  <div class="eq-main"><div class="card eq-card"><h3>PROGRESS KESELURUHAN</h3><p class="eq-caption">RINGKASAN KESIAPAN PERLENGKAPAN SELURUH GERAI</p><div style="display:flex;justify-content:space-between;font-weight:700;font-size:11px"><span>PROGRESS TOTAL</span><span style="color:${progressColor(pct)}">${pct.toFixed(1)}%</span></div><div class="eq-overallbar"><i style="width:${pct}%;background:${progressColor(pct)}"></i></div><small style="font-size:10px;color:#64748b">${done} SELESAI · ${proc} DALAM PROSES · ${delayed} TERTUNDA · ${pending} BELUM MULAI</small></div><div class="card eq-card"><h3>DISTRIBUSI STATUS</h3><p class="eq-caption">JUMLAH AKTIVITAS BERDASARKAN STATUS</p>${statusHTML}</div></div>
- <div class="card eq-card"><h3>PROGRESS PER GERAI</h3><div class="eq-store-list">${storeHTML||'<div class="empty">BELUM ADA DATA PERLENGKAPAN. SILAKAN IMPORT EXCEL.</div>'}</div></div>`;
+`;
 }
 renderEquipmentDashboard();
 </script>
@@ -3869,4 +3869,24 @@ document.addEventListener('DOMContentLoaded',function(){
   ['accessBadge','gpcConnectionStatus'].forEach(id=>{const e=document.getElementById(id);if(e)e.setAttribute('aria-hidden','true');});
 });
 </script>
+
+<style id="restore-map-and-dashboard-layout">
+/* Keep equipment dashboard compact after removing the per-store card list. */
+#equipment-dashboard #equipmentDashContent .eq-main{margin-bottom:0!important;}
+/* Restore the map as a full visible viewport iframe (no top crop). */
+#map-page{display:block;width:100%!important;min-height:0!important;overflow:hidden!important;}
+#map-page .mapframe-wrap{position:relative!important;width:100%!important;height:calc(100dvh - 150px)!important;min-height:360px!important;overflow:hidden!important;--map-crop:0px!important;}
+#map-page .mapframe{position:absolute!important;left:0!important;top:0!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;border:0!important;transform:none!important;margin:0!important;}
+</style>
+<script id="restore-map-navigation">
+(function(){
+ const map=document.getElementById('map-page'), frame=map&&map.querySelector('iframe.mapframe');
+ if(!map||!frame)return;
+ const original=frame.getAttribute('src');
+ window.addEventListener('resize',()=>{if(!map.classList.contains('hidden')){frame.style.height='100%';frame.style.top='0';}});
+ const nav=document.getElementById('nav-map');
+ if(nav)nav.addEventListener('click',()=>{map.classList.remove('hidden');frame.style.height='100%';frame.style.top='0';if(!frame.getAttribute('src')&&original)frame.setAttribute('src',original);});
+})();
+</script>
+
 </body></html>
