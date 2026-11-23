@@ -3932,10 +3932,10 @@ document.addEventListener('DOMContentLoaded',function(){
 <style id="restore-map-and-dashboard-layout">
 /* Keep equipment dashboard compact after removing the per-store card list. */
 #equipment-dashboard #equipmentDashContent .eq-main{margin-bottom:0!important;}
-/* Restore the map as a full visible viewport iframe (no top crop). */
-#map-page{display:block;width:100%!important;min-height:0!important;overflow:hidden!important;}
-#map-page .mapframe-wrap{position:relative!important;width:100%!important;height:calc(100dvh - 150px)!important;min-height:360px!important;overflow:hidden!important;--map-crop:0px!important;}
-#map-page .mapframe{position:absolute!important;left:0!important;top:0!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;border:0!important;transform:none!important;margin:0!important;}
+/* Map-only layout: crop the embedded viewer title and maximize width/height. */
+#map-page{display:block;width:100%!important;min-height:0!important;overflow:hidden!important;margin:0!important;padding:0!important;}
+#map-page .mapframe-wrap{position:relative!important;width:100%!important;height:calc(100dvh - 150px)!important;min-height:0!important;overflow:hidden!important;}
+#map-page .mapframe{position:absolute!important;left:0!important;top:-76px!important;width:100%!important;height:calc(100% + 76px)!important;min-height:0!important;max-height:none!important;border:0!important;transform:none!important;margin:0!important;}
 
 /* Opening dashboard cards: align overall progress and status distribution side-by-side */
 #dashboard .dashboard-grid{
@@ -3966,9 +3966,10 @@ document.addEventListener('DOMContentLoaded',function(){
  const map=document.getElementById('map-page'), frame=map&&map.querySelector('iframe.mapframe');
  if(!map||!frame)return;
  const original=frame.getAttribute('src');
- window.addEventListener('resize',()=>{if(!map.classList.contains('hidden')){frame.style.height='100%';frame.style.top='0';}});
+ const applyMapLayout=()=>{frame.style.height='calc(100% + 76px)';frame.style.top='-76px';frame.style.width='100%';};
+ window.addEventListener('resize',()=>{if(!map.classList.contains('hidden'))applyMapLayout();});
  const nav=document.getElementById('nav-map');
- if(nav)nav.addEventListener('click',()=>{map.classList.remove('hidden');frame.style.height='100%';frame.style.top='0';if(!frame.getAttribute('src')&&original)frame.setAttribute('src',original);});
+ if(nav)nav.addEventListener('click',()=>{map.classList.remove('hidden');applyMapLayout();if(!frame.getAttribute('src')&&original)frame.setAttribute('src',original);});
 })();
 </script>
 
