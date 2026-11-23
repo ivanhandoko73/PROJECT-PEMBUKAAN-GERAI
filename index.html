@@ -271,14 +271,13 @@ main{padding:12px 14px 24px!important}
 @media(max-width:700px){#map-page .mapframe-wrap{border-radius:8px}#map-page .mapframe{height:clamp(430px,86vh,760px)!important;min-height:430px!important;border-radius:8px}}
 </style>
 <style id="map-layout-responsive-nav-preserved">
-/* MAP ONLY: keep app navigation visible, crop the embedded map's own title strip, and fill the remaining viewport responsively. */
-#map-page{width:100%;margin:0;padding:0;overflow:hidden;border-radius:8px;background:#eaf2f8}
-#map-page .mapframe-wrap{position:relative;width:100%;height:calc(100dvh - 76px);min-height:0;overflow:hidden;border-radius:0}
-#map-page .mapframe{position:absolute;left:0;top:0;width:100%;height:100%!important;min-height:0!important;max-height:none!important;display:block;border:0!important;border-radius:0!important;background:#e9f0f5;transform:none!important;margin:0!important}
-@media(max-width:900px){#map-page .mapframe-wrap{height:calc(100dvh - 110px);min-height:0}}
-@media(max-width:600px){#map-page .mapframe-wrap{height:calc(100dvh - 130px);min-height:0}}
-@media(max-width:420px){#map-page .mapframe-wrap{height:calc(100dvh - 145px);min-height:0}}
-</style>
+/* MAP ONLY: crop embedded viewer title strip; full-width frame and viewport fit. */
+#map-page{width:100%;margin:0;padding:0;overflow:hidden;border-radius:0;background:#eaf2f8}
+#map-page .mapframe-wrap{position:relative;width:100%;height:calc(100dvh - 188px);min-height:0;overflow:hidden;border-radius:0}
+#map-page .mapframe{position:absolute;left:0;top:-76px;width:100%;height:calc(100% + 76px)!important;min-height:0!important;max-height:none!important;display:block;border:0!important;border-radius:0!important;background:#e9f0f5;transform:none!important;margin:0!important}
+@media(max-width:900px){#map-page .mapframe-wrap{height:calc(100dvh - 195px);min-height:0}}
+@media(max-width:600px){#map-page .mapframe-wrap{height:calc(100dvh - 210px);min-height:0}}
+@media(max-width:420px){#map-page .mapframe-wrap{height:calc(100dvh - 225px);min-height:0}}</style>
 <style id="professional-balanced-main-navigation">
 /* Main navigation visual refinement only */
 .top .mainnav{
