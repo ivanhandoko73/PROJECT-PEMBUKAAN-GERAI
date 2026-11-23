@@ -809,16 +809,13 @@ function applyProgressExcelImport(){const f=document.getElementById('progressExc
 function getOpeningStatus(x){
  const actualFinish=String(x.actualFinish||'').trim();
  const actualStart=String(x.actualStart||'').trim();
- const planStart=String(x.planStart||'').trim();
  const planFinish=String(x.planFinish||'').trim();
- const progress=Number(x.progress||0);
- // Match the source Excel formula: if Actual Finish and Plan Finish exist,
- // compare them; otherwise any Plan Start/Plan Finish/Actual Start/progress
- // means ON PROGRESS, with CATATAN appended to the stored status value.
- if(actualFinish && planFinish){
+ // Status mengikuti Actual Start/Finish: tanpa Actual Start = belum dikerjakan,
+ // Actual Start tanpa Finish = on progress, dan Actual Finish = selesai.
+ if(actualFinish){
    return actualFinish===planFinish ? 'SELESAI SESUAI PLAN' : 'SELESAI TIDAK SESUAI PLAN';
  }
- if(planStart || planFinish || actualStart || progress>0) return 'ON PROGRESS';
+ if(actualStart) return 'ON PROGRESS';
  return 'BELUM DIKERJAKAN';
 }
 function updateDashboardFromBPD(){
