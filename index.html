@@ -1449,7 +1449,23 @@ function measureMove(e){if(!measureActive)return;const ll=map.containerPointToLa
 function measureEnd(e){if(!measureDrawing)return;measureDrawing=false;try{if(e&amp;&amp;measureContainer.hasPointerCapture(e.pointerId))measureContainer.releasePointerCapture(e.pointerId);}catch(_){}map.dragging.enable();map.doubleClickZoom.enable();if(measurePoints.length&gt;=2){const line=L.polyline([measurePoints[0],measurePoints[measurePoints.length-1]],{color:&#x27;#f97316&#x27;,weight:4,opacity:.95}).addTo(map);const total=distanceMeters(measurePoints[0],measurePoints[measurePoints.length-1]);line.bindTooltip(&#x27;Jarak: &#x27;+formatDistance(total),{permanent:true,direction:&#x27;center&#x27;});measureLayers.push(line);$(&#x27;measureStatus&#x27;).textContent=&#x27;Tersimpan: &#x27;+formatDistance(total)+&#x27;. Tekan Mulai ukur untuk pengukuran baru atau Hapus garis ukur.&#x27;;}else{$(&#x27;measureStatus&#x27;).textContent=&#x27;Garis terlalu pendek. Klik Mulai ukur lalu tekan dan tahan mouse, geser, dan lepaskan.&#x27;;}measurePointLayers.forEach(l=&gt;map.removeLayer(l));measurePointLayers=[];if(measurePreviewLine)map.removeLayer(measurePreviewLine);measurePreviewLine=null;if(measureLiveTooltip)map.removeLayer(measureLiveTooltip);measureLiveTooltip=null;measurePoints=[];measurePointerId=null;$(&#x27;measureFinish&#x27;).disabled=true;measureActive=false;$(&#x27;measureMode&#x27;).textContent=&#x27;Mulai ukur&#x27;;$(&#x27;measureMode&#x27;).style.background=&#x27;&#x27;;measureContainer.style.cursor=&#x27;&#x27;;$(&#x27;measureStatus&#x27;).textContent=&#x27;Pengukuran tersimpan. Peta kembali bisa digeser/diklik normal. Klik Mulai ukur jika ingin mengukur lagi.&#x27;;}
 measureContainer.addEventListener(&#x27;pointerdown&#x27;,measureStart);measureContainer.addEventListener(&#x27;pointermove&#x27;,measureMove);measureContainer.addEventListener(&#x27;pointerup&#x27;,measureEnd);measureContainer.addEventListener(&#x27;pointercancel&#x27;,measureEnd);window.addEventListener(&#x27;pointerup&#x27;,measureEnd,true);window.addEventListener(&#x27;pointercancel&#x27;,measureEnd,true);measureContainer.addEventListener(&#x27;lostpointercapture&#x27;,measureEnd);measureContainer.style.cursor=&#x27;&#x27;;
 // Floating ruler controls for exported online/offline viewers (sidebar is hidden in viewer mode).
-{const ruler=document.createElement(&#x27;div&#x27;);ruler.id=&#x27;viewerMeasureControls&#x27;;ruler.innerHTML=&#x27;&lt;button id=&quot;viewerMeasureToggle&quot; type=&quot;button&quot;&gt;📏&lt;/button&gt;&lt;div id=&quot;viewerMeasureExtra&quot;&gt;&lt;button id=&quot;viewerMeasureClear&quot; type=&quot;button&quot;&gt;Hapus garis&lt;/button&gt;&lt;div id=&quot;viewerMeasureHint&quot;&gt;Tekan dan tahan pada titik awal, geser ke titik akhir, lalu lepaskan.&lt;/div&gt;&lt;/div&gt;&#x27;;ruler.style.cssText=&#x27;position:absolute;z-index:880;left:10px;top:82px;right:auto;bottom:auto;display:none;gap:5px;align-items:flex-start;background:#ffffffdd;padding:3px;border:1px solid #cbd5e1;border-radius:8px;box-shadow:0 2px 8px #0002;max-width:calc(100% - 52px);box-sizing:border-box&#x27;;document.querySelector(&#x27;.map-stage&#x27;).appendChild(ruler);const style=document.createElement(&#x27;style&#x27;);style.textContent=&#x27;#viewerMeasureControls button{font-size:11px;padding:5px 7px;cursor:pointer}#viewerMeasureToggle{width:30px;height:30px;font-size:15px!important;box-sizing:border-box}#viewerMeasureExtra{display:none;flex-direction:column;gap:4px;max-width:190px}#viewerMeasureControls.expanded #viewerMeasureExtra{display:flex}#viewerMeasureHint{font:10px/1.3 Arial,sans-serif;color:#334155}body.presentation #viewerMeasureControls,body.export-viewer #viewerMeasureControls{display:flex!important;left:10px!important;top:82px!important;right:auto!important;bottom:auto!important;margin:0;padding:2px;gap:3px;align-items:flex-start}body.cloud-viewer #viewerMeasureControls{top:112px!important;left:10px!important}body.cloud-viewer .leaflet-control-zoom{margin-top:68px!important}body.presentation .leaflet-control-zoom{margin-top:8px!important}body.export-viewer .leaflet-control-zoom{margin-top:8px!important}body.presentation .leaflet-control-zoom a,body.export-viewer .leaflet-control-zoom a,body.cloud-viewer .leaflet-control-zoom a{display:block!important;opacity:1!important;visibility:visible!important}&#x27;;document.head.appendChild(style);document.getElementById(&#x27;viewerMeasureToggle&#x27;).onclick=()=&gt;{ruler.classList.toggle(&#x27;expanded&#x27;);if(ruler.classList.contains(&#x27;expanded&#x27;)){document.getElementById(&#x27;measureMode&#x27;).click();document.getElementById(&#x27;viewerMeasureToggle&#x27;).textContent=measureActive?&#x27;⏹&#x27;:&#x27;📏&#x27;;document.getElementById(&#x27;viewerMeasureHint&#x27;).textContent=measureActive?&#x27;Tekan dan tahan di titik awal, geser ke titik akhir, lalu lepaskan.&#x27;:&#x27;Pengukuran tersimpan. Klik ikon untuk mulai lagi.&#x27;;}else if(measureActive){document.getElementById(&#x27;measureMode&#x27;).click();document.getElementById(&#x27;viewerMeasureToggle&#x27;).textContent=&#x27;📏&#x27;;}};document.getElementById(&#x27;viewerMeasureClear&#x27;).onclick=()=&gt;{document.getElementById(&#x27;measureClear&#x27;).click();document.getElementById(&#x27;viewerMeasureToggle&#x27;).textContent=&#x27;📏&#x27;;document.getElementById(&#x27;viewerMeasureHint&#x27;).textContent=&#x27;Garis pengukuran dihapus.&#x27;;};}
+{const ruler=document.createElement(&#x27;div&#x27;);ruler.id=&#x27;viewerMeasureControls&#x27;;ruler.innerHTML=&#x27;&lt;button id=&quot;viewerMeasureToggle&quot; type=&quot;button&quot;&gt;📏&lt;/button&gt;&lt;div id=&quot;viewerMeasureExtra&quot;&gt;&lt;button id=&quot;viewerMeasureClear&quot; type=&quot;button&quot;&gt;Hapus garis&lt;/button&gt;&lt;div id=&quot;viewerMeasureHint&quot;&gt;Tekan dan tahan pada titik awal, geser ke titik akhir, lalu lepaskan.&lt;/div&gt;&lt;/div&gt;&#x27;;ruler.style.cssText=&#x27;position:absolute;z-index:880;left:10px;top:82px;right:auto;bottom:auto;display:none;gap:5px;align-items:flex-start;background:#ffffffdd;padding:3px;border:1px solid #cbd5e1;border-radius:8px;box-shadow:0 2px 8px #0002;max-width:calc(100% - 52px);box-sizing:border-box&#x27;;document.querySelector(&#x27;.map-stage&#x27;).appendChild(ruler);
+const showAllButton=document.createElement(&#x27;button&#x27;);
+showAllButton.id=&#x27;viewerShowAllRegions&#x27;;
+showAllButton.type=&#x27;button&#x27;;
+showAllButton.title=&#x27;Tampilkan semua wilayah pada layer aktif&#x27;;
+showAllButton.textContent=&#x27;⛶&#x27;;
+showAllButton.style.cssText=&#x27;position:absolute;z-index:881;left:10px;top:120px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:1px solid #b8cddd;border-radius:7px;background:#fff;color:#244969;box-shadow:0 2px 8px #173b5b22;font-size:19px;font-weight:800;cursor:pointer;&#x27;;
+showAllButton.addEventListener(&#x27;click&#x27;,()=&gt;{
+  try{
+    map.invalidateSize({pan:false});
+    const bounds=regionLayer&amp;&amp;regionLayer.getBounds?regionLayer.getBounds():null;
+    if(bounds&amp;&amp;bounds.isValid()) map.fitBounds(bounds.pad(.04),{animate:true,maxZoom:currentLevel===&#x27;city&#x27;?10:currentLevel===&#x27;district&#x27;?11:13});
+    else map.setView([-6.35,106.82],9,{animate:true});
+  }catch(err){console.warn(&#x27;Tidak dapat menampilkan seluruh wilayah:&#x27;,err);}
+});
+document.querySelector(&#x27;.map-stage&#x27;).appendChild(showAllButton);
+const style=document.createElement(&#x27;style&#x27;);style.textContent=&#x27;#viewerMeasureControls button{font-size:11px;padding:5px 7px;cursor:pointer}#viewerMeasureToggle{width:30px;height:30px;font-size:15px!important;box-sizing:border-box}#viewerMeasureExtra{display:none;flex-direction:column;gap:4px;max-width:190px}#viewerMeasureControls.expanded #viewerMeasureExtra{display:flex}#viewerMeasureHint{font:10px/1.3 Arial,sans-serif;color:#334155}body.presentation #viewerMeasureControls,body.export-viewer #viewerMeasureControls{display:flex!important;left:10px!important;top:82px!important;right:auto!important;bottom:auto!important;margin:0;padding:2px;gap:3px;align-items:flex-start}body.cloud-viewer #viewerMeasureControls{top:112px!important;left:10px!important}body.cloud-viewer .leaflet-control-zoom{margin-top:68px!important}body.presentation .leaflet-control-zoom{margin-top:8px!important}body.export-viewer .leaflet-control-zoom{margin-top:8px!important}body.presentation .leaflet-control-zoom a,body.export-viewer .leaflet-control-zoom a,body.cloud-viewer .leaflet-control-zoom a{display:block!important;opacity:1!important;visibility:visible!important}&#x27;;document.head.appendChild(style);document.getElementById(&#x27;viewerMeasureToggle&#x27;).onclick=()=&gt;{ruler.classList.toggle(&#x27;expanded&#x27;);if(ruler.classList.contains(&#x27;expanded&#x27;)){document.getElementById(&#x27;measureMode&#x27;).click();document.getElementById(&#x27;viewerMeasureToggle&#x27;).textContent=measureActive?&#x27;⏹&#x27;:&#x27;📏&#x27;;document.getElementById(&#x27;viewerMeasureHint&#x27;).textContent=measureActive?&#x27;Tekan dan tahan di titik awal, geser ke titik akhir, lalu lepaskan.&#x27;:&#x27;Pengukuran tersimpan. Klik ikon untuk mulai lagi.&#x27;;}else if(measureActive){document.getElementById(&#x27;measureMode&#x27;).click();document.getElementById(&#x27;viewerMeasureToggle&#x27;).textContent=&#x27;📏&#x27;;}};document.getElementById(&#x27;viewerMeasureClear&#x27;).onclick=()=&gt;{document.getElementById(&#x27;measureClear&#x27;).click();document.getElementById(&#x27;viewerMeasureToggle&#x27;).textContent=&#x27;📏&#x27;;document.getElementById(&#x27;viewerMeasureHint&#x27;).textContent=&#x27;Garis pengukuran dihapus.&#x27;;};}
 document.addEventListener(&#x27;keydown&#x27;,e=&gt;{if(measureActive&amp;&amp;e.key===&#x27;Escape&#x27;){measureEnd();measureActive=false;$(&#x27;measureMode&#x27;).textContent=&#x27;Mulai ukur&#x27;;$(&#x27;measureMode&#x27;).style.background=&#x27;&#x27;;map.dragging.enable();map.doubleClickZoom.enable();$(&#x27;measureStatus&#x27;).textContent=&#x27;Pengukuran dibatalkan.&#x27;;}});
 // Floating arrow controls for presentation/export viewers where the sidebar is hidden.
 {
@@ -1832,9 +1848,9 @@ body.cloud-viewer.presentation #viewerMeasureControls{top:82px!important;left:8p
 (function(){function setAccess(d){const ok=!!d&amp;&amp;d.type===&#x27;GPC_MAP_ACCESS&#x27;&amp;&amp;d.authenticated===true&amp;&amp;String(d.role||&#x27;&#x27;).toLowerCase()===&#x27;super_admin&#x27;;document.body.classList.toggle(&#x27;gpc-super-admin-editor&#x27;,ok);document.body.classList.toggle(&#x27;gpc-viewer-locked&#x27;,!ok);if(!ok){document.body.classList.add(&#x27;presentation&#x27;);try{cloudControls(false)}catch(e){}}else{document.body.classList.remove(&#x27;presentation&#x27;);try{cloudControls(true);cloudStatus(&#x27;SUPER ADMIN • EDITOR AKTIF&#x27;)}catch(e){}}}window.addEventListener(&#x27;message&#x27;,e=&gt;{if(e.source!==window.parent||!e.data||e.data.type!==&#x27;GPC_MAP_ACCESS&#x27;)return;setAccess(e.data)});setAccess(null);})();
 &lt;/script&gt;
 &lt;/body&gt;&lt;/html&gt;
-&quot;></iframe></div>
-</section>
-<section class="hidden" id="project-page">
+&quot;&gt;&lt;/iframe&gt;&lt;/div&gt;
+&lt;/section&gt;
+&lt;section class="hidden" id="project-page">
 <div class="project-view" id="dashboard">
 <div class="pagehead"><div><h2>DASHBOARD PEMBUKAAN GERAI 2027</h2></div></div>
 <div class="notice gpc-technical-note">Ringkasan aktivitas seluruh gerai.</div>
@@ -2320,7 +2336,7 @@ function renderOpeningProgress(){
 document.getElementById('openingReset')?.addEventListener('click',()=>{document.getElementById('openingCab').value='ALL';document.getElementById('openingStore').value='ALL';document.getElementById('openingSearch').value='';document.getElementById('openingStatus').value='ALL';renderOpeningProgress();});
 
 window.addEventListener('message',e=>{if(e.source===document.querySelector('iframe.mapframe')?.contentWindow&&e.data?.type==='GPC_MAP_READY')sendEditorState();});
-function sendEditorState(){const f=document.getElementById('equipmentFrame');if(f&&f.contentWindow)f.contentWindow.postMessage({type:'EDITOR_STATE',loggedIn:!!demoLoggedIn},'*');const mf=document.querySelector('iframe.mapframe');const appState=window.GPC_SUPABASE_STATE;const p=appState&&appState.profile?appState.profile:null;const role=String(p?.app_role||'').toLowerCase();const authenticated=!!(p&&p.is_active===true&&demoLoggedIn&&role==='super_admin');if(mf&&mf.contentWindow)mf.contentWindow.postMessage({type:'GPC_MAP_ACCESS',authenticated,role},'*');}
+function sendEditorState(){const f=document.getElementById('equipmentFrame');if(f&&f.contentWindow)f.contentWindow.postMessage({type:'EDITOR_STATE',loggedIn:!!demoLoggedIn},'*');const mf=document.querySelector('iframe.mapframe');const p=APP&&APP.profile?APP.profile:null;const role=String(p?.app_role||'').toLowerCase();const authenticated=!!(p&&p.is_active===true&&demoLoggedIn&&role==='super_admin');if(mf&&mf.contentWindow)mf.contentWindow.postMessage({type:'GPC_MAP_ACCESS',authenticated,role},'*');}
 window.GPC_LATEST_EQUIPMENT_IMPORT=null;window.sendEquipmentImportToProgress=function(){const f=document.getElementById('equipmentFrame'),payload=window.GPC_LATEST_EQUIPMENT_IMPORT;if(!f||!f.contentWindow||!payload)return false;try{if(typeof f.contentWindow.updateEquipmentProgressData==='function'){const result=f.contentWindow.updateEquipmentProgressData(payload.data,payload.filename);if(result&&result.ok)return true;}f.contentWindow.postMessage(payload,'*');return true;}catch(e){try{f.contentWindow.postMessage(payload,'*');return true;}catch(err){return false;}}};document.querySelector('iframe.mapframe')?.addEventListener('load',()=>sendEditorState());document.getElementById('equipmentFrame')?.addEventListener('load',()=>{sendEditorState();if(window.GPC_LATEST_EQUIPMENT_IMPORT)window.sendEquipmentImportToProgress();window.GPC_SEND_SUMMARY_PROGRESS?.();});
 function loginDemo(){demoLoggedIn=!demoLoggedIn;document.getElementById('accessBadge').textContent=demoLoggedIn?'DEMO EDITOR • LOGIN SIMULASI':'VIEWER • READ ONLY';document.getElementById('loginButton').textContent=demoLoggedIn?'Logout Demo':'LOGIN';sendEditorState();if(!document.getElementById('project-page').classList.contains('hidden')){renderSubnav();if(document.getElementById('nav-dashboard').classList.contains('active'))showView('dashboard');else showView('summary');}alert(demoLoggedIn?'Login simulasi berhasil. Menu input dan master data ditampilkan. Ini bukan autentikasi sungguhan.':'Logout simulasi. Kembali ke mode Viewer.');}
 </script>
@@ -3483,23 +3499,40 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
   }
 
   function mainMenu(which) {
+    // Validate access before changing visible containers; denied navigation must not blank the page.
+    const required = which === 'map' ? 'map' : which === 'summary' ? 'summary' : 'dashboard';
+    if (!hasMenuAccess(required)) {
+      alert('Akses ditolak. Menu ini tidak diberikan kepada akun Anda.');
+      return;
+    }
     ['nav-map','nav-summary','nav-dashboard'].forEach((id) => $(id)?.classList.remove('active'));
     $('nav-' + which)?.classList.add('active');
     const map = $('map-page'), project = $('project-page'), sub = $('subnav'), head = $('dashboard-heading');
     if (which === 'map') {
-      if (!hasMenuAccess('map')) { alert('Akses ditolak. Menu MAPS GERAI tidak diberikan kepada akun Anda.'); return; }
-      map?.classList.remove('hidden'); project?.classList.add('hidden'); sub?.classList.add('hidden'); head?.classList.add('hidden');
+      map?.classList.remove('hidden');
+      project?.classList.add('hidden');
+      sub?.classList.add('hidden');
+      head?.classList.add('hidden');
+      const frame = map?.querySelector('iframe.mapframe');
+      if (frame) {
+        frame.contentWindow?.postMessage({type:'GPC_MAP_LAYOUT_REFRESH'}, '*');
+      }
       return;
     }
-    map?.classList.add('hidden'); project?.classList.remove('hidden');
+    map?.classList.add('hidden');
+    project?.classList.remove('hidden');
     document.querySelectorAll('.project-view').forEach((view) => view.classList.add('hidden'));
     if (which === 'summary') {
-      if (!hasMenuAccess('summary')) { alert('Akses ditolak. Menu SUMMARY tidak diberikan kepada akun Anda.'); return; }
-      sub?.classList.add('hidden'); head?.classList.add('hidden'); $('summary')?.classList.remove('hidden');
+      sub?.classList.add('hidden');
+      head?.classList.add('hidden');
+      $('summary')?.classList.remove('hidden');
+      if (typeof renderSummaryTab === 'function') renderSummaryTab('bpd');
       return;
     }
-    sub?.classList.remove('hidden'); head?.classList.remove('hidden');
-    renderSubnav(); showView('dashboard');
+    sub?.classList.remove('hidden');
+    head?.classList.remove('hidden');
+    renderSubnav();
+    showView('dashboard');
   }
 
   window.renderSubnav = renderSubnav;
@@ -5475,6 +5508,41 @@ document.addEventListener('DOMContentLoaded',function(){
 #map-page .mapframe{top:-76px!important;height:calc(100% + 76px)!important;width:100%!important;}
 </style>
 <script id="gpc-super-admin-top-nav">
-(function(){const b=document.getElementById('nav-super-admin');if(!b)return;b.addEventListener('click',function(){if(String(window.GPC_CURRENT_ROLE||'').toLowerCase()!=='super_admin'){alert('Akses ditolak. Menu ini khusus SUPER ADMIN.');return;}['nav-map','nav-summary','nav-dashboard','nav-super-admin'].forEach(id=>document.getElementById(id)?.classList.toggle('active',id==='nav-super-admin'));document.getElementById('map-page')?.classList.add('hidden');document.getElementById('project-page')?.classList.remove('hidden');document.getElementById('subnav')?.classList.remove('hidden');document.getElementById('dashboard-heading')?.classList.add('hidden');document.querySelectorAll('.project-view').forEach(v=>v.classList.add('hidden'));const saTab=document.querySelector('#subnav button[data-view="super-admin"]');if(saTab)saTab.click();else{document.getElementById('super-admin')?.classList.remove('hidden');}document.getElementById('subnav')?.classList.add('hidden');});})();
+(function(){
+  const b=document.getElementById('nav-super-admin');
+  if(!b)return;
+  b.addEventListener('click',function(){
+    if(String(window.GPC_CURRENT_ROLE||'').toLowerCase()!=='super_admin'){
+      alert('Akses ditolak. Menu ini khusus SUPER ADMIN.');
+      return;
+    }
+    if(typeof window.mainMenu==='function') window.mainMenu('dashboard');
+    if(typeof window.showView==='function') window.showView('super-admin');
+    document.getElementById('subnav')?.classList.add('hidden');
+    document.getElementById('dashboard-heading')?.classList.add('hidden');
+    ['nav-map','nav-summary','nav-dashboard','nav-super-admin'].forEach(id=>{
+      document.getElementById(id)?.classList.toggle('active',id==='nav-super-admin');
+    });
+  });
+})();
 </script>
+
+<style id="gpc-final-map-viewport-fit">
+/* Keep the map stage aligned with the actual viewport without the unused bottom band. */
+#map-page .mapframe-wrap{
+  height:calc(100dvh - 126px)!important;
+  min-height:360px!important;
+  max-height:none!important;
+}
+#map-page .mapframe{
+  height:calc(100% + 76px)!important;
+  top:-76px!important;
+}
+@media(max-width:800px){
+  #map-page .mapframe-wrap{height:calc(100dvh - 158px)!important;min-height:340px!important;}
+}
+@media(max-width:520px){
+  #map-page .mapframe-wrap{height:calc(100dvh - 170px)!important;min-height:320px!important;}
+}
+</style>
 </body></html>
