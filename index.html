@@ -4137,7 +4137,7 @@ document.addEventListener('DOMContentLoaded',function(){
  const map=document.getElementById('map-page'), frame=map&&map.querySelector('iframe.mapframe');
  if(!map||!frame)return;
  const original=frame.getAttribute('src');
- const applyMapLayout=()=>{frame.style.height='calc(100% + 210px)';frame.style.top='-76px';frame.style.width='100%';};
+ const applyMapLayout=()=>{frame.style.height='calc(100% + 76px)';frame.style.top='-76px';frame.style.width='100%';};
  window.addEventListener('resize',()=>{if(!map.classList.contains('hidden'))applyMapLayout();});
  const nav=document.getElementById('nav-map');
  if(nav)nav.addEventListener('click',()=>{map.classList.remove('hidden');applyMapLayout();if(!frame.getAttribute('src')&&original)frame.setAttribute('src',original);});
@@ -4149,7 +4149,7 @@ document.addEventListener('DOMContentLoaded',function(){
 
 <style id="user-request-minimal-map-and-summary-fix">
 /* MAP: shift embedded map controls (including ruler) down 26px away from Export Scoring. */
-#map-page .mapframe{top:-50px!important;height:calc(100% + 50px)!important;}
+#map-page .mapframe{top:-76px!important;height:calc(100% + 76px)!important;}
 /* SUMMARY: fit the summary iframe to available screen area, not its content height. */
 #summary{height:calc(100dvh - 190px)!important;max-height:calc(100dvh - 190px)!important;overflow:hidden!important;}
 #summaryExactFrame{height:100%!important;min-height:0!important;max-height:100%!important;overflow:hidden!important;}
@@ -4159,4 +4159,8 @@ document.addEventListener('DOMContentLoaded',function(){
 }
 </style>
 
+<style id="map-bottom-toolbar-restore">
+/* MAP ONLY: crop duplicate controls at the top; keep the original bottom ruler, zoom and reset toolbar visible. */
+#map-page .mapframe{top:-76px!important;height:calc(100% + 76px)!important;width:100%!important;}
+</style>
 </body></html>
