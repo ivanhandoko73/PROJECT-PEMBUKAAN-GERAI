@@ -2335,7 +2335,7 @@ function renderOpeningProgress(){
 document.getElementById('openingReset')?.addEventListener('click',()=>{document.getElementById('openingCab').value='ALL';document.getElementById('openingStore').value='ALL';document.getElementById('openingSearch').value='';document.getElementById('openingStatus').value='ALL';renderOpeningProgress();});
 
 window.addEventListener('message',e=>{if(e.source===document.querySelector('iframe.mapframe')?.contentWindow&&e.data?.type==='GPC_MAP_READY')sendEditorState();});
-function sendEditorState(){const f=document.getElementById('equipmentFrame');if(f&&f.contentWindow)f.contentWindow.postMessage({type:'EDITOR_STATE',loggedIn:!!demoLoggedIn},'*');const mf=document.querySelector('iframe.mapframe');const p=APP&&APP.profile?APP.profile:null;const role=String(p?.app_role||'').toLowerCase();const authenticated=!!(p&&p.is_active===true&&demoLoggedIn&&role==='super_admin');if(mf&&mf.contentWindow)mf.contentWindow.postMessage({type:'GPC_MAP_ACCESS',authenticated,role},'*');}
+function sendEditorState(){const f=document.getElementById('equipmentFrame');if(f&&f.contentWindow)f.contentWindow.postMessage({type:'EDITOR_STATE',loggedIn:!!demoLoggedIn},'*');const mf=document.querySelector('iframe.mapframe');const state=window.GPC_SUPABASE_STATE;const p=state&&state.profile?state.profile:null;const role=String(p?.app_role||'').toLowerCase();const authenticated=!!(p&&p.is_active===true&&demoLoggedIn&&role==='super_admin');if(mf&&mf.contentWindow)mf.contentWindow.postMessage({type:'GPC_MAP_ACCESS',authenticated,role},'*');}
 window.GPC_LATEST_EQUIPMENT_IMPORT=null;window.sendEquipmentImportToProgress=function(){const f=document.getElementById('equipmentFrame'),payload=window.GPC_LATEST_EQUIPMENT_IMPORT;if(!f||!f.contentWindow||!payload)return false;try{if(typeof f.contentWindow.updateEquipmentProgressData==='function'){const result=f.contentWindow.updateEquipmentProgressData(payload.data,payload.filename);if(result&&result.ok)return true;}f.contentWindow.postMessage(payload,'*');return true;}catch(e){try{f.contentWindow.postMessage(payload,'*');return true;}catch(err){return false;}}};document.querySelector('iframe.mapframe')?.addEventListener('load',()=>sendEditorState());document.getElementById('equipmentFrame')?.addEventListener('load',()=>{sendEditorState();if(window.GPC_LATEST_EQUIPMENT_IMPORT)window.sendEquipmentImportToProgress();window.GPC_SEND_SUMMARY_PROGRESS?.();});
 function loginDemo(){demoLoggedIn=!demoLoggedIn;document.getElementById('accessBadge').textContent=demoLoggedIn?'DEMO EDITOR • LOGIN SIMULASI':'VIEWER • READ ONLY';document.getElementById('loginButton').textContent=demoLoggedIn?'Logout Demo':'LOGIN';sendEditorState();if(!document.getElementById('project-page').classList.contains('hidden')){renderSubnav();if(document.getElementById('nav-dashboard').classList.contains('active'))showView('dashboard');else showView('summary');}alert(demoLoggedIn?'Login simulasi berhasil. Menu input dan master data ditampilkan. Ini bukan autentikasi sungguhan.':'Logout simulasi. Kembali ke mode Viewer.');}
 </script>
@@ -3056,15 +3056,7 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
     const unrestricted = !profile || role === 'super_admin' || role === 'admin';
     const mapping = { 'nav-map':'map', 'nav-summary':'summary', 'nav-dashboard':'dashboard' };
     Object.entries(mapping).forEach(([id,key]) => { const el=$(id); if(el) el.style.display = (unrestricted || access.includes(key)) ? '' : 'none'; });
-    const sa=$('nav-super-admin');
-    if (sa) {
-      // Hide for every non-super-admin role, regardless of responsive CSS.
-      if (role === 'super_admin') {
-        sa.style.removeProperty('display');
-      } else {
-        sa.style.setProperty('display', 'none', 'important');
-      }
-    }
+    const sa=$('nav-super-admin'); if(sa) sa.style.display=role==='super_admin'?'':'none';
   }
   function setViewerState() {
     APP.profile = null;
