@@ -515,6 +515,35 @@ button[id*="reset" i]:hover, button[class*="reset" i]:hover, button[onclick*="re
 </style>
 
 <style id="super-admin-hidden-visibility-fix">#nav-super-admin[hidden]{display:none!important}</style>
+<style id="gpcq-compact-refresh">
+#gpc-progress-q4-q1-page{padding:0 2px 12px}
+#gpc-progress-q4-q1-page .gpcq-shell{max-width:100%;margin:0 auto}
+#gpc-progress-q4-q1-page .gpcq-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 10px}
+#gpc-progress-q4-q1-page .gpcq-heading h2{font-size:17px;margin:0 0 3px;color:#173b5b}
+#gpc-progress-q4-q1-page .gpcq-heading p{font-size:10px;color:#64748b;margin:0}
+#gpc-progress-q4-q1-page .gpcq-tabs{display:flex;gap:5px;flex-wrap:wrap;margin:0 0 8px;padding:5px;background:#edf4fa;border:1px solid #dce7f0;border-radius:9px}
+#gpc-progress-q4-q1-page .gpcq-tabs button{font-size:10px;padding:7px 10px;min-height:31px;border:1px solid #d2dfeb;border-radius:7px;background:#fff;color:#31536c;cursor:pointer;font-weight:750}
+#gpc-progress-q4-q1-page .gpcq-tabs button.active{background:#174d73;color:#fff;border-color:#174d73}
+#gpc-progress-q4-q1-page .gpcq-periods{display:flex;gap:5px;flex-wrap:wrap;margin:0 0 8px}
+#gpc-progress-q4-q1-page .gpcq-periods button{font-size:10px;padding:6px 9px;border:1px solid #d4e0eb;border-radius:7px;background:#f8fbfe;color:#31536c}
+#gpc-progress-q4-q1-page .gpcq-periods button.active{background:#e2f1fc;border-color:#83b9df;color:#155b87}
+#gpc-progress-q4-q1-page .gpcq-toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:7px 0}
+#gpc-progress-q4-q1-page .gpcq-toolbar input,#gpc-progress-q4-q1-page .gpcq-toolbar select{height:32px;padding:6px 8px;border:1px solid #d5e0ea;border-radius:7px;font-size:11px;min-width:130px}
+#gpc-progress-q4-q1-page .gpcq-toolbar .gpcq-search{flex:1;min-width:180px}
+#gpc-progress-q4-q1-page .gpcq-btn{font-size:10px;padding:7px 10px;border-radius:7px;min-height:31px}
+#gpc-progress-q4-q1-page .gpcq-muted{font-size:9px;line-height:1.4;color:#64748b;margin:5px 0 7px}
+#gpc-progress-q4-q1-page .gpcq-table-wrap{max-height:calc(100vh - 300px);min-height:260px;overflow:auto;border:1px solid #cbd7e2;border-radius:8px;background:#fff}
+#gpc-progress-q4-q1-page table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;font-size:10px;white-space:nowrap}
+#gpc-progress-q4-q1-page th{position:sticky;top:0;z-index:3;background:#dce8f3;color:#254b6d;padding:7px 6px;border-right:1px solid #c5d4e1;border-bottom:1px solid #b9cbd9;text-align:center;white-space:normal;min-width:78px;max-width:190px;line-height:1.2}
+#gpc-progress-q4-q1-page td{padding:3px 4px;border-right:1px solid #e0e7ee;border-bottom:1px solid #e0e7ee;background:#fff;min-width:78px}
+#gpc-progress-q4-q1-page tbody tr:nth-child(even) td{background:#f7fafc}
+#gpc-progress-q4-q1-page td input{width:100%;min-width:66px;height:27px;padding:4px 6px;border:1px solid #dce4ec;border-radius:5px;font:10px Arial,sans-serif;color:#25384a;background:#fff}
+#gpc-progress-q4-q1-page td input:focus{outline:2px solid #8dc4e8;border-color:#5da4d4}
+#gpc-progress-q4-q1-page .gpcq-row-actions{display:flex;gap:3px;min-width:100px}
+#gpc-progress-q4-q1-page .gpcq-row-actions button{font-size:9px;padding:5px 6px}
+#gpc-progress-q4-q1-page [data-formula="1"]{background:#f1f5f9;color:#526579}
+@media(max-width:700px){#gpc-progress-q4-q1-page .gpcq-heading h2{font-size:15px}#gpc-progress-q4-q1-page .gpcq-table-wrap{max-height:calc(100vh - 280px)}#gpc-progress-q4-q1-page .gpcq-toolbar>*{flex:1 1 42%}#gpc-progress-q4-q1-page .gpcq-toolbar .gpcq-search{flex:1 1 100%}}
+</style>
 </head>
 <body>
 <header class="top">
@@ -2246,7 +2275,9 @@ function applyMPPExcelImport(){const f=document.getElementById('mppImportFile')?
       <button type="button" class="gpcq-btn" id="gpcq-reload">Muat Ulang</button></div>
     <div class="gpcq-tabs" id="gpcq-tabs">
       <button type="button" data-sheet="mpp_q1">MPP Q1</button>
-      <button type="button" data-sheet="progress_q426_q127">Progress Q426 dan Q127</button>
+      <button type="button" data-sheet="progress_q426_q127" data-period="q4_2026">Progress Pembukaan Q4 2026</button>
+      <button type="button" data-sheet="progress_q426_q127" data-period="q1_2027">Progress Pembukaan Q1 2027</button>
+      <button type="button" data-sheet="progress_q426_q127" data-period="mpp_q1_people">Progress Pemenuhan MPP Q1</button>
     </div>
     <div id="gpcq-status" role="status" aria-live="polite"></div>
     <div id="gpcq-workspace"></div>
@@ -5648,7 +5679,7 @@ document.addEventListener('DOMContentLoaded',function(){
   const PERM_PROGRESS='progress-q4-q1-progress';
   const TABLE='gpc_progress_q4_q1_rows';
   const $=id=>document.getElementById(id);
-  const state={sheet:'mpp_q1',period:'q4_2026',rows:[],search:'',sort:'',sortDir:1,dirty:new Set()};
+  const state={sheet:'mpp_q1',period:null,rows:[],search:'',sort:'',sortDir:1,dirty:new Set()};
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function profile(){return window.GPC_APP_PROFILE||window.GPC_PROFILE||null;}
   function getProfile(){try{return window.GPC_APP_PROFILE||window.GPC_CURRENT_PROFILE||window.GPC_APP?.profile||window.APP?.profile||null}catch(e){return null}}
@@ -5683,7 +5714,7 @@ document.addEventListener('DOMContentLoaded',function(){
     document.querySelectorAll('.mainnav button').forEach(x=>x.classList.remove('active'));
     $('nav-progress-q4-q1').classList.add('active');
     const allowed=can('mpp_q1')?'mpp_q1':'progress_q426_q127';
-    selectSheet(allowed);
+    selectSheet(allowed,allowed==='mpp_q1'?null:'q4_2026');
   }
   function status(msg,error=false){const e=$('gpcq-status');if(e){e.textContent=msg||'';e.classList.toggle('gpcq-error',!!error)}}
   function db(){return window.GPC_SUPABASE||window.GPC_APP?.supabase||window.APP?.supabase||null}
@@ -5698,13 +5729,14 @@ document.addEventListener('DOMContentLoaded',function(){
   }
   function cols(rows){
     const seen=new Set();rows.forEach(r=>Object.keys(r.cells||{}).forEach(k=>seen.add(k)));
-    const ordered=[...seen].sort((a,b)=>a.charCodeAt(0)-b.charCodeAt(0));
+    const ordered=[...seen].sort((a,b)=>colIndex(a)-colIndex(b));
     return ordered.filter(k=>rows.some(r=>r.cells?.[k]!==null&&r.cells?.[k]!==undefined&&r.cells?.[k]!==''));
   }
+  function colIndex(col){return String(col).toUpperCase().split('').reduce((n,ch)=>n*26+ch.charCodeAt(0)-64,0)}
   function headerLabel(col){
     const h=state.rows.filter(r=>r.row_type==='header').sort((a,b)=>a.source_row-b.source_row);
     const vals=h.map(r=>r.cells?.[col]).filter(v=>v!==null&&v!==undefined&&v!=='');
-    return vals.join(' / ')||col;
+    return [...new Set(vals.map(v=>String(v).replace(/\\s+/g,' ').trim()))].join(' · ')||col;
   }
   function formulaValue(v,cells){
     if(typeof v!=='string'||!v.startsWith('='))return v??'';
@@ -5717,7 +5749,8 @@ document.addEventListener('DOMContentLoaded',function(){
     const v=row.cells?.[col];return formulaValue(v,row.cells||{});
   }
   function filteredRows(){
-    let rows=state.rows.filter(r=>r.row_type==='data'&&(state.sheet==='mpp_q1'||r.period_key===state.period));
+    let rows=state.rows.filter(r=>r.row_type==='data'&&(state.sheet==='mpp_q1'||(String(r.period_key||'').toLowerCase()===String(state.period||'').toLowerCase() ||
+      (state.period==='mpp_q1_people' && ['mpp_q1','people_mpp_q1','pemenuhan_mpp_q1'].includes(String(r.period_key||'').toLowerCase())))));
     const q=state.search.trim().toLowerCase();
     if(q)rows=rows.filter(r=>Object.values(r.cells||{}).some(v=>String(v??'').toLowerCase().includes(q)));
     if(state.sort)rows.sort((a,b)=>String(displayValue(a,state.sort)).localeCompare(String(displayValue(b,state.sort)),'id',{numeric:true})*state.sortDir);
@@ -5726,14 +5759,21 @@ document.addEventListener('DOMContentLoaded',function(){
   function render(){
     const host=$('gpcq-workspace');if(!host)return;
     const permitted=can(state.sheet);
-    $('gpcq-tabs').querySelectorAll('button').forEach(b=>{const ok=can(b.dataset.sheet);b.hidden=!ok;b.classList.toggle('active',b.dataset.sheet===state.sheet)});
+    $('gpcq-tabs').querySelectorAll('button').forEach(b=>{
+      const ok=can(b.dataset.sheet);
+      b.hidden=!ok;
+      b.classList.toggle('active',b.dataset.sheet===state.sheet && (b.dataset.sheet==='mpp_q1'||b.dataset.period===state.period));
+    });
     if(!permitted){host.innerHTML='<p class="gpcq-muted">Anda tidak memiliki izin untuk submenu ini.</p>';return}
-    const periods=state.sheet==='progress_q426_q127'?`<div class="gpcq-periods"><button data-period="q4_2026" class="${state.period==='q4_2026'?'active':''}">Progress Pembukaan New Gerai Q4 (2026)</button><button data-period="q1_2027" class="${state.period==='q1_2027'?'active':''}">Progress Pembukaan New Gerai Q1 (2027)</button></div>`:'';
-    const rows=filteredRows(),columns=cols(state.rows.filter(r=>r.row_type!=='title'));
+    const periods='';
+    const rows=filteredRows();
+    const sourceRows=state.rows.filter(r=>r.row_type!=='title');
+    const keySet=new Set();sourceRows.forEach(r=>Object.keys(r.cells||{}).forEach(k=>keySet.add(k)));
+    const columns=[...keySet].sort((a,b)=>colIndex(a)-colIndex(b)).filter(k=>sourceRows.some(r=>r.cells?.[k]!==null&&r.cells?.[k]!==undefined&&r.cells?.[k]!==''));
     const toolbar=`<div class="gpcq-toolbar"><input id="gpcq-search" class="gpcq-search" type="search" placeholder="Cari cabang / gerai / data…" value="${esc(state.search)}"><select id="gpcq-sort"><option value="">Urutan sumber</option>${columns.map(c=>`<option value="${c}" ${state.sort===c?'selected':''}>Urutkan: ${esc(headerLabel(c))}</option>`).join('')}</select><button type="button" class="gpcq-btn" id="gpcq-add">+ Tambah Baris</button><button type="button" class="gpcq-btn" id="gpcq-save">Simpan Perubahan</button><button type="button" class="gpcq-btn" id="gpcq-cancel">Batalkan Perubahan</button></div>`;
-    const header=`<thead><tr>${columns.map(c=>`<th>${esc(headerLabel(c))}<div class="gpcq-muted">${c}</div></th>`).join('')}<th>Aksi</th></tr></thead>`;
-    const body=rows.map(r=>`<tr data-row-id="${esc(r.id)}">${columns.map(c=>`<td><input aria-label="${esc(headerLabel(c))}" data-col="${c}" data-row="${esc(r.id)}" value="${esc(displayValue(r,c))}" ${String(r.cells?.[c]??'').startsWith('=')?'data-formula="1" readonly':''}></td>`).join('')}<td class="gpcq-row-actions"><button type="button" data-save-row="${esc(r.id)}">Simpan</button><button type="button" data-delete-row="${esc(r.id)}">Hapus</button></td></tr>`).join('');
-    const meta=state.sheet==='mpp_q1'?'Data ditampilkan sesuai baris sumber Excel. Kolom kosong dan nilai kosong dipertahankan pada data JSON.':'Tanggal disimpan dalam format ISO; tanda √, teks, angka, sel kosong, serta rumus sumber disimpan apa adanya. Rumus GAP (=K-L dan =N-O) dihitung untuk tampilan dari nilai MPP/MPE; rumus sumber tidak ditimpa.';
+    const header=`<thead><tr>${columns.map(c=>`<th>${esc(headerLabel(c))}</th>`).join('')}<th>Aksi</th></tr></thead>`;
+    const body=rows.map(r=>`<tr data-row-id="${esc(r.id)}">${columns.map(c=>`<td><input aria-label="${esc(headerLabel(c))}" data-col="${c}" data-row="${esc(r.id)}" type="${/^(19|20)\d{2}-\d{2}-\d{2}/.test(String(r.cells?.[c]??''))?'date':'text'}" value="${esc(/^(19|20)\d{2}-\d{2}-\d{2}/.test(String(r.cells?.[c]??''))?String(r.cells[c]).slice(0,10):displayValue(r,c))}" ${String(r.cells?.[c]??'').startsWith('=')?'data-formula="1" readonly':''}></td>`).join('')}<td class="gpcq-row-actions"><button type="button" data-save-row="${esc(r.id)}">Simpan</button><button type="button" data-delete-row="${esc(r.id)}">Hapus</button></td></tr>`).join('');
+    const meta=state.sheet==='mpp_q1'?'MPP Q1 · Urutan baris mengikuti Excel.':'Data tabel dipisahkan sesuai tiga bagian pada Sheet Progress Q426 dan Q127. Kolom tanggal memakai input tanggal; tanda √, teks, angka, dan sel kosong tetap dipertahankan.';
     host.innerHTML=periods+toolbar+`<p class="gpcq-muted">${esc(meta)} · Menampilkan ${rows.length} baris.</p><div class="gpcq-table-wrap"><table>${header}<tbody>${body||`<tr><td colspan="${columns.length+1}">Tidak ada data pada periode/filter ini.</td></tr>`}</tbody></table></div>`;
     host.querySelectorAll('input[data-row]').forEach(inp=>inp.addEventListener('input',()=>{state.dirty.add(inp.dataset.row)}));
     $('gpcq-search').addEventListener('input',e=>{state.search=e.target.value;const p=e.target.selectionStart;render();$('gpcq-search').focus();$('gpcq-search').setSelectionRange(p,p)});
@@ -5780,12 +5820,12 @@ document.addEventListener('DOMContentLoaded',function(){
     if(error){status('Gagal menghapus: '+error.message,true);return}
     state.rows=state.rows.filter(r=>r.id!==id);status('Baris berhasil dihapus.');render();
   }
-  function selectSheet(key){
+  function selectSheet(key,period=null){
     if(!can(key)){status('Akses submenu ini tidak diberikan.',true);return}
-    state.sheet=key;state.period='q4_2026';state.search='';state.sort='';state.dirty.clear();render();load();
+    state.sheet=key;state.period=key==='mpp_q1'?null:(period||'q4_2026');state.search='';state.sort='';state.dirty.clear();render();load();
   }
   $('nav-progress-q4-q1')?.addEventListener('click',openModule);
-  $('gpcq-tabs')?.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>selectSheet(b.dataset.sheet)));
+  $('gpcq-tabs')?.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>selectSheet(b.dataset.sheet,b.dataset.period||null)));
   $('gpcq-reload')?.addEventListener('click',load);
   // Hide the new module before the legacy navigation handler processes a normal menu click.
   document.querySelector('.mainnav')?.addEventListener('click',e=>{
