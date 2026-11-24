@@ -1496,15 +1496,16 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
 
   const ACCESS_ROLE = { username: '', role: '', view: '' };
   const ROLE_VIEWS = {
-    osa: { username: 'OSA', view: 'people-mpp-import', label: 'INPUT MPP' },
-    jily: { username: 'JILY', view: 'input-equipment', label: 'INPUT PERLENGKAPAN' },
-    dita: { username: 'DITA', view: 'input-progress', label: 'INPUT PROGRESS' },
-    super_admin: { username: 'SUPER ADMIN', view: 'super-admin', label: 'SUPER ADMIN' }
+    super_admin: { username: 'SUPER ADMIN', label: 'SEMUA AKSES' },
+    admin: { username: 'ADMIN', label: 'AKSES OPERASIONAL' },
+    user: { username: 'USER', label: 'AKSES TERPILIH' }
   };
   const PUBLIC_VIEWS = [
-    'summary', 'dashboard', 'progress-opening', 'gantt',
-    'equipment-dashboard', 'equipment', 'equipment-gantt', 'mpp-detail'
+    'map', 'summary', 'dashboard', 'progress-opening', 'gantt',
+    'equipment-dashboard', 'equipment', 'equipment-gantt', 'mpp-detail',
+    'input-progress', 'input-equipment', 'people-mpp-import'
   ];
+  const OPERATIONAL_MENUS = PUBLIC_VIEWS.slice();
 
   const APP = {
     supabase: null,
@@ -1733,9 +1734,10 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
 
   function applyTopMenuAccess(profile) {
     const access = Array.isArray(profile?.menu_access) ? profile.menu_access : [];
-    const isAdmin = String(profile?.app_role||'').toLowerCase() === 'super_admin';
+    const role = String(profile?.app_role || '').toLowerCase();
+    const unrestricted = !profile || role === 'super_admin' || role === 'admin';
     const mapping = { 'nav-map':'map', 'nav-summary':'summary', 'nav-dashboard':'dashboard' };
-    Object.entries(mapping).forEach(([id,key]) => { const el=$(id); if(el) el.style.display = (isAdmin || !access.length || access.includes(key)) ? '' : 'none'; });
+    Object.entries(mapping).forEach(([id,key]) => { const el=$(id); if(el) el.style.display = (unrestricted || access.includes(key)) ? '' : 'none'; });
   }
   function setViewerState() {
     APP.profile = null;
@@ -1762,26 +1764,22 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
     const role = norm(profile.app_role).toLowerCase();
     const config = ROLE_VIEWS[role];
     if (!config || profile.is_active !== true) {
-      throw new Error('Akun belum memiliki role OSA/JILY/DITA yang aktif. Hubungi administrator project.');
+      throw new Error('Akun tidak aktif atau kategori role tidak valid. Hubungi administrator project.');
     }
     APP.profile = profile;
     applyTopMenuAccess(profile);
-    ACCESS_ROLE.username = config.username;
+    ACCESS_ROLE.username = norm(profile.username) || config.username;
     ACCESS_ROLE.role = role;
-    ACCESS_ROLE.view = config.view;
+    ACCESS_ROLE.view = '';
     demoLoggedIn = true;
     const badge = $('accessBadge');
     const btn = $('loginButton');
-    if (badge) badge.textContent = `${config.username} • AKSES ${config.label}`;
+    if (badge) badge.textContent = `${ACCESS_ROLE.username} • ${role.toUpperCase()} • ${config.label}`;
     if (btn) btn.textContent = 'Logout';
     if (typeof sendEditorState === 'function') sendEditorState();
     if (typeof renderSubnav === 'function') renderSubnav();
     if (typeof mainMenu === 'function') mainMenu('map');
-    // Landing page after login is MAPS GERAI; role-specific views remain available from Monitoring.
-    if (role === 'super_admin') { /* keep Maps as the initial page */ }
     closeAuthModal();
-    if (role === 'dita') enableProgressModule();
-    if (role === 'osa' || role === 'jily') lockNotYetConnectedInput(role);
     if (typeof window.gpcInitModule === 'function') window.gpcInitModule(role).catch((e) => console.error('GPC V9 module init failed:', e));
   }
 
@@ -2132,21 +2130,41 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
     return;
   }
 
+  function hasMenuAccess(key) {
+    const role = ACCESS_ROLE.role;
+    if (!APP.profile) return ['map','summary','dashboard','progress-opening','gantt','equipment-dashboard','equipment','equipment-gantt','mpp-detail'].includes(key);
+    if (role === 'super_admin' || role === 'admin') return true;
+    const profileMenus = Array.isArray(APP.profile?.menu_access) ? APP.profile.menu_access : [];
+    return role === 'user' && profileMenus.includes(key);
+  }
+
   function renderSubnav() {
     const sub = $('subnav'); if (!sub) return;
-    const role = ACCESS_ROLE.role, isAdmin = role === 'super_admin';
-    const profileMenus = Array.isArray(APP.profile?.menu_access) ? APP.profile.menu_access : [];
-    const allowed = key => isAdmin || (profileMenus.length ? profileMenus.includes(key) : ((role==='osa'&&key==='people-mpp-import') || (role==='jily'&&key==='input-equipment') || (role==='dita'&&key==='input-progress') || ['dashboard','progress-opening','gantt','equipment-dashboard','equipment','equipment-gantt','mpp-detail'].includes(key)));
-    const menus = [['dashboard','🏬','DASHBOARD<br>PEMBUKAAN'],['progress-opening','📊','PROGRESS<br>PEMBUKAAN'],['gantt','🗓️','GANTT CHART<br>PEMBUKAAN'],['equipment-dashboard','🧰','DASHBOARD<br>PERLENGKAPAN'],['equipment','📦','PROGRESS<br>PERLENGKAPAN'],['equipment-gantt','📅','GANTT<br>PERLENGKAPAN'],['mpp-detail','👥','DETAIL MPP /<br>MANPOWER']].filter(([id])=>allowed(id));
-    if(isAdmin) menus.push(['input-progress','📥','INPUT PROGRESS'],['input-equipment','📥','INPUT PERLENGKAPAN'],['people-mpp-import','👥','INPUT MPP'],['super-admin','🛡️','SUPER ADMIN']);
-    else if(ACCESS_ROLE.view&&ROLE_VIEWS[role]&&allowed(ACCESS_ROLE.view)) menus.push([ACCESS_ROLE.view,'📥',ROLE_VIEWS[role].label]);
-    sub.innerHTML=menus.map(([id,icon,label])=>`<button type="button" data-view="${id}"><span class="subnav-icon">${icon}</span><span class="subnav-label">${label}</span></button>`).join('');
-    sub.querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>showView(button.dataset.view)));
+    const role = ACCESS_ROLE.role;
+    const menus = [
+      ['dashboard','🏬','DASHBOARD<br>PEMBUKAAN'],
+      ['progress-opening','📊','PROGRESS<br>PEMBUKAAN'],
+      ['gantt','🗓️','GANTT CHART<br>PEMBUKAAN'],
+      ['equipment-dashboard','🧰','DASHBOARD<br>PERLENGKAPAN'],
+      ['equipment','📦','PROGRESS<br>PERLENGKAPAN'],
+      ['equipment-gantt','📅','GANTT<br>PERLENGKAPAN'],
+      ['mpp-detail','👥','DETAIL MPP /<br>MANPOWER'],
+      ['input-progress','📥','INPUT PROGRESS'],
+      ['input-equipment','📥','INPUT PERLENGKAPAN'],
+      ['people-mpp-import','👥','INPUT MPP']
+    ].filter(([id]) => hasMenuAccess(id));
+    if (role === 'super_admin') menus.push(['super-admin','🛡️','SUPER ADMIN']);
+    sub.innerHTML = menus.map(([id,icon,label]) => `<button type="button" data-view="${id}"><span class="subnav-icon">${icon}</span><span class="subnav-label">${label}</span></button>`).join('');
+    sub.querySelectorAll('button').forEach(button => button.addEventListener('click', () => showView(button.dataset.view)));
   }
 
   function showView(id) {
-    const isAdmin = ACCESS_ROLE.role === 'super_admin'; const profileMenus = Array.isArray(APP.profile?.menu_access) ? APP.profile.menu_access : []; const permitted = isAdmin || (id === ACCESS_ROLE.view && (!profileMenus.length || profileMenus.includes(id))) || (PUBLIC_VIEWS.includes(id) && (!profileMenus.length || profileMenus.includes(id)));
-    if (!permitted) { alert('Akses ditolak. Menu ini tidak diberikan kepada akun Anda.'); return; }
+    if (id === 'super-admin' && ACCESS_ROLE.role !== 'super_admin') {
+      alert('Akses ditolak. Hanya SUPER ADMIN yang dapat mengelola pengguna.'); return;
+    }
+    if (id !== 'super-admin' && !hasMenuAccess(id)) {
+      alert('Akses ditolak. Menu ini tidak diberikan kepada akun Anda.'); return;
+    }
     document.querySelectorAll('.project-view').forEach((view) => view.classList.add('hidden'));
     $(id)?.classList.remove('hidden');
     if (id === 'progress-opening' && typeof renderOpeningProgress === 'function') renderOpeningProgress();
@@ -2163,12 +2181,14 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
     $('nav-' + which)?.classList.add('active');
     const map = $('map-page'), project = $('project-page'), sub = $('subnav'), head = $('dashboard-heading');
     if (which === 'map') {
+      if (!hasMenuAccess('map')) { alert('Akses ditolak. Menu MAPS GERAI tidak diberikan kepada akun Anda.'); return; }
       map?.classList.remove('hidden'); project?.classList.add('hidden'); sub?.classList.add('hidden'); head?.classList.add('hidden');
       return;
     }
     map?.classList.add('hidden'); project?.classList.remove('hidden');
     document.querySelectorAll('.project-view').forEach((view) => view.classList.add('hidden'));
     if (which === 'summary') {
+      if (!hasMenuAccess('summary')) { alert('Akses ditolak. Menu SUMMARY tidak diberikan kepada akun Anda.'); return; }
       sub?.classList.add('hidden'); head?.classList.add('hidden'); $('summary')?.classList.remove('hidden');
       return;
     }
@@ -2235,14 +2255,40 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
   }
 
   const ADMIN_MENU_OPTIONS=[['map','MAPS GERAI'],['summary','SUMMARY'],['dashboard','DASHBOARD PEMBUKAAN'],['progress-opening','PROGRESS PEMBUKAAN'],['gantt','GANTT PEMBUKAAN'],['equipment-dashboard','DASHBOARD PERLENGKAPAN'],['equipment','PROGRESS PERLENGKAPAN'],['equipment-gantt','GANTT PERLENGKAPAN'],['mpp-detail','DETAIL MPP / MANPOWER'],['input-progress','INPUT PROGRESS'],['input-equipment','INPUT PERLENGKAPAN'],['people-mpp-import','INPUT MPP']];
+  const ROLE_LABELS={super_admin:'SUPER ADMIN',admin:'ADMIN',user:'USER',viewer:'USER',osa:'USER',jily:'USER',dita:'USER'};
   let ADMIN_USERS_CACHE=[];
   function saMsg(t,ok=false){const e=$('saStatus');if(e){e.textContent=t;e.style.color=ok?'#167447':'#a34026';}}
-  function renderSuperAdminPanel(edit=null){const root=$('superAdminRoot');if(!root)return;const u=edit||{}, selected=Array.isArray(u.menu_access)?u.menu_access:ADMIN_MENU_OPTIONS.map(x=>x[0]);
-    root.innerHTML=`<div class="sa-wrap"><div class="sa-panel"><h3>${u.user_id?'EDIT USER':'ADD USER'}</h3><div id="saStatus" class="sa-status"></div><form id="saUserForm" data-user-id="${escapeHtml(u.user_id||'')}"><div class="sa-grid"><div><label>NAMA</label><input id="saName" required value="${escapeHtml(u.display_name||'')}" placeholder="Nama lengkap"></div><div><label>USERNAME</label><input id="saUsername" required pattern="[A-Za-z0-9._-]{3,30}" value="${escapeHtml(u.username||'')}" ${u.user_id?'readonly':''} placeholder="Username"></div><div><label>ROLE</label><select id="saRole"><option value="viewer">VIEWER</option><option value="osa">OSA / INPUT MPP</option><option value="jily">JILY / INPUT PERLENGKAPAN</option><option value="dita">DITA / INPUT PROGRESS</option><option value="super_admin">SUPER ADMIN</option></select></div><div><label>PASSWORD ${u.user_id?'(KOSONG = TIDAK DIUBAH)':'(MIN. 8 KARAKTER)'}</label><input id="saPassword" type="password" ${u.user_id?'':'required minlength="8"'} autocomplete="new-password"></div><div class="wide"><label>MENU YANG DIBERI AKSES</label><div class="sa-perms">${ADMIN_MENU_OPTIONS.map(([k,l])=>`<label><input type="checkbox" value="${k}" ${selected.includes(k)?'checked':''}>${l}</label>`).join('')}</div></div><div class="wide sa-actions"><button class="btn" type="submit">${u.user_id?'UPDATE USER':'SIMPAN USER'}</button>${u.user_id?'<button class="btn soft" type="button" id="saCancel">BATAL</button>':''}</div></div></form></div><div class="sa-panel"><h3>DAFTAR USER</h3><button class="btn soft" id="saRefresh" type="button">REFRESH</button><div class="sa-table-wrap"><table><thead><tr><th>NO</th><th>NAMA</th><th>USERNAME</th><th>ROLE</th><th>STATUS</th><th>AKSI</th></tr></thead><tbody id="saUsersBody"><tr><td colspan="6">Memuat user...</td></tr></tbody></table></div></div></div>`;
-    $('saRole').value=u.app_role||'viewer';$('saUserForm').addEventListener('submit',submitAdminUserForm);$('saRefresh').onclick=loadAdminUsers;if(u.user_id)$('saCancel').onclick=()=>renderSuperAdminPanel();loadAdminUsers();}
+  function showCredential(password, actionLabel){
+    const box=$('saCredentialNotice'); if(!box || !password) return;
+    box.innerHTML=`<b>${actionLabel} berhasil.</b><div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap"><input id="saNewPasswordValue" type="text" readonly value="${escapeHtml(password)}" style="max-width:260px"><button type="button" class="btn soft" id="saCopyNewPassword">SALIN PASSWORD</button><button type="button" class="btn soft" id="saHideNewPassword">TUTUP</button></div><small>Password ini hanya ditampilkan sekarang. Simpan dengan aman; password lama tidak dapat dibaca kembali.</small>`;
+    box.classList.remove('hidden');
+    $('saCopyNewPassword').onclick=async()=>{try{await navigator.clipboard.writeText(password);saMsg('Password berhasil disalin.',true);}catch(e){saMsg('Gagal menyalin password. Silakan salin secara manual.');}};
+    $('saHideNewPassword').onclick=()=>{box.classList.add('hidden');box.textContent='';};
+  }
+  function renderSuperAdminPanel(edit=null){
+    if(ACCESS_ROLE.role!=='super_admin'){alert('Akses ditolak.');return;}
+    const root=$('superAdminRoot');if(!root)return;
+    const u=edit||{};
+    const oldRole=String(u.app_role||'user').toLowerCase();
+    const selected=Array.isArray(u.menu_access)?u.menu_access:[];
+    const effectiveRole=({viewer:'user',osa:'user',jily:'user',dita:'user'})[oldRole]||oldRole;
+    const checkedMenus=effectiveRole==='super_admin'?ADMIN_MENU_OPTIONS.map(x=>x[0]):effectiveRole==='admin'?ADMIN_MENU_OPTIONS.map(x=>x[0]):selected;
+    root.innerHTML=`<div class="sa-wrap"><div class="sa-panel"><h3>${u.user_id?'EDIT USER':'ADD USER'}</h3><div id="saStatus" class="sa-status"></div><div id="saCredentialNotice" class="sa-status hidden" style="border:1px solid #8bc6a6;padding:10px;margin:8px 0"></div><form id="saUserForm" data-user-id="${escapeHtml(u.user_id||'')}"><div class="sa-grid"><div><label>NAMA</label><input id="saName" required value="${escapeHtml(u.display_name||'')}" placeholder="Nama lengkap"></div><div><label>USERNAME</label><input id="saUsername" required pattern="[A-Za-z0-9._-]{3,30}" value="${escapeHtml(u.username||'')}" ${u.user_id?'readonly':''} placeholder="Username"></div><div><label>ROLE</label><select id="saRole"><option value="super_admin">SUPER ADMIN</option><option value="admin">ADMIN</option><option value="user">USER</option></select></div><div><label>PASSWORD ${u.user_id?'(KOSONG = TIDAK DIUBAH)':'(MIN. 8 KARAKTER)'}</label><div style="display:flex;gap:5px"><input id="saPassword" type="password" ${u.user_id?'':'required'} minlength="8" maxlength="256" autocomplete="new-password" style="flex:1;min-width:0"><button class="btn soft" id="saTogglePassword" type="button">LIHAT</button></div></div><div class="wide"><label>MENU YANG DIBERI AKSES</label><div class="sa-perms">${ADMIN_MENU_OPTIONS.map(([k,l])=>`<label><input type="checkbox" value="${k}" ${checkedMenus.includes(k)?'checked':''} ${effectiveRole!=='user'?'disabled':''}>${l}</label>`).join('')}</div><small>SUPER ADMIN dan ADMIN otomatis memperoleh seluruh menu operasional. USER hanya memperoleh menu yang dicentang.</small></div><div class="wide sa-actions"><button class="btn" type="submit">${u.user_id?'UPDATE USER':'SIMPAN USER'}</button>${u.user_id?'<button class="btn soft" type="button" id="saCancel">BATAL</button>':''}</div></div></form></div><div class="sa-panel"><h3>DAFTAR USER</h3><button class="btn soft" id="saRefresh" type="button">REFRESH</button><div class="sa-table-wrap"><table><thead><tr><th>NO</th><th>NAMA</th><th>USERNAME</th><th>ROLE</th><th>STATUS</th><th>AKSI</th></tr></thead><tbody id="saUsersBody"><tr><td colspan="6">Memuat user...</td></tr></tbody></table></div></div></div>`;
+    $('saRole').value=effectiveRole;
+    $('saRole').addEventListener('change',()=>{const isUser=$('saRole').value==='user';document.querySelectorAll('#super-admin .sa-perms input').forEach(x=>{if(!isUser)x.checked=true;else if(!x.dataset.userTouched)x.checked=false;x.disabled=!isUser;});});
+    $('saTogglePassword').onclick=()=>{const p=$('saPassword');const show=p.type==='password';p.type=show?'text':'password';$('saTogglePassword').textContent=show?'SEMBUNYIKAN':'LIHAT';};
+    $('saUserForm').addEventListener('submit',submitAdminUserForm);$('saRefresh').onclick=loadAdminUsers;if(u.user_id)$('saCancel').onclick=()=>renderSuperAdminPanel();loadAdminUsers();
+  }
   async function adminInvoke(payload){if(!APP.supabase)throw new Error('Supabase belum terhubung');const {data,error}=await APP.supabase.functions.invoke('admin-users',{body:payload});if(error)throw new Error(error.message||'Request admin gagal');if(data?.error)throw new Error(data.error);return data;}
-  async function loadAdminUsers(){const body=$('saUsersBody');if(!body)return;body.innerHTML='<tr><td colspan="6">Memuat...</td></tr>';try{const r=await adminInvoke({action:'list'});ADMIN_USERS_CACHE=r.users||[];body.innerHTML=ADMIN_USERS_CACHE.map((u,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(u.display_name||'')}</td><td>${escapeHtml(u.username||'')}</td><td>${escapeHtml(u.app_role||'')}</td><td>${u.is_active?'AKTIF':'NONAKTIF'}</td><td><div class="sa-actions"><button class="btn soft small" data-edit="${u.user_id}">EDIT</button><button class="btn small" style="background:#b64747" data-delete="${u.user_id}">HAPUS</button></div></td></tr>`).join('')||'<tr><td colspan="6">Belum ada user.</td></tr>';body.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>renderSuperAdminPanel(ADMIN_USERS_CACHE.find(x=>x.user_id===b.dataset.edit)));body.querySelectorAll('[data-delete]').forEach(b=>{b.onclick=async()=>{const x=ADMIN_USERS_CACHE.find(z=>z.user_id===b.dataset.delete);if(!x||!confirm(`Hapus user ${x.username}?`))return;try{await adminInvoke({action:'delete',user_id:x.user_id});saMsg('User berhasil dihapus.',true);loadAdminUsers()}catch(e){saMsg(e.message)}}});}catch(e){body.innerHTML=`<tr><td colspan="6">${escapeHtml(e.message)}</td></tr>`;saMsg('Gagal memuat user: '+e.message)}}
-  async function submitAdminUserForm(ev){ev.preventDefault();const form=$('saUserForm');const payload={action:form.dataset.userId?'update':'create',user_id:form.dataset.userId,username:$('saUsername').value.trim().toUpperCase(),display_name:$('saName').value.trim(),app_role:$('saRole').value,password:$('saPassword').value,menu_access:[...document.querySelectorAll('#super-admin .sa-perms input:checked')].map(x=>x.value)};try{await adminInvoke(payload);saMsg(payload.action==='create'?'User berhasil dibuat.':'User berhasil diperbarui.',true);renderSuperAdminPanel()}catch(e){saMsg(e.message)}}
+  async function loadAdminUsers(){const body=$('saUsersBody');if(!body)return;body.innerHTML='<tr><td colspan="6">Memuat...</td></tr>';try{const r=await adminInvoke({action:'list'});ADMIN_USERS_CACHE=r.users||[];body.innerHTML=ADMIN_USERS_CACHE.map((u,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(u.display_name||'')}</td><td>${escapeHtml(u.username||'')}</td><td>${ROLE_LABELS[String(u.app_role||'user').toLowerCase()]||escapeHtml(u.app_role||'')}</td><td>${u.is_active?'AKTIF':'NONAKTIF'}</td><td><div class="sa-actions"><button class="btn soft small" data-edit="${u.user_id}">EDIT</button><button class="btn small" style="background:#b64747" data-delete="${u.user_id}">HAPUS</button></div></td></tr>`).join('')||'<tr><td colspan="6">Belum ada user.</td></tr>';body.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>renderSuperAdminPanel(ADMIN_USERS_CACHE.find(x=>x.user_id===b.dataset.edit)));body.querySelectorAll('[data-delete]').forEach(b=>{b.onclick=async()=>{const x=ADMIN_USERS_CACHE.find(z=>z.user_id===b.dataset.delete);if(!x||!confirm(`Hapus user ${x.username}?`))return;try{await adminInvoke({action:'delete',user_id:x.user_id});saMsg('User berhasil dihapus.',true);loadAdminUsers()}catch(e){saMsg(e.message)}}});}catch(e){body.innerHTML=`<tr><td colspan="6">${escapeHtml(e.message)}</td></tr>`;saMsg('Gagal memuat user: '+e.message)}}
+  async function submitAdminUserForm(ev){
+    ev.preventDefault();const form=$('saUserForm');const password=$('saPassword').value;const role=$('saRole').value;
+    const payload={action:form.dataset.userId?'update':'create',user_id:form.dataset.userId,username:$('saUsername').value.trim().toUpperCase(),display_name:$('saName').value.trim(),app_role:role,password,menu_access:role==='user'?[...document.querySelectorAll('#super-admin .sa-perms input:checked')].map(x=>x.value):ADMIN_MENU_OPTIONS.map(x=>x[0])};
+    if(password && password.length<8){saMsg('Password minimal 8 karakter.');return;}
+    if(role==='user'&&!payload.menu_access.length){saMsg('Pilih minimal satu menu untuk USER.');return;}
+    try{await adminInvoke(payload);renderSuperAdminPanel();showCredential(password,payload.action==='create'?'User berhasil dibuat':'Password/user berhasil diperbarui');}catch(e){saMsg(e.message);}
+  }
+
 
   async function boot() {
     ensureStyle(); ensureAuthModal(); addConnectionNotice();
@@ -2310,7 +2356,8 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
   const esc = (v) => txt(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const state = { current: { progress:null, mpp:null, equipment:null }, rows: { mpp:[], equipment:[] }, busy:false };
   window.GPC_V9 = state;
-  const roleModule = { dita:'progress', osa:'mpp', jily:'equipment' };
+  const moduleMenu = { progress:'input-progress', mpp:'people-mpp-import', equipment:'input-equipment' };
+  const roleModule = { super_admin:'all', admin:'all', user:'selected' };
 
   function say(id, message, ok=true) {
     const el = $(id); if (!el) return;
@@ -2320,9 +2367,11 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
   function clearSay(id) { const el=$(id); if(el){el.classList.add('hidden');el.textContent='';} }
   function assertRole(module) {
     if (!APP || !APP.supabase || !APP.profile) throw new Error('Sesi belum aktif. Silakan login kembali.');
-    const expected = module === 'progress' ? 'dita' : module === 'mpp' ? 'osa' : 'jily';
-    if (norm(APP.profile.app_role).toLowerCase() !== expected || APP.profile.is_active !== true) {
-      throw new Error('Akses ditolak. Modul ini hanya dapat digunakan oleh akun ' + expected.toUpperCase() + '.');
+    const role = norm(APP.profile.app_role).toLowerCase();
+    const permitted = role === 'super_admin' || role === 'admin' ||
+      (role === 'user' && Array.isArray(APP.profile.menu_access) && APP.profile.menu_access.includes(moduleMenu[module]));
+    if (!permitted || APP.profile.is_active !== true) {
+      throw new Error('Akses ditolak. Menu input ini tidak diberikan kepada akun Anda.');
     }
   }
   async function rpc(action, module, payload={}) {
@@ -2736,13 +2785,18 @@ window.applyEquipmentExcelImport=async function(){const f=$('equipmentImportFile
   window.clearEquipmentExcelInputs=function(){if($('equipmentImportFile'))$('equipmentImportFile').value='';window.GPC_V9_EQUIPMENT_PREVIEW=null;clearSay('equipmentImportResult');};
 
   window.gpcInitModule=async function(role){
-    const module=roleModule[norm(role).toLowerCase()];if(!module)return;
-    setupDerivedInputs(module);
+    const activeRole = norm(APP?.profile?.app_role || role).toLowerCase();
+    const selected = Array.isArray(APP?.profile?.menu_access) ? APP.profile.menu_access : [];
+    const modules = activeRole === 'super_admin' || activeRole === 'admin'
+      ? ['progress','mpp','equipment']
+      : ['progress','mpp','equipment'].filter(m => selected.includes(moduleMenu[m]));
+    if(!modules.length)return;
+    for(const module of modules)setupDerivedInputs(module);
     for(let i=0;i<80&&(!APP?.supabase||!Array.isArray(APP.stores)||!APP.stores.length);i++)await new Promise(r=>setTimeout(r,100));
     if(!APP?.supabase)throw new Error('Koneksi Supabase belum siap.');
-    if(module==='progress'){ensureProgressFields();fillCabSelect('progressInputCab','progressInputStore');await refreshProgressRows();}
-    if(module==='mpp'){fillCabSelect('manualMPPCab','manualMPPGerai');await refreshMppRows();}
-    if(module==='equipment'){fillCabSelect('equipmentInputCab','equipmentInputStore');await refreshEquipmentRows();}
+    if(modules.includes('progress')){ensureProgressFields();fillCabSelect('progressInputCab','progressInputStore');await refreshProgressRows();}
+    if(modules.includes('mpp')){fillCabSelect('manualMPPCab','manualMPPGerai');await refreshMppRows();}
+    if(modules.includes('equipment')){fillCabSelect('equipmentInputCab','equipmentInputStore');await refreshEquipmentRows();}
   };
 
   // Clear stale previews when a different workbook is selected.
@@ -4091,53 +4145,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
 
-<style id="map-only-controls-cleanup">
-/* MAP ONLY: zoom buttons in the marked left corner, compact bottom edge */
-#map-page .mapframe-wrap{height:calc(100dvh - 112px)!important;min-height:0!important;overflow:hidden!important;position:relative!important}
-#map-page .mapframe{top:-76px!important;height:calc(100% + 76px)!important;transform:none!important;transform-origin:top left!important}
-#map-page .map-tools{position:absolute;z-index:20;left:8px;top:44px;display:flex;flex-direction:column;gap:5px;align-items:center}
-#map-page .map-tools button{width:34px;height:34px;border:1px solid #b8cddd;border-radius:8px;background:#fff;color:#174a6a;font-size:20px;font-weight:800;line-height:1;box-shadow:0 2px 6px #173b5b24;cursor:pointer;padding:0}
-#map-page .map-tools button:hover{background:#eaf5ff;border-color:#80b9dc}
-#map-page .map-tools button.map-reset{font-size:11px;width:34px;height:34px;margin-top:1px;background:#e9f2f8;color:#31536c;border:1px solid #b8cddd;border-radius:8px;box-shadow:0 2px 6px #173b5b18}
-#map-page .map-tools button.map-reset:hover{background:#dcebf6;border-color:#8fb7d1}
-@media(max-width:900px){#map-page .mapframe-wrap{height:calc(100dvh - 132px)!important}#map-page .map-tools{top:44px!important}}
-@media(max-width:600px){#map-page .mapframe-wrap{height:calc(100dvh - 150px)!important}#map-page .map-tools{left:7px;top:44px!important}#map-page .map-tools button{width:32px;height:32px}#map-page .map-tools button.map-reset{width:32px;height:32px}}
-</style>
-<script id="map-only-zoom-reset-controls">
-(function(){
- const map=document.getElementById('map-page'),wrap=map&&map.querySelector('.mapframe-wrap'),frame=map&&map.querySelector('iframe.mapframe');
- if(!map||!wrap||!frame)return;
- let level=1;
- const min=.75,max=1.8,step=.1;
- const tools=document.createElement('div');tools.className='map-tools';tools.setAttribute('aria-label','Kontrol zoom peta');
- tools.innerHTML='<button type="button" title="Zoom in" aria-label="Zoom in">＋</button><button type="button" title="Zoom out" aria-label="Zoom out">−</button><button type="button" class="map-reset" title="Reset tampilan peta" aria-label="Reset tampilan peta">RESET</button>';
- wrap.appendChild(tools);
- const buttons=tools.querySelectorAll('button');
- function apply(){
-   frame.style.zoom=String(level);
-   frame.style.width=(100/level)+'%';
-   frame.style.height='calc((100% + 210px) / '+level+')';
-   frame.style.top='-76px';
-   buttons[0].disabled=level>=max;buttons[1].disabled=level<=min;
-   buttons[0].style.opacity=level>=max?.45:1;buttons[1].style.opacity=level<=min?.45:1;
- }
- buttons[0].addEventListener('click',()=>{level=Math.min(max,Math.round((level+step)*10)/10);apply();});
- buttons[1].addEventListener('click',()=>{level=Math.max(min,Math.round((level-step)*10)/10);apply();});
- buttons[2].addEventListener('click',()=>{level=1;frame.style.zoom='1';frame.style.width='100%';frame.style.height='calc(100% + 210px)';frame.style.top='-76px';apply();const src=frame.getAttribute('src');if(src){frame.onload=()=>{apply();frame.onload=null;};frame.setAttribute('src',src);}});
- apply();
- window.addEventListener('resize',apply,{passive:true});
-})();
-</script>
 
-<style id="map-only-final-polish">
-/* MAP ONLY: controls clear the ruler; RESET matches zoom buttons and uses a light color. */
-#map-page .map-tools{top:118px!important;gap:5px!important;}
-#map-page .map-tools button,
-#map-page .map-tools button.map-reset{width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;box-sizing:border-box!important;}
-#map-page .map-tools button.map-reset{background:#f3f8fc!important;color:#31536c!important;border:1px solid #b8cddd!important;box-shadow:0 2px 6px #173b5b12!important;font-size:10px!important;font-weight:800!important;}
-#map-page .map-tools button.map-reset:hover{background:#e7f2fa!important;border-color:#8fb7d1!important;}
-@media(max-width:600px){#map-page .map-tools{top:112px!important;}#map-page .map-tools button,#map-page .map-tools button.map-reset{width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;}}
-</style>
 
 <style id="user-request-minimal-map-and-summary-fix">
 /* MAP: shift embedded map controls (including ruler) down 26px away from Export Scoring. */
