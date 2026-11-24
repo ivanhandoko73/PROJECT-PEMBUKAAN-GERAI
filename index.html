@@ -5651,7 +5651,7 @@ document.addEventListener('DOMContentLoaded',function(){
   const state={sheet:'mpp_q1',period:'q4_2026',rows:[],search:'',sort:'',sortDir:1,dirty:new Set()};
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function profile(){return window.GPC_APP_PROFILE||window.GPC_PROFILE||null;}
-  function getProfile(){try{return window.GPC_CURRENT_PROFILE||window.GPC_APP?.profile||window.APP?.profile||null}catch(e){return null}}
+  function getProfile(){try{return window.GPC_APP_PROFILE||window.GPC_CURRENT_PROFILE||window.GPC_APP?.profile||window.APP?.profile||null}catch(e){return null}}
   function can(sheet){
     const p=getProfile(); if(!p||p.is_active!==true)return false;
     const role=String(p.app_role||'').toLowerCase();
