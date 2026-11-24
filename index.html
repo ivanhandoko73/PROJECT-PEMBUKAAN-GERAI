@@ -5847,9 +5847,11 @@ document.addEventListener('DOMContentLoaded',function(){
         const raw=row.cells?.[col];
         const formula=typeof raw==='string'&&raw.startsWith('=');
         const value=valueFor(row,col);
-        const date=/^\d{4}-\d{2}-\d{2}(T|$)/.test(String(raw??''));
+        // START pada tabel pemenuhan MPP selalu berupa field tanggal, termasuk sel yang awalnya kosong.
+        const startDateCell=section.key==='mpp_q1_people'&&col==='E';
+        const date=startDateCell||/^\d{4}-\d{2}-\d{2}(T|$)/.test(String(raw??''));
         const type=date?'date':'text';
-        const inputValue=date?String(raw).slice(0,10):String(value??'');
+        const inputValue=date?(raw?String(raw).slice(0,10):''):String(value??'');
         const canEdit=!isTotal&&!formula;
         cells+=`<td colspan="${colspan}" rowspan="${rowspan}" class="${isTotal?'gpcq-total':''} ${col==='AB'?'gpcq-note':''}">
           ${canEdit?`<input class="gpcq-cell" type="${type}" data-row="${esc(row.id)}" data-col="${col}" aria-label="${col}" value="${esc(inputValue)}">`:`<span class="gpcq-read">${esc(fmtExcel(value))}</span>`}
@@ -5870,6 +5872,10 @@ document.addEventListener('DOMContentLoaded',function(){
     if(!permitted){host.innerHTML='<p class="gpcq-muted">Anda tidak memiliki izin untuk submenu ini.</p>';return}
     const layout=state.sheet==='mpp_q1'?EXCEL_LAYOUT['MPP Q1']:EXCEL_LAYOUT[EXCEL_SHEET];
     const section=currentSection(), rows=rowsForSection();
+    // Kolom setelah W pada tabel Progress Pemenuhan MPP memang kosong di Excel.
+    const viewLayout=(state.sheet!=='mpp_q1'&&section.key==='mpp_q1_people')
+      ? {...layout,columns:layout.columns.filter(c=>colNum(c)<=23),merges:layout.merges.filter(m=>m[2]<=23&&m[3]<=23)}
+      : layout;
     const q=state.search.trim().toLowerCase();
     const shown=q?rows.filter(r=>Object.values(r.cells||{}).some(v=>String(v??'').toLowerCase().includes(q))):rows;
     const toolbar=`<div class="gpcq-toolbar gpcq-toolbar-compact">
@@ -5880,8 +5886,8 @@ document.addEventListener('DOMContentLoaded',function(){
       <button type="button" class="gpcq-btn gpcq-primary" id="gpcq-save">Simpan</button>
       <button type="button" class="gpcq-btn" id="gpcq-cancel">Batal</button>
     </div>`;
-    const colgroup=`<colgroup>${layout.columns.map(c=>`<col style="width:${Math.max(36,layout.widths[c]*5.2)}px">`).join('')}</colgroup>`;
-    const table=`<div class="gpcq-table-wrap gpcq-excel-wrap"><table class="gpcq-excel">${colgroup}${buildHeader(layout,section)}${buildBody(layout,section,shown)}</table></div>`;
+    const colgroup=`<colgroup>${viewLayout.columns.map(c=>`<col style="width:${Math.max(36,viewLayout.widths[c]*5.2)}px">`).join('')}</colgroup>`;
+    const table=`<div class="gpcq-table-wrap gpcq-excel-wrap"><table class="gpcq-excel">${colgroup}${buildHeader(viewLayout,section)}${buildBody(viewLayout,section,shown)}</table></div>`;
     host.innerHTML=toolbar+`<div class="gpcq-caption">${esc(section.label)} <span>${shown.length} baris</span></div>`+table;
     host.querySelectorAll('input[data-row]').forEach(inp=>inp.addEventListener('input',()=>state.dirty.add(inp.dataset.row)));
     $('gpcq-search').addEventListener('input',e=>{state.search=e.target.value;const pos=e.target.selectionStart;render();$('gpcq-search').focus();$('gpcq-search').setSelectionRange(pos,pos)});
