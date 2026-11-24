@@ -2472,7 +2472,7 @@ function renderSummaryTab(tab){document.querySelectorAll('.summary-tab').forEach
 
 function mainMenu(which){['nav-map','nav-summary','nav-dashboard'].forEach(id=>document.getElementById(id)?.classList.remove('active'));document.getElementById('nav-'+which)?.classList.add('active');document.getElementById('map-page').classList.toggle('hidden',which!=='map');document.getElementById('project-page').classList.toggle('hidden',which==='map');const sub=document.getElementById('subnav'),head=document.getElementById('dashboard-heading');if(which==='map'){sub.classList.add('hidden');head.classList.add('hidden');}else if(which==='summary'){sub.classList.remove('hidden');head.classList.add('hidden');renderSubnav();showView('summary');}else{sub.classList.remove('hidden');head.classList.remove('hidden');renderSubnav();showView('dashboard')}}
 function renderSubnav(){const sub=document.getElementById('subnav');const menus=[['dashboard','🏬','DASHBOARD<br>PEMBUKAAN'],['progress-opening','📊','PROGRESS<br>PEMBUKAAN'],['gantt','🗓️','GANTT CHART<br>PEMBUKAAN'],['equipment-dashboard','🧰','DASHBOARD<br>PERLENGKAPAN'],['equipment','📦','PROGRESS<br>PERLENGKAPAN'],['equipment-gantt','📅','GANTT<br>PERLENGKAPAN'],['mpp-detail','👥','DETAIL MPP /<br>MANPOWER'],...(demoLoggedIn?[['input-progress','📥','INPUT PROGRESS'],['input-equipment','📥','INPUT PERLENGKAPAN'],['people-mpp-import','👥','INPUT MPP']]:[])];sub.innerHTML=menus.map(([id,icon,label])=>`<button type="button" data-view="${id}"><span class="subnav-icon">${icon}</span><span class="subnav-label">${label}</span></button>`).join('');}
-function showView(id){const allowed={summary:'SUMMARY',dashboard:'DASHBOARD PEMBUKAAN','progress-opening':'PROGRESS PEMBUKAAN',gantt:'GANTT CHART PEMBUKAAN','equipment-dashboard':'DASHBOARD PERLENGKAPAN',equipment:'PROGRESS PERLENGKAPAN','equipment-gantt':'GANTT PERLENGKAPAN','mpp-detail':'DETAIL MPP / MANPOWER',...(demoLoggedIn?{'input-progress':'INPUT PROGRESS','input-equipment':'INPUT PERLENGKAPAN','people-mpp-import':'INPUT MPP'}:{})};if(!allowed[id]){alert('Menu ini hanya tersedia setelah login.');return;}document.querySelectorAll('.project-view').forEach(v=>v.classList.add('hidden'));document.getElementById(id)?.classList.remove('hidden');if(id==='mpp-detail'){document.getElementById('mpp-detail')?.scrollIntoView({block:'start',behavior:'smooth'});}if(id==='progress-opening')renderOpeningProgress();if(id==='equipment-gantt')renderEquipmentGantt();if(id==='equipment-dashboard')renderEquipmentDashboard();if(id==='summary'){renderSummaryTab('bpd');window.GPC_SEND_SUMMARY_PROGRESS?.();}document.querySelectorAll('#subnav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id))}
+function showView(id){const allowed={summary:'SUMMARY',dashboard:'DASHBOARD PEMBUKAAN','progress-opening':'PROGRESS PEMBUKAAN',gantt:'GANTT CHART PEMBUKAAN','equipment-dashboard':'DASHBOARD PERLENGKAPAN',equipment:'PROGRESS PERLENGKAPAN','equipment-gantt':'GANTT PERLENGKAPAN','mpp-detail':'DETAIL MPP / MANPOWER',...(demoLoggedIn?{'input-progress':'INPUT PROGRESS','input-equipment':'INPUT PERLENGKAPAN','people-mpp-import':'INPUT MPP'}:{})};if(!allowed[id]){alert('Menu ini hanya tersedia setelah login.');return;}document.querySelectorAll('.project-view').forEach(v=>v.classList.add('hidden'));document.getElementById(id)?.classList.remove('hidden');if(id==='mpp-detail'){document.getElementById('mpp-detail')?.scrollIntoView({block:'start',behavior:'smooth'});}if(id==='progress-opening')renderOpeningProgress();if(id==='equipment-gantt')renderEquipmentGantt();if(id==='equipment-dashboard')renderEquipmentDashboard();if(id==='summary'){renderSummaryTab('bpd');window.GPC_SEND_SUMMARY_PROGRESS?.();[150,500,1200].forEach(ms=>setTimeout(()=>window.GPC_SEND_SUMMARY_PROGRESS?.(),ms));}document.querySelectorAll('#subnav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id))}
 // Delegated sub-navigation click handling (ensures every tile, including MPP, is clickable).
 document.getElementById('subnav')?.addEventListener('click',function(ev){const btn=ev.target.closest('button[data-view]');if(!btn)return;ev.preventDefault();showView(btn.dataset.view);});
 
@@ -2618,7 +2618,28 @@ window.showView = function(id){
 <script id="initialProgressDataBinding">
 // Bind embedded Excel test data to the progress views at startup.
 window.GANTT_SOURCE_DATA = Array.isArray(GANTT_SOURCE_DATA) ? GANTT_SOURCE_DATA : (window.GANTT_SOURCE_DATA || []);
-window.GPC_SEND_SUMMARY_PROGRESS=function(){const frame=document.getElementById('summaryExactFrame');if(!frame||!frame.contentWindow)return;const opening=window.GANTT_SOURCE_DATA||GANTT_SOURCE_DATA||[];let equipment=[];try{equipment=(MASTER_TIMELINE_DATA||[]).flatMap(st=>(st.tasks||[]).map(t=>({...t,store:st.name,progress:Number(t.progress)||0,status:t.status||''})));}catch(e){}frame.contentWindow.postMessage({type:'SUMMARY_PROGRESS_UPDATE',opening,equipment},'*');};
+window.GPC_SEND_SUMMARY_PROGRESS=function(){
+  const frame=document.getElementById('summaryExactFrame');
+  if(!frame||!frame.contentWindow)return false;
+  const opening=Array.isArray(window.GANTT_SOURCE_DATA)?window.GANTT_SOURCE_DATA:(typeof GANTT_SOURCE_DATA!=='undefined'&&Array.isArray(GANTT_SOURCE_DATA)?GANTT_SOURCE_DATA:[]);
+  let equipment=[];
+  try{
+    const source=Array.isArray(window.MASTER_TIMELINE_DATA)?window.MASTER_TIMELINE_DATA:(typeof MASTER_TIMELINE_DATA!=='undefined'?MASTER_TIMELINE_DATA:[]);
+    equipment=source.flatMap(st=>(st.tasks||[]).map(t=>({...t,store:st.name,progress:Number(t.progress)||0,status:t.status||''})));
+  }catch(e){console.warn('GPC summary equipment binding:',e);}
+  try{frame.contentWindow.postMessage({type:'SUMMARY_PROGRESS_UPDATE',opening,equipment},'*');return true;}
+  catch(e){console.warn('GPC summary progress send failed:',e);return false;}
+};
+// Summary iframe may finish loading after the first render. Re-send on load and
+// when the summary view is opened so its internal progress widgets never stay empty.
+(function(){
+  const frame=document.getElementById('summaryExactFrame');
+  if(!frame||frame.dataset.progressBridgeBound==='1')return;
+  frame.dataset.progressBridgeBound='1';
+  frame.addEventListener('load',()=>window.GPC_SEND_SUMMARY_PROGRESS?.());
+  document.addEventListener('DOMContentLoaded',()=>window.GPC_SEND_SUMMARY_PROGRESS?.());
+  [250,700,1400,2500].forEach(ms=>setTimeout(()=>window.GPC_SEND_SUMMARY_PROGRESS?.(),ms));
+})();
 
 window.BPD_IMPORT_ACTIVE = window.BPD_IMPORT_ACTIVE || false;
 function initializeEmbeddedProgressData(){
