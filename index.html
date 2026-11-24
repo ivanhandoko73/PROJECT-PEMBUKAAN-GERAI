@@ -1774,13 +1774,6 @@ setTimeout(()=&gt;{regionLayer.setStyle(styleFeature);map.invalidateSize({pan:fa
 cloudStatus(&#x27;Viewer&#x27;);}catch(e){console.error(e);cloudStatus(&#x27;Viewer gagal dimuat: &#x27;+e.message);alert(&#x27;Viewer Cloud tidak dapat dimuat. Periksa izin baca publik pada tabel map_projects.&#x27;);}}
 (async()=&gt;{if(!cloudClient){cloudStatus(&#x27;Cloud tidak tersedia&#x27;);return;}const viewerId=new URLSearchParams(location.search).get(&#x27;viewer&#x27;);if(viewerId){await cloudViewerStart(viewerId);return;}const {data:{session}}=await cloudClient.auth.getSession();cloudControls(!!session);if(session)cloudStatus(&#x27;Sesi Admin aktif&#x27;);})();
 
-// Recalculate Leaflet sizing after parent navigation makes the iframe visible again.
-window.addEventListener(&#x27;message&#x27;,(event)=&gt;{
-  if(event.source!==window.parent||event.data?.type!==&#x27;GPC_MAP_LAYOUT_REFRESH&#x27;)return;
-  requestAnimationFrame(()=&gt;{try{map.invalidateSize({pan:false});}catch(e){}});
-  setTimeout(()=&gt;{try{map.invalidateSize({pan:false});}catch(e){}},180);
-  setTimeout(()=&gt;{try{map.invalidateSize({pan:false});}catch(e){}},500);
-});
 // Recalculate Leaflet sizing after device rotation / viewport changes.
 window.addEventListener(&#x27;resize&#x27;,()=&gt;{if(typeof map!==&#x27;undefined&#x27;)setTimeout(()=&gt;map.invalidateSize(),150);});
 window.addEventListener(&#x27;orientationchange&#x27;,()=&gt;{if(typeof map!==&#x27;undefined&#x27;)setTimeout(()=&gt;map.invalidateSize(),350);});
@@ -1854,7 +1847,7 @@ body.cloud-viewer.presentation #viewerMeasureControls{top:82px!important;left:8p
 &lt;script id=&quot;gpc-map-parent-access&quot;&gt;
 (function(){function setAccess(d){const ok=!!d&amp;&amp;d.type===&#x27;GPC_MAP_ACCESS&#x27;&amp;&amp;d.authenticated===true&amp;&amp;String(d.role||&#x27;&#x27;).toLowerCase()===&#x27;super_admin&#x27;;document.body.classList.toggle(&#x27;gpc-super-admin-editor&#x27;,ok);document.body.classList.toggle(&#x27;gpc-viewer-locked&#x27;,!ok);if(!ok){document.body.classList.add(&#x27;presentation&#x27;);try{cloudControls(false)}catch(e){}}else{document.body.classList.remove(&#x27;presentation&#x27;);try{cloudControls(true);cloudStatus(&#x27;SUPER ADMIN • EDITOR AKTIF&#x27;)}catch(e){}}}window.addEventListener(&#x27;message&#x27;,e=&gt;{if(e.source!==window.parent||!e.data||e.data.type!==&#x27;GPC_MAP_ACCESS&#x27;)return;setAccess(e.data)});setAccess(null);})();
 &lt;/script&gt;
-&lt;/body&gt;&lt;/html&gt;"</iframe></div>
+&lt;/body&gt;&lt;/html&gt;"></iframe></div>
 </section>
 <section class="hidden" id="project-page">
 <div class="project-view" id="dashboard">
@@ -1891,7 +1884,7 @@ body.cloud-viewer.presentation #viewerMeasureControls{top:82px!important;left:8p
 </div>
 </div>
 <div class="project-view hidden" id="progress-opening">
-<div class="pagehead"><div><h2>PROGRESS PEMBUKAAN GERAI 2027</h2><p>MONITORING DETAIL AKTIVITAS PEMBUKAAN BERDASARKAN DATA DASHBOARD & GANTT.</p></div></div>
+<div class="pagehead"><div><h2>PROGRESS PEMBUKAAN GERAI 2027</h2><p>MONITORING DETAIL AKTIVITAS PEMBUKAAN BERDASARKAN DATA DASHBOARD &amp; GANTT.</p></div></div>
 <div class="card"><div class="filters progress-filterbar"><select aria-label="Filter Cabang" id="openingCab"><option value="ALL">SEMUA CABANG</option></select><select aria-label="Filter Gerai" id="openingStore"><option value="ALL">SEMUA GERAI</option></select><input aria-label="Pencarian Gerai atau Aktivitas" id="openingSearch" placeholder="CARI GERAI / AKTIVITAS..."/><select aria-label="Filter Status" id="openingStatus"><option value="ALL">SEMUA STATUS</option><option value="SELESAI SESUAI PLAN">SELESAI SESUAI PLAN</option><option value="SELESAI TIDAK SESUAI PLAN">SELESAI TIDAK SESUAI PLAN</option><option value="ON PROGRESS">ON PROGRESS</option><option value="BELUM DIKERJAKAN">BELUM DIKERJAKAN</option></select><button class="btn soft filter-reset" id="openingReset" title="Kembalikan semua filter ke awal" type="button">↺ RESET</button></div><div class="gantt-summary progress-summary" id="openingProgressSummary"></div><div class="tablewrap"><table class="table"><thead><tr><th>Cabang</th><th>Gerai</th><th>Aktivitas</th><th>Plan</th><th>Actual</th><th>Progress</th><th>Status</th><th>Catatan / Tindak Lanjut</th></tr></thead><tbody id="openingProgressRows"></tbody></table></div></div>
 </div>
 <div class="project-view hidden" id="gantt">
@@ -2093,7 +2086,7 @@ main{height:calc(100% - 4px)!important;margin:2px auto!important;padding:0 8px!i
 <div class="notice gpc-technical-note">Preview memeriksa 13 kolom pada sheet DTB_PROGRESS.</div>
 <label><b>File Excel V.01 (.xlsx / .xlsm)</b></label>
 <input accept=".xlsx,.xls,.xlsm" id="progressExcelFile" style="margin:8px 0;max-width:100%" type="file"/>
-<button class="btn import-action-btn" onclick="testProgressExcelImport()">Uji & Preview Import</button><button class="btn import-action-btn" onclick="applyProgressExcelImport()">Update Data Excel</button><button class="btn soft" onclick="clearProgressExcelInputs()" type="button">Reset Input</button>
+<button class="btn import-action-btn" onclick="testProgressExcelImport()">Uji &amp; Preview Import</button><button class="btn import-action-btn" onclick="applyProgressExcelImport()">Update Data Excel</button><button class="btn soft" onclick="clearProgressExcelInputs()" type="button">Reset Input</button>
 <div id="progressExcelResult" style="margin-top:12px"></div>
 </div>
 </div>
@@ -2102,12 +2095,12 @@ main{height:calc(100% - 4px)!important;margin:2px auto!important;padding:0 8px!i
 <div class="card"><div class="notice gpc-technical-note">Fase Proyek dan Aktivitas / Milestone disimpan terpisah persis sesuai kolom sumber.</div>
 <div class="form formgrid" id="equipmentManualForm"><div><label>Cabang</label><select id="equipmentInputCab" onchange="updateEquipmentStores()"><option value="">Pilih Cabang</option></select><label>Gerai</label><select id="equipmentInputStore"><option value="">Pilih Gerai</option></select><label>Fase Proyek</label><input id="equipmentInputPhase" placeholder="Nama fase proyek"/><label>Aktivitas / Milestone</label><input id="equipmentInputItem" placeholder="Nama aktivitas / milestone"/><label>Target Mulai</label><input id="equipmentInputStart" type="date"/><label>Target Selesai</label><input id="equipmentInputEnd" type="date"/></div><div><label>Durasi Hari Kerja — Otomatis</label><input id="equipmentInputDuration" min="0" placeholder="Contoh: 14" step="1" type="number"/><label>Status</label><select id="equipmentInputStatus"><option>Belum Mulai</option><option>Dalam Proses</option><option>Tertunda</option><option>Selesai</option></select><label>Progress (%) — Otomatis</label><input id="equipmentInputProgress" max="100" min="0" placeholder="0–100" type="number"/><label>Penanggung Jawab (PIC)</label><input id="equipmentInputPIC" placeholder="Nama / fungsi PIC"/><label>Keterangan / Output</label><textarea id="equipmentInputNote" placeholder="Keterangan atau output pekerjaan"></textarea></div></div>
 <div class="crud-actions"><button class="crud-btn save" onclick="crudSaveEquipment()" type="button">SIMPAN</button><button class="crud-btn search" onclick="crudSearchEquipment()" type="button">CARI</button><button class="crud-btn edit" onclick="crudEditEquipment()" type="button">EDIT</button><button class="crud-btn delete" onclick="crudDeleteEquipment()" type="button">DELETE</button><button class="crud-btn reset" onclick="crudResetEquipment()" type="button">RESET</button></div><div class="notice hidden" id="equipmentCrudNotice" style="margin-top:10px"></div><div class="crud-match hidden" id="equipmentCrudMatches"></div>
-<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"/><label><b>Import Excel Master Timeline</b></label><input accept=".xlsx,.xls" id="equipmentImportFile" onchange="EQUIPMENT_IMPORT_PREVIEW=null;document.getElementById('equipmentImportResult').innerHTML=''" type="file"/><button class="btn import-action-btn" onclick="previewEquipmentExcelImport()">Uji & Preview Import</button><button class="btn import-action-btn" onclick="applyEquipmentExcelImport()">Update Data Excel</button><button class="btn soft" onclick="clearEquipmentExcelInputs()" type="button">Reset Input</button><div class="notice hidden" id="equipmentImportResult" style="margin-top:10px"></div>
+<hr style="border:0;border-top:1px solid var(--line);margin:16px 0"/><label><b>Import Excel Master Timeline</b></label><input accept=".xlsx,.xls" id="equipmentImportFile" onchange="EQUIPMENT_IMPORT_PREVIEW=null;document.getElementById('equipmentImportResult').innerHTML=''" type="file"/><button class="btn import-action-btn" onclick="previewEquipmentExcelImport()">Uji &amp; Preview Import</button><button class="btn import-action-btn" onclick="applyEquipmentExcelImport()">Update Data Excel</button><button class="btn soft" onclick="clearEquipmentExcelInputs()" type="button">Reset Input</button><div class="notice hidden" id="equipmentImportResult" style="margin-top:10px"></div>
 </div>
 </div>
 <div class="project-view hidden" id="people-mpp-import">
 <div class="pagehead"><div><h2>INPUT MPP</h2><p>MPP dapat diperbarui melalui input website atau import Excel oleh user login/Admin.</p></div></div>
-<div class="card"><h3>INPUT MPP MANUAL</h3><div class="form formgrid mpp-input-order" id="manualMPPForm"><div><label>Cabang</label><select id="manualMPPCab" onchange="updateManualMPPStores()"><option value="">Pilih Cabang</option><option>BEKASI</option><option>BSD</option><option>CIKUPA</option><option>DEPOK</option><option>JAKBAR</option><option>KELAPA GADING</option><option>TANGERANG</option></select></div><div><label>Gerai</label><select id="manualMPPGerai"></select></div><div><label>PIC</label><select id="manualMPPRole"><option value="">Pilih PIC</option><option>ADMIN</option><option>MCS</option><option>MOH</option></select></div><div><label>MPP</label><input id="manualMPPNeed" min="0" type="number"/></div><div><label>GAP — Otomatis</label><input id="manualMPPShort" min="0" type="number"/></div><div><label>MPE</label><input id="manualMPPMPE" min="0" type="number"/></div><div><label>Pelamar</label><input id="manualMPPApp" min="0" type="number"/></div><div><label>Interview 1</label><input id="manualMPPInterview" min="0" type="number"/></div><div><label>Interview 2</label><input id="manualMPPFollow" min="0" type="number"/></div><div><label>Join</label><input id="manualMPPJoin" min="0" type="number"/></div><div><label>Training</label><input id="manualMPPTraining" min="0" type="number"/></div><div><label>Ready to Use</label><input id="manualMPPComplete" min="0" type="number"/></div></div><div class="crud-actions"><button class="crud-btn save" onclick="saveManualMPP()" type="button">SIMPAN</button><button class="crud-btn search" onclick="crudSearchMPP()" type="button">CARI</button><button class="crud-btn edit" onclick="crudEditMPP()" type="button">EDIT</button><button class="crud-btn delete" onclick="crudDeleteMPP()" type="button">DELETE</button><button class="crud-btn reset" onclick="clearManualMPPInputs()" type="button">RESET</button></div><div class="notice hidden" id="manualMPPResult" style="margin-top:10px"></div><div class="crud-match hidden" id="mppCrudMatches"></div></div><hr style="border:0;border-top:1px solid var(--line);margin:16px 0"/><div class="card"><h3>IMPORT EXCEL MPP</h3> <div class="notice gpc-technical-note">Kolom yang dihitung otomatis akan diperbarui setelah input dasar diisi.</div><label><b>Import Excel MPP</b></label><input accept=".xlsx,.xls,.xlsm" id="mppImportFile" onchange="MPP_IMPORT_PREVIEW=null;document.getElementById('mppImportResult').innerHTML=''" type="file"/><button class="btn import-action-btn" onclick="previewMPPExcelImport()">Uji & Preview Import</button><button class="btn import-action-btn" onclick="applyMPPExcelImport()">Update Data Excel</button><button class="btn soft" onclick="clearMPPImportInputs()" type="button">Reset Input</button><div class="notice hidden" id="mppImportResult" style="margin-top:10px"></div><div id="mppUpdateResult" style="margin-top:10px"></div>
+<div class="card"><h3>INPUT MPP MANUAL</h3><div class="form formgrid mpp-input-order" id="manualMPPForm"><div><label>Cabang</label><select id="manualMPPCab" onchange="updateManualMPPStores()"><option value="">Pilih Cabang</option><option>BEKASI</option><option>BSD</option><option>CIKUPA</option><option>DEPOK</option><option>JAKBAR</option><option>KELAPA GADING</option><option>TANGERANG</option></select></div><div><label>Gerai</label><select id="manualMPPGerai"></select></div><div><label>PIC</label><select id="manualMPPRole"><option value="">Pilih PIC</option><option>ADMIN</option><option>MCS</option><option>MOH</option></select></div><div><label>MPP</label><input id="manualMPPNeed" min="0" type="number"/></div><div><label>GAP — Otomatis</label><input id="manualMPPShort" min="0" type="number"/></div><div><label>MPE</label><input id="manualMPPMPE" min="0" type="number"/></div><div><label>Pelamar</label><input id="manualMPPApp" min="0" type="number"/></div><div><label>Interview 1</label><input id="manualMPPInterview" min="0" type="number"/></div><div><label>Interview 2</label><input id="manualMPPFollow" min="0" type="number"/></div><div><label>Join</label><input id="manualMPPJoin" min="0" type="number"/></div><div><label>Training</label><input id="manualMPPTraining" min="0" type="number"/></div><div><label>Ready to Use</label><input id="manualMPPComplete" min="0" type="number"/></div></div><div class="crud-actions"><button class="crud-btn save" onclick="saveManualMPP()" type="button">SIMPAN</button><button class="crud-btn search" onclick="crudSearchMPP()" type="button">CARI</button><button class="crud-btn edit" onclick="crudEditMPP()" type="button">EDIT</button><button class="crud-btn delete" onclick="crudDeleteMPP()" type="button">DELETE</button><button class="crud-btn reset" onclick="clearManualMPPInputs()" type="button">RESET</button></div><div class="notice hidden" id="manualMPPResult" style="margin-top:10px"></div><div class="crud-match hidden" id="mppCrudMatches"></div></div><hr style="border:0;border-top:1px solid var(--line);margin:16px 0"/><div class="card"><h3>IMPORT EXCEL MPP</h3> <div class="notice gpc-technical-note">Kolom yang dihitung otomatis akan diperbarui setelah input dasar diisi.</div><label><b>Import Excel MPP</b></label><input accept=".xlsx,.xls,.xlsm" id="mppImportFile" onchange="MPP_IMPORT_PREVIEW=null;document.getElementById('mppImportResult').innerHTML=''" type="file"/><button class="btn import-action-btn" onclick="previewMPPExcelImport()">Uji &amp; Preview Import</button><button class="btn import-action-btn" onclick="applyMPPExcelImport()">Update Data Excel</button><button class="btn soft" onclick="clearMPPImportInputs()" type="button">Reset Input</button><div class="notice hidden" id="mppImportResult" style="margin-top:10px"></div><div id="mppUpdateResult" style="margin-top:10px"></div>
 </div></div>
 <section class="project-view hidden" id="super-admin"><div class="pagehead"><div><h2>SUPER ADMIN — USER MANAGEMENT</h2><p>Kelola akun, role, dan akses menu sistem.</p></div></div><div class="card" id="superAdminRoot"><div class="notice">Panel ini membutuhkan Supabase Edge Function <b>admin-users</b> yang dipasang.</div></div></section>
 <div class="project-view hidden" id="people-import">
@@ -2119,7 +2112,7 @@ main{height:calc(100% - 4px)!important;margin:2px auto!important;padding:0 8px!i
 </div>
 </div>
 <div class="project-view hidden" id="master">
-<div class="pagehead"><div><h2>Master Data</h2><p>Pengelolaan gerai, aktivitas, timeline, dan item perlengkapan.</p></div><div class="actions"><button class="btn soft" onclick="exportMasterExcel()">Export Excel Master</button></div></div><div class="card"><div class="notice">Master data dibatasi untuk Admin pada versi final.</div><div class="tablewrap"><table class="table"><thead><tr><th>CAB</th><th>NAMA GERAI</th><th>NO</th><th>AKTIVITAS / PARAMETER</th><th>TIMELINE (HARI)</th></tr></thead><tbody><tr><td>BEKASI</td><td>BEKASI TIMUR</td><td>1</td><td>FSR & PERSETUJUAN : SURVEI LAPANGAN</td><td>2</td></tr><tr><td>BEKASI</td><td>TAMBUN SELATAN</td><td>2</td><td>RECRUITMENT MCS</td><td>14</td></tr><tr><td>BSD</td><td>PAGENDANGAN</td><td>3</td><td>FSR & PERSETUJUAN : KOMITE</td><td>1</td></tr></tbody></table></div></div>
+<div class="pagehead"><div><h2>Master Data</h2><p>Pengelolaan gerai, aktivitas, timeline, dan item perlengkapan.</p></div><div class="actions"><button class="btn soft" onclick="exportMasterExcel()">Export Excel Master</button></div></div><div class="card"><div class="notice">Master data dibatasi untuk Admin pada versi final.</div><div class="tablewrap"><table class="table"><thead><tr><th>CAB</th><th>NAMA GERAI</th><th>NO</th><th>AKTIVITAS / PARAMETER</th><th>TIMELINE (HARI)</th></tr></thead><tbody><tr><td>BEKASI</td><td>BEKASI TIMUR</td><td>1</td><td>FSR &amp; PERSETUJUAN : SURVEI LAPANGAN</td><td>2</td></tr><tr><td>BEKASI</td><td>TAMBUN SELATAN</td><td>2</td><td>RECRUITMENT MCS</td><td>14</td></tr><tr><td>BSD</td><td>PAGENDANGAN</td><td>3</td><td>FSR &amp; PERSETUJUAN : KOMITE</td><td>1</td></tr></tbody></table></div></div>
 </div>
 <div class="project-view hidden" id="mpp-detail"><div class="mpp-detail-card" id="mppDetailNative"><div class="mpp-detail-heading"><h2>DETAIL MPP / MANPOWER PER CABANG</h2><p>Data kebutuhan, kekurangan, pelamar, interview, lanjut proses, join, training, dan selesai training.</p><button class="mpp-collapse-btn" id="mppCollapseAll" type="button">Buka semua cabang</button>
 </div><div class="mpp-table-scroll"><table class="mpp-detail-table"><thead><tr><th>CABANG / GERAI / PIC</th><th>MPP</th><th>GAP</th><th>MPE</th><th>PELAMAR</th><th>INTERVIEW 1</th><th>INTERVIEW 2</th><th>JOIN</th><th>TRAINING</th><th>READY TO USE</th></tr></thead><tbody><tr class="mpp-total"><td>TOTAL</td><td>60</td><td>38</td><td>120</td><td>100</td><td>80</td><td>22</td><td>22</td><td>20</td><td>0</td></tr><tr class="mpp-branch" data-branch="0"><td><b>BEKASI</b></td><td>8</td><td>2</td><td>24</td><td>20</td><td>16</td><td>6</td><td>6</td><td>6</td><td>0</td></tr><tr class="mpp-store collapsed" data-branch="0" data-store="0-0"><td><span class="mpp-store-name">BEKASI TIMUR</span><span class="mpp-short-badge">KURANG 1</span></td><td>4</td><td>1</td><td>16</td><td>13</td><td>10</td><td>3</td><td>0</td><td>1</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="0" data-store="0-0"><td class="mpp-role-label">↳ ADMIN</td><td>1</td><td>0</td><td>10</td><td>8</td><td>5</td><td>1</td><td>1</td><td>1</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="0" data-store="0-0"><td class="mpp-role-label">↳ MCS</td><td>2</td><td>1</td><td>5</td><td>4</td><td>4</td><td>1</td><td>1</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="0" data-store="0-0"><td class="mpp-role-label">↳ MOH</td><td>1</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td></tr><tr class="mpp-store collapsed" data-branch="0" data-store="0-1"><td><span class="mpp-store-name">TAMBUN SELATAN</span><span class="mpp-short-badge">KURANG 1</span></td><td>4</td><td>1</td><td>8</td><td>7</td><td>6</td><td>3</td><td>0</td><td>1</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="0" data-store="0-1"><td class="mpp-role-label">↳ ADMIN</td><td>1</td><td>0</td><td>4</td><td>4</td><td>3</td><td>1</td><td>1</td><td>1</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="0" data-store="0-1"><td class="mpp-role-label">↳ MCS</td><td>2</td><td>1</td><td>3</td><td>2</td><td>2</td><td>1</td><td>1</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="0" data-store="0-1"><td class="mpp-role-label">↳ MOH</td><td>1</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td></tr><tr class="mpp-branch" data-branch="1"><td><b>BSD</b></td><td>8</td><td>2</td><td>24</td><td>20</td><td>16</td><td>6</td><td>6</td><td>6</td><td>0</td></tr><tr class="mpp-store collapsed" data-branch="1" data-store="1-0"><td><span class="mpp-store-name">PAGEDANGAN</span><span class="mpp-short-badge">KURANG 1</span></td><td>4</td><td>1</td><td>16</td><td>13</td><td>10</td><td>3</td><td>0</td><td>1</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="1" data-store="1-0"><td class="mpp-role-label">↳ ADMIN</td><td>1</td><td>0</td><td>10</td><td>8</td><td>5</td><td>1</td><td>1</td><td>1</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="1" data-store="1-0"><td class="mpp-role-label">↳ MCS</td><td>2</td><td>1</td><td>5</td><td>4</td><td>4</td><td>1</td><td>1</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="1" data-store="1-0"><td class="mpp-role-label">↳ MOH</td><td>1</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td></tr><tr class="mpp-store collapsed" data-branch="1" data-store="1-1"><td><span class="mpp-store-name">CIPUTAT</span><span class="mpp-short-badge">KURANG 1</span></td><td>4</td><td>1</td><td>8</td><td>7</td><td>6</td><td>3</td><td>0</td><td>1</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="1" data-store="1-1"><td class="mpp-role-label">↳ ADMIN</td><td>1</td><td>0</td><td>4</td><td>4</td><td>3</td><td>1</td><td>1</td><td>1</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="1" data-store="1-1"><td class="mpp-role-label">↳ MCS</td><td>2</td><td>1</td><td>3</td><td>2</td><td>2</td><td>1</td><td>1</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="1" data-store="1-1"><td class="mpp-role-label">↳ MOH</td><td>1</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td></tr><tr class="mpp-branch" data-branch="2"><td><b>CIKUPA</b></td><td>8</td><td>3</td><td>16</td><td>14</td><td>12</td><td>5</td><td>5</td><td>4</td><td>0</td></tr><tr class="mpp-store collapsed" data-branch="2" data-store="2-0"><td><span class="mpp-store-name">SINDANG JAYA 1 - TELAGA BESTARI</span><span class="mpp-short-badge">KURANG 1</span></td><td>4</td><td>1</td><td>8</td><td>7</td><td>6</td><td>3</td><td>0</td><td>1</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="2" data-store="2-0"><td class="mpp-role-label">↳ ADMIN</td><td>1</td><td>0</td><td>4</td><td>4</td><td>3</td><td>1</td><td>1</td><td>1</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="2" data-store="2-0"><td class="mpp-role-label">↳ MCS</td><td>2</td><td>1</td><td>3</td><td>2</td><td>2</td><td>1</td><td>1</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="2" data-store="2-0"><td class="mpp-role-label">↳ MOH</td><td>1</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td></tr><tr class="mpp-store collapsed" data-branch="2" data-store="2-1"><td><span class="mpp-store-name">SINDANG JAYA 1 - BITUNG</span><span class="mpp-short-badge">KURANG 2</span></td><td>4</td><td>2</td><td>8</td><td>7</td><td>5</td><td>2</td><td>0</td><td>1</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="2" data-store="2-1"><td class="mpp-role-label">↳ ADMIN</td><td>1</td><td>0</td><td>4</td><td>4</td><td>3</td><td>1</td><td>1</td><td>1</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="2" data-store="2-1"><td class="mpp-role-label">↳ MCS</td><td>2</td><td>1</td><td>3</td><td>2</td><td>2</td><td>1</td><td>1</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="2" data-store="2-1"><td class="mpp-role-label">↳ MOH</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-branch" data-branch="3"><td><b>DEPOK</b></td><td>12</td><td>8</td><td>21</td><td>19</td><td>15</td><td>4</td><td>4</td><td>3</td><td>0</td></tr><tr class="mpp-store collapsed" data-branch="3" data-store="3-0"><td><span class="mpp-store-name">PASAR REBO</span><span class="mpp-short-badge">KURANG 2</span></td><td>4</td><td>2</td><td>7</td><td>7</td><td>4</td><td>2</td><td>1</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="3" data-store="3-0"><td class="mpp-role-label">↳ ADMIN</td><td>1</td><td>0</td><td>4</td><td>4</td><td>2</td><td>1</td><td>1</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="3" data-store="3-0"><td class="mpp-role-label">↳ MCS</td><td>2</td><td>1</td><td>2</td><td>2</td><td>2</td><td>1</td><td>1</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="3" data-store="3-0"><td class="mpp-role-label">↳ MOH</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-store collapsed" data-branch="3" data-store="3-1"><td><span class="mpp-store-name">PASAR MINGGU</span><span class="mpp-short-badge">KURANG 3</span></td><td>4</td><td>3</td><td>7</td><td>6</td><td>4</td><td>1</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="3" data-store="3-1"><td class="mpp-role-label">↳ ADMIN</td><td>1</td><td>1</td><td>4</td><td>3</td><td>2</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="3" data-store="3-1"><td class="mpp-role-label">↳ MCS</td><td>2</td><td>1</td><td>2</td><td>2</td><td>2</td><td>1</td><td>1</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="3" data-store="3-1"><td class="mpp-role-label">↳ MOH</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-store collapsed" data-branch="3" data-store="3-2"><td><span class="mpp-store-name">SAWANGAN</span><span class="mpp-short-badge">KURANG 3</span></td><td>4</td><td>3</td><td>7</td><td>6</td><td>4</td><td>1</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="3" data-store="3-2"><td class="mpp-role-label">↳ ADMIN</td><td>1</td><td>1</td><td>4</td><td>3</td><td>2</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="3" data-store="3-2"><td class="mpp-role-label">↳ MCS</td><td>2</td><td>1</td><td>2</td><td>2</td><td>2</td><td>1</td><td>1</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="3" data-store="3-2"><td class="mpp-role-label">↳ MOH</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-branch" data-branch="4"><td><b>JAKBAR</b></td><td>8</td><td>7</td><td>13</td><td>11</td><td>9</td><td>1</td><td>1</td><td>1</td><td>0</td></tr><tr class="mpp-store collapsed" data-branch="4" data-store="4-0"><td><span class="mpp-store-name">KEMBANGAN</span><span class="mpp-short-badge">KURANG 3</span></td><td>4</td><td>3</td><td>7</td><td>6</td><td>4</td><td>1</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="4" data-store="4-0"><td class="mpp-role-label">↳ ADMIN</td><td>1</td><td>1</td><td>4</td><td>3</td><td>2</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="4" data-store="4-0"><td class="mpp-role-label">↳ MCS</td><td>2</td><td>1</td><td>2</td><td>2</td><td>2</td><td>1</td><td>1</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="4" data-store="4-0"><td class="mpp-role-label">↳ MOH</td><td>1</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-store collapsed" data-branch="4" data-store="4-1"><td><span class="mpp-store-name">KEBON JERUK</span><span class="mpp-short-badge">KURANG 4</span></td><td>4</td><td>4</td><td>6</td><td>5</td><td>2</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="4" data-store="4-1"><td class="mpp-role-label">↳ ADMIN</td><td>1</td><td>1</td><td>4</td><td>3</td><td>2</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="4" data-store="4-1"><td class="mpp-role-label">↳ MCS</td><td>2</td><td>2</td><td>2</td><td>2</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="4" data-store="4-1"><td class="mpp-role-label">↳ MOH</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-branch" data-branch="5"><td><b>KELAPA GADING</b></td><td>8</td><td>8</td><td>12</td><td>8</td><td>6</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-store collapsed" data-branch="5" data-store="5-0"><td><span class="mpp-store-name">KOJA</span><span class="mpp-short-badge">KURANG 4</span></td><td>4</td><td>4</td><td>6</td><td>4</td><td>3</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="5" data-store="5-0"><td class="mpp-role-label">↳ ADMIN</td><td>1</td><td>1</td><td>4</td><td>3</td><td>2</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="5" data-store="5-0"><td class="mpp-role-label">↳ MCS</td><td>2</td><td>2</td><td>2</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="5" data-store="5-0"><td class="mpp-role-label">↳ MOH</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-store collapsed" data-branch="5" data-store="5-1"><td><span class="mpp-store-name">JOHAR BARU</span><span class="mpp-short-badge">KURANG 4</span></td><td>4</td><td>4</td><td>6</td><td>4</td><td>3</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="5" data-store="5-1"><td class="mpp-role-label">↳ ADMIN</td><td>1</td><td>1</td><td>4</td><td>3</td><td>2</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="5" data-store="5-1"><td class="mpp-role-label">↳ MCS</td><td>2</td><td>2</td><td>2</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="5" data-store="5-1"><td class="mpp-role-label">↳ MOH</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-branch" data-branch="6"><td><b>TANGERANG</b></td><td>8</td><td>8</td><td>10</td><td>8</td><td>6</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-store collapsed" data-branch="6" data-store="6-0"><td><span class="mpp-store-name">KELAPA DUA</span><span class="mpp-short-badge">KURANG 4</span></td><td>4</td><td>4</td><td>5</td><td>4</td><td>3</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="6" data-store="6-0"><td class="mpp-role-label">↳ ADMIN</td><td>1</td><td>1</td><td>3</td><td>3</td><td>2</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="6" data-store="6-0"><td class="mpp-role-label">↳ MCS</td><td>2</td><td>2</td><td>2</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="6" data-store="6-0"><td class="mpp-role-label">↳ MOH</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-store collapsed" data-branch="6" data-store="6-1"><td><span class="mpp-store-name">PASAR KEMIS</span><span class="mpp-short-badge">KURANG 4</span></td><td>4</td><td>4</td><td>5</td><td>4</td><td>3</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="6" data-store="6-1"><td class="mpp-role-label">↳ ADMIN</td><td>1</td><td>1</td><td>3</td><td>3</td><td>2</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="6" data-store="6-1"><td class="mpp-role-label">↳ MCS</td><td>2</td><td>2</td><td>2</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr class="mpp-role collapsed" data-branch="6" data-store="6-1"><td class="mpp-role-label">↳ MOH</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr></tbody></table></div></div></div></section>
@@ -2140,14 +2133,14 @@ function testProgressExcelImport(){
   const invalid=data.filter(r=>!r.cab||!r.store||!r.activity).length;
   const duplicateKeys=new Set(),dupes=[];data.forEach(r=>{let k=String(r.store).trim().toUpperCase()+'|'+String(r.activity).trim().toUpperCase();if(duplicateKeys.has(k))dupes.push(k);else duplicateKeys.add(k);});
   const good=missing.length===0&&data.length>0;
-  const status=good?'<span style="color:#13734b;font-weight:700">STRUKTUR SHEET & KOLOM OK</span>':'<span style="color:#b42318;font-weight:700">PERLU PERBAIKAN FORMAT</span>';
+  const status=good?'<span style="color:#13734b;font-weight:700">STRUKTUR SHEET &amp; KOLOM OK</span>':'<span style="color:#b42318;font-weight:700">PERLU PERBAIKAN FORMAT</span>';
   const dateFmt=v=>{if(!v)return '—';if(v instanceof Date)return v.toLocaleDateString('id-ID');if(typeof v==='number'&&v>20000){let d=XLSX.SSF.parse_date_code(v);return d?new Date(d.y,d.m-1,d.d).toLocaleDateString('id-ID'):'—';}return String(v)};
   let html='<div class="card" style="background:#f8fbff"><div>'+status+'</div><p><b>File:</b> '+file.name+' · <b>Ukuran:</b> '+(file.size/1024).toFixed(1)+' KB</p><div class="kpis" style="grid-template-columns:repeat(4,minmax(110px,1fr))"><div class="kpi"><small>Baris Data</small><strong>'+data.length+'</strong></div><div class="kpi"><small>Gerai</small><strong>'+stores.length+'</strong></div><div class="kpi"><small>Aktivitas</small><strong>'+activities.length+'</strong></div><div class="kpi"><small>Kolom</small><strong>'+hdr.filter(Boolean).length+'/13</strong></div></div>';
   html+='<p><b>Sheet terdeteksi:</b> '+wb.SheetNames.join(', ')+'</p>';
   if(missing.length)html+='<div class="notice">Kolom tidak cocok pada posisi yang diharapkan: '+missing.join(', ')+'</div>';
   html+='<p><b>Baris kosong/identitas kurang:</b> '+invalid+' · <b>Duplikasi Gerai + Aktivitas:</b> '+dupes.length+'</p>';
   html+='<div style="overflow:auto;max-height:380px"><table class="table"><thead><tr><th>ID</th><th>CAB</th><th>GERAI</th><th>AKTIVITAS</th><th>PLAN START</th><th>PLAN FINISH</th><th>ACTUAL START</th><th>ACTUAL FINISH</th><th>PROGRESS</th><th>STATUS</th></tr></thead><tbody>';
-  data.forEach(r=>html+='<tr><td>'+r.id+'</td><td>'+r.cab+'</td><td>'+r.store+'</td><td>'+r.activity+'</td><td>'+dateFmt(r.planStart)+'</td><td>'+dateFmt(r.planFinish)+'</td><td>'+dateFmt(r.actualStart)+'</td><td>'+dateFmt(r.actualFinish)+'</td><td>'+((r.progress===null||r.progress==='')?'—':Math.round(Number(r.progress)*100)+'%')+'</td><td>'+String(r.status||'—').replace(/</g,'<')+'</td></tr>');
+  data.forEach(r=>html+='<tr><td>'+r.id+'</td><td>'+r.cab+'</td><td>'+r.store+'</td><td>'+r.activity+'</td><td>'+dateFmt(r.planStart)+'</td><td>'+dateFmt(r.planFinish)+'</td><td>'+dateFmt(r.actualStart)+'</td><td>'+dateFmt(r.actualFinish)+'</td><td>'+((r.progress===null||r.progress==='')?'—':Math.round(Number(r.progress)*100)+'%')+'</td><td>'+String(r.status||'—').replace(/</g,'&lt;')+'</td></tr>');
   html+='</tbody></table></div><small>Menampilkan seluruh '+data.length+' baris data untuk preview.</small></div>';out.innerHTML=html;
   window.PROGRESS_IMPORT_TEST={file:file.name,rows:data,validated:good,storeCount:stores.length,activityCount:activities.length,missingColumns:missing,duplicates:dupes};
  }catch(err){out.innerHTML='<div class="notice" style="border-color:#dc6666">Gagal membaca Excel: '+String(err.message||err)+'</div>';}};reader.readAsArrayBuffer(file);
@@ -2260,7 +2253,7 @@ function renderBPDInsightHTML(){
  const norm=s=>String(s||'').trim().toUpperCase();
  const pct=x=>Math.max(0,Math.min(100,(Number(x.progress)||0)*100));
  const avg=a=>a.length?a.reduce((s,x)=>s+pct(x),0)/a.length:0;
- const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&','<':'<','>':'>','"':'"'}[c]));
+ const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
  const totalPct=avg(d), stores=[...new Set(d.map(x=>x.store))], branches=[...new Set(d.map(x=>x.cab).filter(Boolean))];
  const statusNames=['SELESAI SESUAI PLAN','SELESAI TIDAK SESUAI PLAN','ON PROGRESS','BELUM DIKERJAKAN'];
  const statusCount={};statusNames.forEach(s=>statusCount[s]=0);
@@ -2287,6 +2280,12 @@ function renderSummaryTab(tab){document.querySelectorAll('.summary-tab').forEach
  else if(tab==='ga'){root.innerHTML=`<div class="summary-panel"><div class="summary-kpis"><div class="summary-kpi"><span class="icon">🧰</span><div><small>Total Aktivitas Perlengkapan</small><strong>${GA_IMPORT_SUMMARY?GA_IMPORT_SUMMARY.totalTasks:33}</strong></div></div><div class="summary-kpi"><span class="icon">📦</span><div><small>Kategori</small><strong>6</strong></div></div><div class="summary-kpi"><span class="icon">🏪</span><div><small>Scope</small><strong>Gerai</strong></div></div></div><h3>Ringkasan per Kategori</h3>${summaryGroupHtml(SUMMARY_GA,['🏢','📝','🔨','🪑','🌐','🎉'])}<div class="summary-note">Progress perlengkapan terhubung ke menu Dashboard Perlengkapan dan Progress Perlengkapan.</div></div>`;}
  else {root.innerHTML=`<div class="summary-panel"><div class="summary-note">Detail Manpower Planning (MPP), termasuk breakdown per cabang dan posisi, tersedia di menu <b>DETAIL MPP / MANPOWER</b>.</div></div>`;}
 }
+
+function mainMenu(which){['nav-map','nav-summary','nav-dashboard'].forEach(id=>document.getElementById(id)?.classList.remove('active'));document.getElementById('nav-'+which)?.classList.add('active');document.getElementById('map-page').classList.toggle('hidden',which!=='map');document.getElementById('project-page').classList.toggle('hidden',which==='map');const sub=document.getElementById('subnav'),head=document.getElementById('dashboard-heading');if(which==='map'){sub.classList.add('hidden');head.classList.add('hidden');}else if(which==='summary'){sub.classList.remove('hidden');head.classList.add('hidden');renderSubnav();showView('summary');}else{sub.classList.remove('hidden');head.classList.remove('hidden');renderSubnav();showView('dashboard')}}
+function renderSubnav(){const sub=document.getElementById('subnav');const menus=[['dashboard','🏬','DASHBOARD<br>PEMBUKAAN'],['progress-opening','📊','PROGRESS<br>PEMBUKAAN'],['gantt','🗓️','GANTT CHART<br>PEMBUKAAN'],['equipment-dashboard','🧰','DASHBOARD<br>PERLENGKAPAN'],['equipment','📦','PROGRESS<br>PERLENGKAPAN'],['equipment-gantt','📅','GANTT<br>PERLENGKAPAN'],['mpp-detail','👥','DETAIL MPP /<br>MANPOWER'],...(demoLoggedIn?[['input-progress','📥','INPUT PROGRESS'],['input-equipment','📥','INPUT PERLENGKAPAN'],['people-mpp-import','👥','INPUT MPP']]:[])];sub.innerHTML=menus.map(([id,icon,label])=>`<button type="button" data-view="${id}"><span class="subnav-icon">${icon}</span><span class="subnav-label">${label}</span></button>`).join('');}
+function showView(id){const allowed={summary:'SUMMARY',dashboard:'DASHBOARD PEMBUKAAN','progress-opening':'PROGRESS PEMBUKAAN',gantt:'GANTT CHART PEMBUKAAN','equipment-dashboard':'DASHBOARD PERLENGKAPAN',equipment:'PROGRESS PERLENGKAPAN','equipment-gantt':'GANTT PERLENGKAPAN','mpp-detail':'DETAIL MPP / MANPOWER',...(demoLoggedIn?{'input-progress':'INPUT PROGRESS','input-equipment':'INPUT PERLENGKAPAN','people-mpp-import':'INPUT MPP'}:{})};if(!allowed[id]){alert('Menu ini hanya tersedia setelah login.');return;}document.querySelectorAll('.project-view').forEach(v=>v.classList.add('hidden'));document.getElementById(id)?.classList.remove('hidden');if(id==='mpp-detail'){document.getElementById('mpp-detail')?.scrollIntoView({block:'start',behavior:'smooth'});}if(id==='progress-opening')renderOpeningProgress();if(id==='equipment-gantt')renderEquipmentGantt();if(id==='equipment-dashboard')renderEquipmentDashboard();if(id==='summary'){renderSummaryTab('bpd');window.GPC_SEND_SUMMARY_PROGRESS?.();}document.querySelectorAll('#subnav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id))}
+// Delegated sub-navigation click handling (ensures every tile, including MPP, is clickable).
+document.getElementById('subnav')?.addEventListener('click',function(ev){const btn=ev.target.closest('button[data-view]');if(!btn)return;ev.preventDefault();showView(btn.dataset.view);});
 
 function parseEquipmentWorkbook(buffer){const wb=XLSX.read(buffer,{type:'array',cellDates:true}),names=wb.SheetNames.filter(n=>n.trim().toLowerCase()!=='master'),stores=[];const normDate=v=>{if(!v)return '';if(v instanceof Date&&!isNaN(v))return v.toISOString().slice(0,10);if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);return d?`${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`:'';}const z=String(v).trim(),m=z.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);return m?`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`:z.slice(0,10);};names.forEach(name=>{const rows=XLSX.utils.sheet_to_json(wb.Sheets[name],{header:1,raw:true,defval:''});let hr=rows.findIndex(row=>row.some(v=>String(v||'').trim().toLowerCase()==='no')&&row.some(v=>String(v||'').toLowerCase().includes('fase proyek')));if(hr<0)hr=7;const hs=(rows[hr]||[]).map(v=>String(v||'').trim().toLowerCase()),ix=(keys,fb)=>{const j=hs.findIndex(h=>keys.some(k=>h.includes(k)));return j>=0?j:fb;},cNo=ix(['no'],1),cPhase=ix(['fase proyek'],2),cAct=ix(['aktivitas','milestone'],3),cStart=ix(['target mulai'],4),cEnd=ix(['target selesai'],5),cDur=ix(['durasi'],6),cStatus=ix(['status'],7),cProg=ix(['progres','progress'],8),cPic=ix(['penanggung jawab','pic'],9),cNote=ix(['keterangan','output'],10),tasks=[];for(let i=hr+1;i<rows.length;i++){const r=rows[i]||[],num=Number(r[cNo]),phase=String(r[cPhase]||'').trim(),activity=String(r[cAct]||'').trim();if(!Number.isFinite(num)||num<=0||(!phase&&!activity))continue;let status=String(r[cStatus]||'Belum Mulai').trim(),prog=r[cProg];if(typeof prog==='string'&&prog.includes('%'))prog=parseFloat(prog)/100;else if(typeof prog==='string')prog=parseFloat(prog);else if(typeof prog!=='number')prog=0;if(!isFinite(prog))prog=0;if(prog>1)prog/=100;prog=Math.max(0,Math.min(1,prog));tasks.push({num,phase,activity,start:normDate(r[cStart]),end:normDate(r[cEnd]),duration:Number(r[cDur])||0,status,progress:prog,pic:String(r[cPic]||'').trim(),note:String(r[cNote]||'').trim()});}if(tasks.length)stores.push({name,cab:'',tasks});});return {stores,total:stores.reduce((n,s)=>n+s.tasks.length,0)};}
 let EQUIPMENT_IMPORT_PREVIEW=null;
@@ -2336,7 +2335,7 @@ function renderOpeningProgress(){
 document.getElementById('openingReset')?.addEventListener('click',()=>{document.getElementById('openingCab').value='ALL';document.getElementById('openingStore').value='ALL';document.getElementById('openingSearch').value='';document.getElementById('openingStatus').value='ALL';renderOpeningProgress();});
 
 window.addEventListener('message',e=>{if(e.source===document.querySelector('iframe.mapframe')?.contentWindow&&e.data?.type==='GPC_MAP_READY')sendEditorState();});
-function sendEditorState(){const f=document.getElementById('equipmentFrame');if(f&&f.contentWindow)f.contentWindow.postMessage({type:'EDITOR_STATE',loggedIn:!!demoLoggedIn},'*');const mf=document.querySelector('iframe.mapframe');const appState=window.GPC_SUPABASE_STATE;const p=appState&&appState.profile?appState.profile:null;const role=String(p?.app_role||'').toLowerCase();const authenticated=!!(p&&p.is_active===true&&demoLoggedIn&&role==='super_admin');if(mf&&mf.contentWindow)mf.contentWindow.postMessage({type:'GPC_MAP_ACCESS',authenticated,role},'*');}
+function sendEditorState(){const f=document.getElementById('equipmentFrame');if(f&&f.contentWindow)f.contentWindow.postMessage({type:'EDITOR_STATE',loggedIn:!!demoLoggedIn},'*');const mf=document.querySelector('iframe.mapframe');const p=APP&&APP.profile?APP.profile:null;const role=String(p?.app_role||'').toLowerCase();const authenticated=!!(p&&p.is_active===true&&demoLoggedIn&&role==='super_admin');if(mf&&mf.contentWindow)mf.contentWindow.postMessage({type:'GPC_MAP_ACCESS',authenticated,role},'*');}
 window.GPC_LATEST_EQUIPMENT_IMPORT=null;window.sendEquipmentImportToProgress=function(){const f=document.getElementById('equipmentFrame'),payload=window.GPC_LATEST_EQUIPMENT_IMPORT;if(!f||!f.contentWindow||!payload)return false;try{if(typeof f.contentWindow.updateEquipmentProgressData==='function'){const result=f.contentWindow.updateEquipmentProgressData(payload.data,payload.filename);if(result&&result.ok)return true;}f.contentWindow.postMessage(payload,'*');return true;}catch(e){try{f.contentWindow.postMessage(payload,'*');return true;}catch(err){return false;}}};document.querySelector('iframe.mapframe')?.addEventListener('load',()=>sendEditorState());document.getElementById('equipmentFrame')?.addEventListener('load',()=>{sendEditorState();if(window.GPC_LATEST_EQUIPMENT_IMPORT)window.sendEquipmentImportToProgress();window.GPC_SEND_SUMMARY_PROGRESS?.();});
 function loginDemo(){demoLoggedIn=!demoLoggedIn;document.getElementById('accessBadge').textContent=demoLoggedIn?'DEMO EDITOR • LOGIN SIMULASI':'VIEWER • READ ONLY';document.getElementById('loginButton').textContent=demoLoggedIn?'Logout Demo':'LOGIN';sendEditorState();if(!document.getElementById('project-page').classList.contains('hidden')){renderSubnav();if(document.getElementById('nav-dashboard').classList.contains('active'))showView('dashboard');else showView('summary');}alert(demoLoggedIn?'Login simulasi berhasil. Menu input dan master data ditampilkan. Ini bukan autentikasi sungguhan.':'Logout simulasi. Kembali ke mode Viewer.');}
 </script>
@@ -2390,7 +2389,43 @@ renderEquipmentDashboard();
 <script>window.addEventListener('message',e=>{if(e.data&&e.data.type==='MASTER_TIMELINE_IMPORTED'&&Array.isArray(e.data.data)){if(e.data.data.length!==15||e.data.data.reduce((n,s)=>n+s.tasks.length,0)!==494){const n=document.getElementById('equipmentDashImportNotice');if(n)n.textContent='Import ditolak: validasi harus 15 gerai dan 494 aktivitas.';return;}MASTER_TIMELINE_DATA=e.data.data;renderEquipmentDashboard();const n=document.getElementById('equipmentDashImportNotice');if(n)n.textContent='Dashboard diperbarui: 15 gerai, 494 aktivitas dari '+(e.data.filename||'Excel Master Timeline')+' (sementara).'}});
 function inspectPeopleExcel(){const f=document.getElementById('peopleExcelFile')?.files?.[0];const box=document.getElementById('peopleExcelInfo');if(!box)return;if(!f){box.classList.remove('hidden');box.textContent='Silakan pilih file Excel People terlebih dahulu.';return;}box.classList.remove('hidden');box.textContent=`File terpilih: ${f.name} (${(f.size/1024).toFixed(1)} KB). File berhasil dipilih. Pemetaan kolom dan import data akan diaktifkan setelah format workbook People ditetapkan.`;}
 </script>
-
+<script>
+// Navigation fix: explicit state switching for MAP, SUMMARY and DASHBOARD.
+window.mainMenu = function(which){
+  const ids=['nav-map','nav-summary','nav-dashboard'];
+  ids.forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  document.getElementById('nav-'+which)?.classList.add('active');
+  const map=document.getElementById('map-page'), project=document.getElementById('project-page');
+  const sub=document.getElementById('subnav'), head=document.getElementById('dashboard-heading');
+  if(which==='map'){
+    map.classList.remove('hidden'); project.classList.add('hidden'); sub.classList.add('hidden'); head?.classList.add('hidden');
+    const frame=map.querySelector('iframe'); if(frame){frame.style.height='';}
+    return;
+  }
+  map.classList.add('hidden'); project.classList.remove('hidden');
+  document.querySelectorAll('.project-view').forEach(v=>v.classList.add('hidden'));
+  if(which==='summary'){
+    sub.classList.add('hidden'); head?.classList.add('hidden');
+    document.getElementById('summary')?.classList.remove('hidden');
+    const frame=document.getElementById('summaryExactFrame'); if(frame){frame.style.width='100%'; frame.style.maxWidth='100%';}
+    return;
+  }
+  sub.classList.remove('hidden'); head?.classList.remove('hidden'); renderSubnav();
+  document.getElementById('dashboard')?.classList.remove('hidden');
+};
+window.showView = function(id){
+ const allowed=['summary','dashboard','progress-opening','gantt','equipment-dashboard','equipment','equipment-gantt','mpp-detail'];
+ if(demoLoggedIn) allowed.push('input-progress','input-equipment','people-mpp-import');
+ if(!allowed.includes(id)){alert('Menu input hanya tersedia setelah login.');return;}
+ document.querySelectorAll('.project-view').forEach(v=>v.classList.add('hidden'));
+ document.getElementById(id)?.classList.remove('hidden');
+ if(id==='progress-opening'){window.GANTT_SOURCE_DATA=Array.isArray(GANTT_SOURCE_DATA)?GANTT_SOURCE_DATA:(window.GANTT_SOURCE_DATA||[]);renderOpeningProgress();}
+ if(id==='equipment-gantt') renderEquipmentGantt();
+ if(id==='equipment-dashboard') renderEquipmentDashboard();
+ if(id==='summary'){renderSummaryTab('bpd');window.GPC_SEND_SUMMARY_PROGRESS?.();}
+ document.querySelectorAll('#subnav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));
+};
+</script>
 <script id="initialProgressDataBinding">
 // Bind embedded Excel test data to the progress views at startup.
 window.GANTT_SOURCE_DATA = Array.isArray(GANTT_SOURCE_DATA) ? GANTT_SOURCE_DATA : (window.GANTT_SOURCE_DATA || []);
@@ -3021,7 +3056,15 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
     const unrestricted = !profile || role === 'super_admin' || role === 'admin';
     const mapping = { 'nav-map':'map', 'nav-summary':'summary', 'nav-dashboard':'dashboard' };
     Object.entries(mapping).forEach(([id,key]) => { const el=$(id); if(el) el.style.display = (unrestricted || access.includes(key)) ? '' : 'none'; });
-    const sa=$('nav-super-admin'); if(sa) sa.style.display=role==='super_admin'?'':'none';
+    const sa=$('nav-super-admin');
+    if (sa) {
+      // Hide for every non-super-admin role, regardless of responsive CSS.
+      if (role === 'super_admin') {
+        sa.style.removeProperty('display');
+      } else {
+        sa.style.setProperty('display', 'none', 'important');
+      }
+    }
   }
   function setViewerState() {
     APP.profile = null;
@@ -3441,26 +3484,7 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
     ].filter(([id]) => hasMenuAccess(id));
     if (role === 'super_admin') menus.push(['super-admin','🛡️','SUPER ADMIN']);
     sub.innerHTML = menus.map(([id,icon,label]) => `<button type="button" data-view="${id}"><span class="subnav-icon">${icon}</span><span class="subnav-label">${label}</span></button>`).join('');
-    // Submenu clicks are handled by the single delegated listener registered below.
-  }
-
-  function activateProjectView(id) {
-    const project = $('project-page');
-    const map = $('map-page');
-    if (map) { map.classList.add('hidden'); map.style.setProperty('display','none','important'); }
-    if (project) { project.classList.remove('hidden'); project.style.setProperty('display','block','important'); }
-    document.querySelectorAll('#project-page .project-view').forEach((view) => {
-      const active = view.id === id;
-      view.classList.toggle('hidden', !active);
-      view.style.setProperty('display', active ? 'block' : 'none', 'important');
-      view.setAttribute('aria-hidden', active ? 'false' : 'true');
-    });
-    const activeView = $(id);
-    if (activeView) {
-      activeView.classList.remove('hidden');
-      activeView.style.setProperty('display','block','important');
-      activeView.setAttribute('aria-hidden','false');
-    }
+    sub.querySelectorAll('button').forEach(button => button.addEventListener('click', () => showView(button.dataset.view)));
   }
 
   function showView(id) {
@@ -3470,32 +3494,19 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
     if (id !== 'super-admin' && !hasMenuAccess(id)) {
       alert('Akses ditolak. Menu ini tidak diberikan kepada akun Anda.'); return;
     }
-    const target = $(id);
-    if (!target || !target.classList.contains('project-view')) {
-      console.error('Halaman tidak ditemukan:', id);
-      return;
-    }
-    activateProjectView(id);
+    document.querySelectorAll('.project-view').forEach((view) => view.classList.add('hidden'));
+    $(id)?.classList.remove('hidden');
     if (id === 'progress-opening' && typeof renderOpeningProgress === 'function') renderOpeningProgress();
     if (id === 'gantt' && typeof renderGantt === 'function') renderGantt();
     if (id === 'equipment-gantt' && typeof renderEquipmentGantt === 'function') renderEquipmentGantt();
     if (id === 'equipment-dashboard' && typeof renderEquipmentDashboard === 'function') renderEquipmentDashboard();
-    if (id === 'summary' && typeof renderSummaryTab === 'function') {
-      renderSummaryTab('bpd');
-      window.GPC_SEND_SUMMARY_PROGRESS?.();
-      const frame = $('summaryExactFrame');
-      if (frame) {
-        frame.style.setProperty('display','block','important');
-        frame.style.setProperty('width','100%','important');
-        frame.style.setProperty('height','100%','important');
-        frame.contentWindow?.dispatchEvent(new Event('resize'));
-      }
-    }
+    if (id === 'summary' && typeof renderSummaryTab === 'function') renderSummaryTab('bpd');
     if (id === 'super-admin') renderSuperAdminPanel();
     document.querySelectorAll('#subnav button').forEach((button) => button.classList.toggle('active', button.dataset.view === id));
   }
 
   function mainMenu(which) {
+    // Validate access before changing visible containers; denied navigation must not blank the page.
     const required = which === 'map' ? 'map' : which === 'summary' ? 'summary' : 'dashboard';
     if (!hasMenuAccess(required)) {
       alert('Akses ditolak. Menu ini tidak diberikan kepada akun Anda.');
@@ -3505,45 +3516,30 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
     $('nav-' + which)?.classList.add('active');
     const map = $('map-page'), project = $('project-page'), sub = $('subnav'), head = $('dashboard-heading');
     if (which === 'map') {
-      document.querySelectorAll('#project-page .project-view').forEach((view) => {
-        view.classList.add('hidden');
-        view.style.setProperty('display','none','important');
-        view.setAttribute('aria-hidden','true');
-      });
-      if (project) { project.classList.add('hidden'); project.style.setProperty('display','none','important'); }
-      if (map) { map.classList.remove('hidden'); map.style.setProperty('display','block','important'); }
+      map?.classList.remove('hidden');
+      project?.classList.add('hidden');
       sub?.classList.add('hidden');
       head?.classList.add('hidden');
       const frame = map?.querySelector('iframe.mapframe');
       if (frame) {
         frame.contentWindow?.postMessage({type:'GPC_MAP_LAYOUT_REFRESH'}, '*');
-        setTimeout(() => frame.contentWindow?.postMessage({type:'GPC_MAP_LAYOUT_REFRESH'}, '*'), 180);
       }
       return;
     }
-    if (map) { map.classList.add('hidden'); map.style.setProperty('display','none','important'); }
-    if (project) { project.classList.remove('hidden'); project.style.setProperty('display','block','important'); }
+    map?.classList.add('hidden');
+    project?.classList.remove('hidden');
+    document.querySelectorAll('.project-view').forEach((view) => view.classList.add('hidden'));
     if (which === 'summary') {
       sub?.classList.add('hidden');
       head?.classList.add('hidden');
-      showView('summary');
+      $('summary')?.classList.remove('hidden');
+      if (typeof renderSummaryTab === 'function') renderSummaryTab('bpd');
       return;
     }
     sub?.classList.remove('hidden');
     head?.classList.remove('hidden');
     renderSubnav();
     showView('dashboard');
-  }
-
-  // A single delegated listener keeps regenerated submenu buttons working.
-  if (!window.__GPC_SUBNAV_HANDLER_BOUND) {
-    $('subnav')?.addEventListener('click', (event) => {
-      const button = event.target.closest('button[data-view]');
-      if (!button) return;
-      event.preventDefault();
-      showView(button.dataset.view);
-    });
-    window.__GPC_SUBNAV_HANDLER_BOUND = true;
   }
 
   window.renderSubnav = renderSubnav;
@@ -5555,10 +5551,5 @@ document.addEventListener('DOMContentLoaded',function(){
 @media(max-width:520px){
   #map-page .mapframe-wrap{height:calc(100dvh - 170px)!important;min-height:320px!important;}
 }
-</style>
-
-<style id="gpc-hide-top-super-admin-button">
-/* Hide only the top navigation shortcut; SUPER ADMIN functionality remains available in its authorized submenu. */
-#nav-super-admin{display:none!important;visibility:hidden!important}
 </style>
 </body></html>
