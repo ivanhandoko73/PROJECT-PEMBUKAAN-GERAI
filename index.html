@@ -3764,6 +3764,8 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
     // Master Gerai memakai nama JOHAR BARU. Kedua ejaan workbook dipetakan
     // ke satu kunci master yang sama tanpa mengubah identitas/cabang gerai.
     if (k === 'JOHARBARU' || k === 'JOHORBARU') k = 'JOHARBARU';
+    // Sheet Excel 'Bitung' adalah gerai Master 'SINDANG JAYA 2 - BITUNG'.
+    if (k === 'BITUNG') k = 'SINDANGJAYA2BITUNG';
     if (k === 'CILINCING' || k === 'KOJA') k = 'KOJA';
     if (k === 'KEBONJERUK') k = 'KEBONJERUK2';
     if (k === 'SINDANGJAYA1') k = 'SINDANGJAYA1TELAGABESTARI';
