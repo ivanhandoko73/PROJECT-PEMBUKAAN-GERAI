@@ -782,6 +782,46 @@ footer{color:#8192a3!important}
 #gantt .gantt-performance-key strong{font-weight:800!important;}
 </style>
 
+
+<style id="gpc-opening-gantt-final-bar-20px-font-10px">
+/* FINAL OVERRIDE: khusus Gantt Pembukaan. Menimpa aturan lama yang sebelumnya mengunci bar 14px dan font 7px. */
+#ganttTimeline .gantt-track .bar{
+  height:20px!important;
+  min-height:20px!important;
+  max-height:20px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+}
+#ganttTimeline .gantt-track .bar:not(.actual){
+  top:3px!important;
+}
+#ganttTimeline .gantt-track .bar.actual{
+  top:29px!important;
+  height:20px!important;
+  min-height:20px!important;
+  max-height:20px!important;
+}
+#ganttTimeline .gantt-bar-duration{
+  display:block!important;
+  font-family:'Poppins',Arial,sans-serif!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  line-height:1!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  max-width:100%!important;
+  padding:0 1px!important;
+  pointer-events:none!important;
+}
+#ganttTimeline .gantt-bar-duration.on-time{color:#00e676!important;}
+#ganttTimeline .gantt-bar-duration.late{color:#ff3b30!important;}
+#ganttTimeline .gantt-bar-duration.unassessed{color:#ffffff!important;}
+</style>
+
 </head>
 <body>
 <header class="top">
