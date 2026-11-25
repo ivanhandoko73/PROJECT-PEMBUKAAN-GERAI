@@ -704,6 +704,84 @@ footer{color:#8192a3!important}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
 </style>
+
+<style id="gpc-opening-gantt-sticky-month-header">
+/* Khusus Gantt Pembukaan: nama bulan dan tanggal tetap terlihat saat scroll vertikal. */
+#gantt .gantt-scroll{
+  position:relative!important;
+  overflow-x:auto!important;
+  overflow-y:auto!important;
+  isolation:isolate!important;
+}
+#gantt #ganttTimeline > .gh[style*="grid-row:1"]{
+  position:sticky!important;
+  top:0!important;
+  z-index:14!important;
+  background:#e1edf6!important;
+  align-self:start!important;
+}
+#gantt #ganttTimeline > .gh[style*="grid-row:2"]{
+  position:sticky!important;
+  top:38px!important;
+  z-index:13!important;
+  background:#e1edf6!important;
+  align-self:start!important;
+}
+#gantt #ganttTimeline > .gh:first-child{
+  left:0!important;
+  top:0!important;
+  z-index:16!important;
+  background:#183f60!important;
+}
+</style>
+
+
+<style id="gpc-opening-gantt-performance-labels-and-bar-size">
+/* Hanya Gantt Pembukaan: kembalikan tinggi bar yang jelas, tanpa mengubah lebar timeline/hari. */
+#gantt .gantt-track:not(.gantt-store-group-track) .bar:not(.actual){
+  top:29px!important;
+  height:10px!important;
+}
+#gantt .gantt-track:not(.gantt-store-group-track) .bar.actual{
+  top:44px!important;
+  height:10px!important;
+}
+/* Label durasi memakai Poppins tebal; hijau = sesuai PLAN, merah = terlambat. */
+#ganttTimeline .gantt-bar-duration{
+  font-family:'Poppins',Arial,sans-serif!important;
+  font-size:8px!important;
+  font-weight:800!important;
+  line-height:1!important;
+  letter-spacing:0!important;
+  text-align:center!important;
+  text-shadow:0 0 2px rgba(255,255,255,.85),0 1px 1px rgba(0,0,0,.35)!important;
+  white-space:nowrap!important;
+}
+#ganttTimeline .gantt-bar-duration.on-time{color:#00e676!important;}
+#ganttTimeline .gantt-bar-duration.late{color:#ff3b30!important;}
+#ganttTimeline .gantt-bar-duration.unassessed{color:#ffffff!important;}
+#gantt .gantt-legend .gantt-performance-key{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  margin-left:8px!important;
+  white-space:nowrap!important;
+  font-family:'Poppins',Arial,sans-serif!important;
+  font-size:10px!important;
+  font-weight:700!important;
+}
+#gantt .gantt-performance-dot{
+  display:inline-block!important;
+  width:9px!important;
+  height:9px!important;
+  border-radius:50%!important;
+  flex:0 0 9px!important;
+}
+#gantt .gantt-performance-dot.on-time{background:#00a84f!important;}
+#gantt .gantt-performance-dot.late{background:#dc2626!important;}
+#gantt .gantt-performance-key strong{font-weight:800!important;}
+</style>
+
 </head>
 <body>
 <header class="top">
@@ -2169,7 +2247,7 @@ body.presentation #exitPresentation{display:none!important}
 <div class="project-view hidden" id="gantt">
 <div class="card gantt-card"><div class="filters gantt-filters"><select id="ganttCab"><option value="ALL">Semua Cabang</option></select><select id="ganttStore"><option value="ALL">Semua Gerai</option></select><input id="ganttSearch" placeholder="Cari aktivitas..."/><select id="ganttStatus"><option value="ALL">Semua Status</option><option value="SELESAI">Selesai</option><option value="ON PROGRESS">On Progress</option><option value="BELUM DIKERJAKAN">Belum Dikerjakan</option></select><button class="filter-reset" id="ganttReset" type="button">↻ RESET</button></div>
 <div class="gantt-summary" id="ganttSummary"></div>
-<div class="gantt-legend"><span><i class="plan-key"></i> Plan</span><span><i class="actual-key"></i> Actual</span><span>Durasi hari tertera di kolom kiri</span></div>
+<div class="gantt-legend"><span><i class="plan-key"></i> Plan</span><span><i class="actual-key"></i> Actual</span><span>Durasi hari tertera di kolom kiri</span><span class="gantt-performance-key"><b class="gantt-performance-dot on-time"></b><strong>Sesuai Plan</strong></span><span class="gantt-performance-key"><b class="gantt-performance-dot late"></b><strong>Terlambat</strong></span></div>
 <div class="gantt-scroll"><div class="gantt-timeline" id="ganttTimeline"></div></div>
 <div class="gantt-note">Tanggal sebelum 01 Nov 2026 atau setelah 31 Des 2027 dipotong pada batas tampilan. Timeline harian: setiap kolom mewakili satu tanggal, dari 01 Nov 2026 hingga 31 Des 2027.</div></div>
 </div>
@@ -2584,6 +2662,17 @@ function applyMPPExcelImport(){const f=document.getElementById('mppImportFile')?
     if(!actualStarted&&!actualCompleted)return "BELUM DIKERJAKAN";
     return "DATA TANGGAL TIDAK LENGKAP";
   };
+  // Warna label PLAN dan ACTUAL: bandingkan tanggal selesai aktual dengan PLAN FINISH.
+  // Untuk pekerjaan yang masih berjalan, gunakan tanggal hari ini sebagai pembanding.
+  const localToday=()=>{
+    const d=new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  };
+  const getScheduleTone=x=>{
+    if(!hasValidDate(x.planStart)||!hasValidDate(x.planFinish)||!hasValidDate(x.actualStart))return "unassessed";
+    const finish=hasValidDate(x.actualFinish)?x.actualFinish:localToday();
+    return finish>x.planFinish?"late":"on-time";
+  };
   const getRows=()=>{
     const rows=Array.isArray(window.GANTT_SOURCE_DATA)?window.GANTT_SOURCE_DATA:GANTT_SOURCE_DATA;
     if(!Array.isArray(rows)) return [];
@@ -2651,7 +2740,8 @@ function applyMPPExcelImport(){const f=document.getElementById('mppImportFile')?
       html+=`<div class="gantt-rowlabel gantt-store-group" style="grid-row:auto"><span class="store">${group.cab} - ${group.store}</span><span class="task">${group.items.length} AKTIVITAS PEMBUKAAN</span></div><div class="gantt-track gantt-store-group-track" style="grid-column:2 / -1;grid-row:auto;height:24px;background:#f8fafc"></div>`;
       group.items.forEach(x=>{
         const plan=days(x.planStart,x.planFinish);
-        const actual=x.actualStart?days(x.actualStart,x.actualFinish||new Date().toISOString().slice(0,10)):0;
+        const actual=x.actualStart?days(x.actualStart,x.actualFinish||localToday()):0;
+        const scheduleTone=getScheduleTone(x);
         const activityNo=activityNoById.get(x.id)||1;
         html+=`<div class="gantt-rowlabel" style="grid-row:auto"><span class="store">${activityNo}. ${x.cab} - ${x.store}</span><span class="task">${x.task||""}</span><span class="dur"><span>Plan: <b>${plan} hari</b> (${fmtDate(x.planStart)} – ${fmtDate(x.planFinish)})</span><span>Actual: <b>${actual} hari</b>${x.actualStart?" ("+fmtDate(x.actualStart)+" – "+fmtDate(x.actualFinish||"")+")":" (belum mulai)"}</span></span></div>`;
         const ps=x.planStart?new Date(x.planStart+"T00:00:00"):null;
@@ -2664,12 +2754,12 @@ function applyMPPExcelImport(){const f=document.getElementById('mppImportFile')?
         const pct=d=>((d-minDate)/86400000)/total*100;
         if(ps&&pf&&!Number.isNaN(ps.getTime())&&!Number.isNaN(pf.getTime())&&pf>=minDate&&ps<=maxDate&&pf>=ps){
           const left=Math.max(0,pct(ps)),right=Math.min(100,pct(new Date(pf.getTime()+86400000)));
-          bar+=`<i class="bar" style="left:${left}%;width:${Math.max(.15,right-left)}%" title="Plan ${fmtDate(x.planStart)} – ${fmtDate(x.planFinish)} (${plan} hari)"><span class="gantt-bar-duration">${plan} HARI</span></i>`;
+          bar+=`<i class="bar" style="left:${left}%;width:${Math.max(.15,right-left)}%" title="Plan ${fmtDate(x.planStart)} – ${fmtDate(x.planFinish)} (${plan} hari)"><span class="gantt-bar-duration ${scheduleTone}">${plan} HARI</span></i>`;
         }
         if(as&&af&&!Number.isNaN(as.getTime())&&!Number.isNaN(af.getTime())&&af>=minDate&&as<=maxDate&&af>=as){
           const left=Math.max(0,pct(as)),right=Math.min(100,pct(new Date(af.getTime()+86400000)));
           const actualTitle=x.actualFinish?`Actual ${fmtDate(x.actualStart)} – ${fmtDate(x.actualFinish)} (${actual} hari)`:`Actual berjalan sejak ${fmtDate(x.actualStart)} (${actual} hari sampai hari ini)`;
-          bar+=`<i class="bar actual" style="left:${left}%;width:${Math.max(.15,right-left)}%" title="${actualTitle}"><span class="gantt-bar-duration">${actual} HARI</span></i>`;
+          bar+=`<i class="bar actual" style="left:${left}%;width:${Math.max(.15,right-left)}%" title="${actualTitle}"><span class="gantt-bar-duration ${scheduleTone}">${actual} HARI</span></i>`;
         }
         html+=`<div class="gantt-track">${bar}</div>`;
       });
