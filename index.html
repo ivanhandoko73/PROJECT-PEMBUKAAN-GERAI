@@ -2567,6 +2567,23 @@ function applyMPPExcelImport(){const f=document.getElementById('mppImportFile')?
     if(Number.isNaN(start.getTime())||Number.isNaN(finish.getTime())||finish<start)return 0;
     return Math.round((finish-start)/86400000)+1;
   };
+  // Status Gantt mengikuti kelengkapan tanggal PLAN dan ACTUAL, bukan teks STATUS bebas.
+  const hasValidDate=value=>{
+    const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value||"").trim());
+    if(!m)return false;
+    const d=new Date(Date.UTC(Number(m[1]),Number(m[2])-1,Number(m[3])));
+    return d.getUTCFullYear()===Number(m[1])&&d.getUTCMonth()===Number(m[2])-1&&d.getUTCDate()===Number(m[3]);
+  };
+  const getGanttStatus=x=>{
+    const planComplete=hasValidDate(x.planStart)&&hasValidDate(x.planFinish);
+    const actualStarted=hasValidDate(x.actualStart);
+    const actualCompleted=hasValidDate(x.actualFinish);
+    if(!planComplete)return "DATA TANGGAL BELUM LENGKAP";
+    if(actualStarted&&actualCompleted)return "SELESAI";
+    if(actualStarted&&!actualCompleted)return "ON PROGRESS";
+    if(!actualStarted&&!actualCompleted)return "BELUM DIKERJAKAN";
+    return "DATA TANGGAL TIDAK LENGKAP";
+  };
   const getRows=()=>{
     const rows=Array.isArray(window.GANTT_SOURCE_DATA)?window.GANTT_SOURCE_DATA:GANTT_SOURCE_DATA;
     if(!Array.isArray(rows)) return [];
@@ -2606,11 +2623,13 @@ function applyMPPExcelImport(){const f=document.getElementById('mppImportFile')?
       (store==="ALL"||x.store===store)&&
       (c==="ALL"||x.cab===c)&&
       (!search||String(x.task||"").toLowerCase().includes(search)||String(x.store||"").toLowerCase().includes(search)||(`${x.cab||""} - ${x.store||""}`).toLowerCase().includes(search))&&
-      (status==="ALL"||(status==="SELESAI"?String(x.status||"").includes("SELESAI"):status==="ON PROGRESS"?String(x.status||"").includes("ON PROGRESS"):String(x.status||"").includes("BELUM")))
+      (status==="ALL"||getGanttStatus(x)===status)
     );
+    // KPI dihitung dari kolom tanggal Excel yang sudah diimpor ke Supabase dan dimuat ke GANTT_SOURCE_DATA.
     const pd=data.reduce((sum,x)=>sum+days(x.planStart,x.planFinish),0);
-    const ad=data.reduce((sum,x)=>sum+(x.actualStart?days(x.actualStart,x.actualFinish||new Date().toISOString().slice(0,10)):0),0);
-    const started=data.filter(x=>x.actualStart).length;
+    const today=new Date().toISOString().slice(0,10);
+    const ad=data.reduce((sum,x)=>sum+(hasValidDate(x.actualStart)?days(x.actualStart,hasValidDate(x.actualFinish)?x.actualFinish:today):0),0);
+    const started=data.filter(x=>hasValidDate(x.actualStart)).length;
     const summary=document.getElementById("ganttSummary");
     if(summary)summary.innerHTML=`<div class="gantt-metric"><small>Aktivitas ditampilkan</small><strong>${data.length}</strong></div><div class="gantt-metric"><small>Total Plan (hari-aktivitas)</small><strong>${pd.toLocaleString("id-ID")}</strong></div><div class="gantt-metric"><small>Total Actual / berjalan</small><strong>${ad.toLocaleString("id-ID")}</strong></div><div class="gantt-metric"><small>Aktual sudah dimulai</small><strong>${started}</strong></div>`;
     const el=document.getElementById("ganttTimeline");
@@ -6795,6 +6814,36 @@ iframe{max-width:100%;border-color:#dce5ee}
   padding:0 1px!important;color:#fff!important;font-size:7px!important;
   font-weight:900!important;line-height:1!important;white-space:nowrap!important;
   text-shadow:0 1px 1px rgba(0,0,0,.22)!important;pointer-events:none!important;
+}
+</style>
+
+
+<style id="gpc-opening-gantt-compact-only">
+/* Perubahan terbatas pada Gantt Chart Pembukaan: lebih ringkas agar area timeline lebih luas. */
+#gantt .gantt-card{width:100%!important;max-width:100%!important;padding:10px!important}
+#gantt .gantt-summary{width:100%!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important;margin:8px 0 10px!important}
+#gantt .gantt-metric{min-width:0!important;min-height:62px!important;padding:8px 10px!important}
+#gantt .gantt-metric small{font-size:9px!important}
+#gantt .gantt-metric strong{font-size:17px!important}
+#gantt .gantt-legend{font-size:10px!important;margin:6px 0 8px!important}
+#gantt .gantt-scroll{width:100%!important;max-width:100%!important;max-height:68vh!important}
+#gantt .gantt-timeline{--labelw:340px!important;--dayw:20px!important;min-width:8860px!important}
+#gantt .gantt-rowlabel{min-height:39px!important;padding:6px 8px!important;font-size:9px!important;line-height:1.25!important}
+#gantt .gantt-rowlabel .store{font-size:9px!important}
+#gantt .gantt-rowlabel .task{font-size:9px!important}
+#gantt .gantt-rowlabel .dur{gap:5px!important;margin-top:2px!important;font-size:8px!important}
+#gantt .gantt-track:not(.gantt-store-group-track){height:39px!important}
+#gantt .gantt-store-group-track{height:22px!important}
+#gantt .gantt-store-group{min-height:30px!important;padding:5px 8px!important}
+#gantt .gantt-store-group .store{font-size:9px!important}
+#gantt .gantt-store-group .task{font-size:8px!important}
+#gantt .gantt-track .bar{height:12px!important}
+#gantt .gantt-track .bar:not(.actual){top:5px!important}
+#gantt .gantt-track .bar.actual{top:22px!important;height:12px!important}
+#gantt .gantt-bar-duration{font-size:7px!important}
+@media(max-width:760px){
+  #gantt .gantt-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #gantt .gantt-timeline{--labelw:270px!important;--dayw:19px!important;min-width:8364px!important}
 }
 </style>
 </body></html>
