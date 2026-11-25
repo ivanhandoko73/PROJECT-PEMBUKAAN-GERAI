@@ -2569,7 +2569,15 @@ function applyMPPExcelImport(){const f=document.getElementById('mppImportFile')?
   };
   const getRows=()=>{
     const rows=Array.isArray(window.GANTT_SOURCE_DATA)?window.GANTT_SOURCE_DATA:GANTT_SOURCE_DATA;
-    return Array.isArray(rows)?rows:[];
+    if(!Array.isArray(rows)) return [];
+    // Urutan Gantt Pembukaan mengikuti nomor ID dari Excel (1-465),
+    // bukan urutan created_at Supabase atau urutan alfabetis nama gerai.
+    const excelIdOf=row=>{
+      const raw=row?.excelId ?? row?.raw?.ID ?? row?.data?.ID ?? row?.id;
+      const value=Number(raw);
+      return Number.isFinite(value) && value>0 ? value : Number.MAX_SAFE_INTEGER;
+    };
+    return rows.slice().sort((a,b)=>excelIdOf(a)-excelIdOf(b));
   };
   const st=document.getElementById("ganttStore"),cab=document.getElementById("ganttCab");
   function populateCabs(){
@@ -3637,6 +3645,7 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
     const rawProgress = Number(data['% PROGRESS']);
     return {
       id: row.id,
+      excelId: Number(data.ID) || null,
       store_id: row.store_id,
       cab: text(data.CAB || store.district),
       store: text(data['NAMA GERAI'] || store.store_name),
@@ -3659,6 +3668,7 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
   function applyRowsToMonitoring() {
     const data = APP.progressRows.map((r) => ({
       id: r.id,
+      excelId: r.excelId,
       cab: r.cab,
       store: r.store,
       task: r.activity,
@@ -3677,8 +3687,10 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
     window.BPD_IMPORT_ACTIVE = true;
     if (typeof renderOpeningProgress === 'function') renderOpeningProgress();
     if (typeof updateDashboardFromBPD === 'function') updateDashboardFromBPD();
-    if (typeof renderGantt === 'function') renderGantt();
-    if (typeof drawGantt === 'function') drawGantt();
+    // Gantt renderer defines draw() inside a closure. Refresh it through the
+    // exported bridge after the direct progress_data fetch has replaced the
+    // initial/static GANTT_SOURCE_DATA.
+    if (typeof window.GPC_REFRESH_OPENING_GANTT === 'function') window.GPC_REFRESH_OPENING_GANTT();
     if (typeof renderSummaryTab === 'function') renderSummaryTab('bpd');
   }
 
@@ -4374,7 +4386,7 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
     const d=row.data||{}, st=(APP.stores||[]).find(s=>s.id===row.store_id)||{};
     const planStart=dateInput(d['PLAN START']),planFinish=dateInput(d['PLAN FINISH']),actualStart=dateInput(d['ACTUAL START']),actualFinish=dateInput(d['ACTUAL FINISH']),note=txt(d.CATATAN);
     const calc=progressDerived(planStart,planFinish,actualStart,actualFinish,note);
-    return {id:row.id,store_id:row.store_id,cab:txt(d.CAB||st.district),store:txt(d['NAMA GERAI']||st.store_name),activity:txt(d['AKTIVITAS / PARAMETER']),timeline:d.TIMELINE==null?'':txt(d.TIMELINE),planStart,planFinish,actualStart,actualFinish,progress:calc.pct*100,note,followup:txt(d['TINDAK LANJUT']),status:calc.status,raw:{...d,'% PROGRESS':calc.pct,STATUS:calc.status},source_file:row.source_file};
+    return {id:row.id,excelId:Number(d.ID)||null,store_id:row.store_id,cab:txt(d.CAB||st.district),store:txt(d['NAMA GERAI']||st.store_name),activity:txt(d['AKTIVITAS / PARAMETER']),timeline:d.TIMELINE==null?'':txt(d.TIMELINE),planStart,planFinish,actualStart,actualFinish,progress:calc.pct*100,note,followup:txt(d['TINDAK LANJUT']),status:calc.status,raw:{...d,'% PROGRESS':calc.pct,STATUS:calc.status},source_file:row.source_file};
   }
   function fillProgressForm(r) {
     fillCabSelect('progressInputCab','progressInputStore',r.cab,r.store);
@@ -4394,7 +4406,7 @@ button[onclick*="clearMPPImportInputs" i]:hover, button[aria-label*="reset" i]:h
   async function refreshProgressRows() {
     const rows=await rpc('list','progress',{}); const storeById=new Map((APP.stores||[]).map(s=>[s.id,s]));
     APP.progressRows=(rows||[]).map(r=>progressRow(r));
-    const gantt=APP.progressRows.map(r=>({id:r.id,cab:r.cab,store:r.store,task:r.activity,timeline:r.timeline,planStart:r.planStart,planFinish:r.planFinish,actualStart:r.actualStart,actualFinish:r.actualFinish,progress:Number(r.progress||0)/100,status:r.status,note:r.note,followup:r.followup}));
+    const gantt=APP.progressRows.map(r=>({id:r.id,excelId:r.excelId,cab:r.cab,store:r.store,task:r.activity,timeline:r.timeline,planStart:r.planStart,planFinish:r.planFinish,actualStart:r.actualStart,actualFinish:r.actualFinish,progress:Number(r.progress||0)/100,status:r.status,note:r.note,followup:r.followup}));
     window.GANTT_SOURCE_DATA=gantt; try{GANTT_SOURCE_DATA=gantt;}catch(e){}
     window.BPD_IMPORT_ACTIVE=true; window.BPD_IMPORT_SUMMARY={total:gantt.length,stores:[...new Set(gantt.map(x=>x.store))].length,done:gantt.filter(x=>/^SELESAI/i.test(String(x.status||''))).length,progress:gantt.filter(x=>/^ON PROGRESS/i.test(String(x.status||''))).length};
     if(typeof renderOpeningProgress==='function')renderOpeningProgress(); if(typeof updateDashboardFromBPD==='function')updateDashboardFromBPD();
