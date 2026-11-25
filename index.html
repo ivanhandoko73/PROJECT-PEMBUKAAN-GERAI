@@ -6818,32 +6818,118 @@ iframe{max-width:100%;border-color:#dce5ee}
 </style>
 
 
-<style id="gpc-opening-gantt-compact-only">
-/* Perubahan terbatas pada Gantt Chart Pembukaan: lebih ringkas agar area timeline lebih luas. */
-#gantt .gantt-card{width:100%!important;max-width:100%!important;padding:10px!important}
-#gantt .gantt-summary{width:100%!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important;margin:8px 0 10px!important}
-#gantt .gantt-metric{min-width:0!important;min-height:62px!important;padding:8px 10px!important}
-#gantt .gantt-metric small{font-size:9px!important}
-#gantt .gantt-metric strong{font-size:17px!important}
-#gantt .gantt-legend{font-size:10px!important;margin:6px 0 8px!important}
-#gantt .gantt-scroll{width:100%!important;max-width:100%!important;max-height:68vh!important}
-#gantt .gantt-timeline{--labelw:340px!important;--dayw:20px!important;min-width:8860px!important}
-#gantt .gantt-rowlabel{min-height:39px!important;padding:6px 8px!important;font-size:9px!important;line-height:1.25!important}
-#gantt .gantt-rowlabel .store{font-size:9px!important}
-#gantt .gantt-rowlabel .task{font-size:9px!important}
-#gantt .gantt-rowlabel .dur{gap:5px!important;margin-top:2px!important;font-size:8px!important}
-#gantt .gantt-track:not(.gantt-store-group-track){height:39px!important}
-#gantt .gantt-store-group-track{height:22px!important}
-#gantt .gantt-store-group{min-height:30px!important;padding:5px 8px!important}
-#gantt .gantt-store-group .store{font-size:9px!important}
-#gantt .gantt-store-group .task{font-size:8px!important}
-#gantt .gantt-track .bar{height:12px!important}
-#gantt .gantt-track .bar:not(.actual){top:5px!important}
-#gantt .gantt-track .bar.actual{top:22px!important;height:12px!important}
-#gantt .gantt-bar-duration{font-size:7px!important}
+
+<style id="gpc-opening-gantt-kpi-and-row-alignment">
+/* Khusus Gantt Pembukaan: ringkas KPI, tanpa mengecilkan area timeline. */
+
+#gantt .gantt-summary{
+  width:100%!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:8px!important;
+  margin:8px 0 10px!important;
+}
+#gantt .gantt-metric{
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  width:100%!important;
+  height:40px!important;
+  min-height:40px!important;
+  padding:6px 10px!important;
+}
+#gantt .gantt-metric small{
+  display:block!important;
+  flex:1 1 auto!important;
+  min-width:0!important;
+  margin:0!important;
+  font-size:9px!important;
+  line-height:1.15!important;
+  white-space:normal!important;
+}
+#gantt .gantt-metric strong{
+  display:block!important;
+  flex:0 0 auto!important;
+  margin:0!important;
+  font-size:17px!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+}
+
+/* Samakan tinggi baris label dengan bar timeline.
+   PLAN sejajar dengan bar biru dan ACTUAL sejajar dengan bar oranye. */
+#gantt .gantt-rowlabel:not(.gantt-store-group){
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  align-self:stretch!important;
+  gap:1px!important;
+  min-height:62px!important;
+  padding:6px 10px!important;
+}
+#gantt .gantt-rowlabel:not(.gantt-store-group) .store{
+  display:block!important;
+  line-height:12px!important;
+}
+#gantt .gantt-rowlabel:not(.gantt-store-group) .task{
+  display:block!important;
+  line-height:11px!important;
+  margin:0!important;
+}
+#gantt .gantt-rowlabel:not(.gantt-store-group) .dur{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:1px!important;
+  margin-top:1px!important;
+  line-height:10px!important;
+  white-space:nowrap!important;
+}
+#gantt .gantt-rowlabel:not(.gantt-store-group) .dur>span{
+  display:block!important;
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+#gantt .gantt-track:not(.gantt-store-group-track){
+  box-sizing:border-box!important;
+  align-self:stretch!important;
+  height:62px!important;
+  min-height:62px!important;
+}
+#gantt .gantt-track:not(.gantt-store-group-track) .bar:not(.actual){
+  top:30px!important;
+  height:9px!important;
+}
+#gantt .gantt-track:not(.gantt-store-group-track) .bar.actual{
+  top:44px!important;
+  height:9px!important;
+}
+
+/* Baris judul gerai dan jalur kosong di sebelahnya selalu satu garis. */
+#gantt .gantt-store-group{
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  align-self:stretch!important;
+  min-height:34px!important;
+  padding:5px 10px!important;
+}
+#gantt .gantt-store-group-track{
+  box-sizing:border-box!important;
+  align-self:stretch!important;
+  height:34px!important;
+  min-height:34px!important;
+}
 @media(max-width:760px){
   #gantt .gantt-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  #gantt .gantt-timeline{--labelw:270px!important;--dayw:19px!important;min-width:8364px!important}
+  #gantt .gantt-metric{height:40px!important;min-height:40px!important}
+  #gantt .gantt-rowlabel:not(.gantt-store-group){padding:6px 8px!important}
 }
 </style>
+
 </body></html>
