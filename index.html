@@ -3062,6 +3062,7 @@ function renderEquipmentGantt(){
   timeline.innerHTML=`<div class="gh" style="grid-row:1 / span 2;grid-column:1">GERAI / AKTIVITAS · PLAN & ACTUAL</div>${monthGroups.map(m=>`<div class="gh" style="grid-column:${m.start+2} / span ${m.count};grid-row:1">${m.label}</div>`).join('')}${days.map((d,i)=>`<div class="gh" style="grid-row:2;grid-column:${i+2};padding:4px 1px;font-size:9px">${d.getDate()}</div>`).join('')}`;
   const byStore={};filtered.forEach(t=>(byStore[t.store]??=[]).push(t));
   Object.entries(byStore).forEach(([store,items])=>{
+   items.sort((a,b)=>(Number(a.num)||0)-(Number(b.num)||0));
    timeline.insertAdjacentHTML('beforeend',`<div class="gantt-rowlabel gantt-store-group" style="grid-column:1;grid-row:auto"><span class="store">${store}</span><span class="task">${items.length} AKTIVITAS PERLENGKAPAN</span></div><div class="gantt-track gantt-store-group-track" style="grid-column:2 / -1;grid-row:auto;height:34px;background:#f8fafc"></div>`);
    items.forEach(t=>{
     const a=dateVal(t.start),b=dateVal(t.end),actualStart=actualStartOf(t),actualFinish=actualFinishOf(t);
@@ -3072,17 +3073,20 @@ function renderEquipmentGantt(){
     const runningEnd=isRunning?today:null;
     const actualEnd=actualFinish||runningEnd;
     const actualDuration=dayCount(actualStart,actualEnd);
-    const invalidActual=!!(actualStart&&actualEnd&&actualEnd<actualStart);
     const tone=actualFinish&&b?(actualFinish<=b?'on-time':'late'):isRunning?(b&&runningEnd&&runningEnd<=b?'on-time':'late'):'unassessed';
     const planLabel=`PLAN: ${t.start||'—'} – ${t.end||'—'} (${planDuration||'—'} HARI KALENDER)`;
-    const actualLabel=actualFinish?`ACTUAL SELESAI: ${fmt(actualFinish)} · ${actualStart?`DURASI ${actualDuration||'TIDAK VALID'} HARI`:'DURASI TIDAK DAPAT DIHITUNG — TANGGAL ACTUAL MULAI BELUM TERSEDIA'}`:
-      isRunning?`DURASI BERJALAN: ${actualDuration} HARI · ${fmt(actualStart)} S.D. ${fmt(runningEnd)}`:
-      invalidActual?`TANGGAL ACTUAL SELESAI LEBIH AWAL DARI ACTUAL MULAI`:'ACTUAL SELESAI: BELUM DIISI';
-    const actualMarker=actualFinish?`<i class="actual-finish-marker ${tone==='late'?'late':''}" style="left:${dayIndex(actualFinish)*24}px" title="Tanggal selesai aktual: ${fmt(actualFinish)}"></i>`:'';
+    const actualLabel=actualFinish?`ACTUAL SELESAI: ${fmt(actualFinish)} · ${actualStart?`DURASI ${actualDuration||'TIDAK VALID'} HARI`:'DURASI BELUM DAPAT DIHITUNG — ACTUAL MULAI TIDAK TERSEDIA'}`:
+      isRunning?`DURASI BERJALAN: ${actualDuration} HARI · ${fmt(actualStart)} S.D. ${fmt(runningEnd)}`:'ACTUAL SELESAI: BELUM DIISI';
     const planBar=a&&b&&b>=a?`<i class="bar" style="left:${left*24}px;width:${width*24}px" title="${planLabel}"><span class="gantt-bar-duration ${tone}">${planDuration} HARI</span></i>`:'';
-    const actualLeft=actualStart?dayIndex(actualStart):0,actualWidth=actualStart&&actualEnd&&actualEnd>=actualStart?Math.max(1,dayIndex(actualEnd)-actualLeft+1):0;
-    const actualBar=actualWidth>0?`<i class="bar actual ${tone==='late'?'late':''}" style="left:${actualLeft*24}px;width:${actualWidth*24}px" title="${actualLabel}"><span class="gantt-bar-duration ${tone}">${actualDuration} HARI</span></i>`:'';
-    timeline.insertAdjacentHTML('beforeend',`<div class="gantt-rowlabel" style="grid-column:1;grid-row:auto"><span class="store">${t.num||''}. ${store}</span><span class="task">${t.activity||t.phase||'—'}</span><span class="dur"><span>${planLabel}</span><span>${actualLabel}</span></span></div><div class="gantt-track" style="grid-column:2 / -1;grid-row:auto">${planBar}${actualBar}${actualMarker}</div>`);
+    let actualBar='';
+    if(actualStart&&actualEnd&&actualEnd>=actualStart){
+      const actualLeft=dayIndex(actualStart),actualWidth=Math.max(1,dayIndex(actualEnd)-actualLeft+1);
+      actualBar=`<i class="bar actual ${tone==='late'?'late':''}" style="left:${actualLeft*24}px;width:${actualWidth*24}px;top:31px;height:16px;background:linear-gradient(90deg,#e59a46,#f3b45f)!important" title="${actualLabel}"><span class="gantt-bar-duration ${tone}">${actualDuration} HARI</span></i>`;
+    }else if(actualFinish){
+      const finishLeft=dayIndex(actualFinish);
+      actualBar=`<i class="bar actual" style="left:${finishLeft*24}px;width:24px;top:31px;height:16px;background:#e59a46!important" title="${actualLabel}"><span class="gantt-bar-duration">SELESAI</span></i>`;
+    }
+    timeline.insertAdjacentHTML('beforeend',`<div class="gantt-rowlabel" style="grid-column:1;grid-row:auto"><span class="store">${t.num||''}. ${store}</span><span class="task">${t.activity||t.phase||'—'}</span><span class="dur"><span>${planLabel}</span><span>${actualLabel}</span></span></div><div class="gantt-track" style="grid-column:2 / -1;grid-row:auto">${planBar}${actualBar}</div>`);
    });
   });
   if(!filtered.length)timeline.insertAdjacentHTML('beforeend','<div class="gantt-empty">TIDAK ADA DATA YANG SESUAI FILTER.</div>');
