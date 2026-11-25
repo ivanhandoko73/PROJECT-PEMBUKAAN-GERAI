@@ -79,7 +79,7 @@ footer{margin-top:18px;color:#8090a0;text-align:center;font-size:10px}
 #equipmentGanttContent .gantt-metric strong{display:block!important;flex:0 0 auto!important;margin:0!important;color:#163b5b!important;font-size:17px!important;line-height:1!important;white-space:nowrap!important}
 #equipmentGanttContent .gantt-legend{display:flex!important;align-items:center!important;gap:14px!important;flex-wrap:wrap!important;margin:7px 0 10px!important;color:#65778a!important;font-size:11px!important}
 #equipmentGanttContent .plan-key,#equipmentGanttContent .actual-key{display:inline-block!important;width:20px!important;height:7px!important;border-radius:5px!important;margin-right:5px!important;vertical-align:middle!important;background:#65a6d1!important}
-#equipmentGanttContent .actual-key{background:#e59a46!important}
+#equipmentGanttContent .actual-key{background:#16a34a!important}
 #equipmentGanttContent .late-key{display:inline-block!important;width:8px!important;height:8px!important;border-radius:50%!important;margin-right:5px!important;vertical-align:middle!important;background:#dc3545!important}
 #equipmentGanttContent .gantt-scroll{overflow:auto!important;border:1px solid #e2e8f0!important;border-radius:9px!important;max-height:68vh!important}
 #equipmentGanttContent .gantt-timeline{--labelw:410px!important;--dayw:24px!important;display:grid!important;position:relative!important;width:max-content!important;min-width:max-content!important}
@@ -96,9 +96,9 @@ footer{margin-top:18px;color:#8090a0;text-align:center;font-size:10px}
 #equipmentGanttContent .gantt-rowlabel .dur b{color:#334155!important}
 #equipmentGanttContent .gantt-track{position:relative!important;height:43px!important;grid-column:2 / -1!important;border-bottom:1px solid #edf1f5!important;border-right:1px solid #f1f4f7!important;background:repeating-linear-gradient(to right,transparent 0,transparent calc(var(--dayw) - 1px),#eef2f6 calc(var(--dayw) - 1px),#eef2f6 var(--dayw))!important}
 #equipmentGanttContent .gantt-track .bar{position:absolute!important;display:flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;height:16px!important;min-width:3px!important;overflow:hidden!important;top:9px!important;border-radius:5px!important;background:linear-gradient(90deg,#2482ba,#4ea5d5)!important;opacity:.96!important;color:#fff!important;text-align:center!important}
-#equipmentGanttContent .gantt-track .bar.actual{top:31px!important;height:16px!important;background:linear-gradient(90deg,#e58b36,#f2b34e)!important}
+#equipmentGanttContent .gantt-track .bar.actual{top:31px!important;height:16px!important;background:linear-gradient(90deg,#16a34a,#35b86b)!important}
 #equipmentGanttContent .gantt-track .bar.actual.late{background:linear-gradient(90deg,#dc3545,#f05a68)!important}
-#equipmentGanttContent .gantt-track .actual-finish-marker{position:absolute!important;top:29px!important;width:3px!important;height:20px!important;border-radius:2px!important;background:#e58b36!important;z-index:2!important;box-shadow:0 0 0 1px #fff!important}
+#equipmentGanttContent .gantt-track .actual-finish-marker{position:absolute!important;top:29px!important;width:3px!important;height:20px!important;border-radius:2px!important;background:#16a34a!important;z-index:2!important;box-shadow:0 0 0 1px #fff!important}
 #equipmentGanttContent .gantt-track .actual-finish-marker.late{background:#dc3545!important}
 #equipmentGanttContent .gantt-bar-duration{display:block!important;max-width:100%!important;overflow:hidden!important;padding:0 1px!important;color:#fff!important;font-family:'Poppins',Arial,sans-serif!important;font-size:12px!important;font-weight:800!important;line-height:1!important;white-space:nowrap!important;text-shadow:0 1px 1px rgba(0,0,0,.22)!important;pointer-events:none!important}
 #equipmentGanttContent .gantt-empty{padding:18px!important;color:#64748b!important;font-size:12px!important;grid-column:1/-1!important}
@@ -3045,6 +3045,7 @@ function renderEquipmentGantt(){
  const dayIndex=d=>Math.max(0,Math.min(days.length-1,Math.round((d-minDate)/86400000)));
  const localToday=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
  const dayCount=(a,b)=>a&&b&&b>=a?Math.round((b-a)/86400000)+1:0;
+ const actualDayCount=(a,b)=>a&&b?Math.abs(Math.round((b-a)/86400000))+1:0;
  const actualFinishOf=t=>dateVal(t.actualFinish||t.actual_finish||t.raw?.['SELESAI']||t.raw?.['ACTUAL FINISH']||t.raw?.['ACTUAL SELESAI']||'');
  const actualStartOf=t=>dateVal(t.actualStart||t.actual_start||t.raw?.['ACTUAL START']||t.raw?.['ACTUAL MULAI']||(actualFinishOf(t)?t.start:''));
  const monthGroups=[];days.forEach((d,i)=>{const key=d.getFullYear()+'-'+d.getMonth();if(!monthGroups.length||monthGroups[monthGroups.length-1].key!==key)monthGroups.push({key,label:d.toLocaleDateString('id-ID',{month:'long',year:'numeric'}).toUpperCase(),start:i,count:1});else monthGroups[monthGroups.length-1].count++;});
@@ -3055,7 +3056,7 @@ function renderEquipmentGantt(){
   const filtered=all.filter(t=>(br==='all'||t.branch===br)&&(st==='all'||t.store===st)&&(ss==='all'||(t.status||'Belum Mulai')===ss)&&(!q||`${t.store} ${t.phase} ${t.activity} ${t.pic} ${t.note}`.toLowerCase().includes(q)));
   const planDays=filtered.reduce((a,t)=>{const p=dateVal(t.start),e=dateVal(t.end);return a+dayCount(p,e);},0);
   const today=dateVal(localToday());
-  const actualDays=filtered.reduce((sum,t)=>{const a=actualStartOf(t),f=actualFinishOf(t),status=String(t.status||'').toLowerCase();const end=f||((a&&(status.includes('proses')||status.includes('tertunda')))?today:null);return sum+dayCount(a,end);},0);
+  const actualDays=filtered.reduce((sum,t)=>{const a=actualStartOf(t),f=actualFinishOf(t),status=String(t.status||'').toLowerCase();const end=f||((a&&(status.includes('proses')||status.includes('tertunda')))?today:null);return sum+actualDayCount(a,end);},0);
   const started=filtered.filter(t=>!!actualStartOf(t)||!!actualFinishOf(t)).length;
   document.getElementById('equipGanttKpis').innerHTML=[['AKTIVITAS DITAMPILKAN',filtered.length],['TOTAL PLAN (HARI-AKTIVITAS)',planDays.toLocaleString('id-ID')],['TOTAL ACTUAL / BERJALAN',actualDays.toLocaleString('id-ID')],['ACTUAL SUDAH DIMULAI',started]].map(x=>`<div class="gantt-metric"><small>${x[0]}</small><strong>${x[1]}</strong></div>`).join('');
   const timeline=document.getElementById('equipGanttTimeline');
@@ -3072,18 +3073,26 @@ function renderEquipmentGantt(){
     const isRunning=!actualFinish&&!!actualStart&&(status.includes('proses')||status.includes('tertunda'));
     const runningEnd=isRunning?today:null;
     const actualEnd=actualFinish||runningEnd;
-    const actualDuration=dayCount(actualStart,actualEnd);
+    const hasActualStart=!!dateVal(t.actualStart||t.actual_start||t.raw?.['ACTUAL START']||t.raw?.['ACTUAL MULAI']||'');
+    const durationStart=hasActualStart?actualStart:(a&&actualFinish&&actualFinish>=a?a:null);
+    const actualDuration=actualFinish&&durationStart?dayCount(durationStart,actualFinish):(isRunning?actualDayCount(actualStart,actualEnd):0);
+    const earlyDays=actualFinish&&b&&actualFinish<b?Math.round((b-actualFinish)/86400000):0;
     const tone=actualFinish&&b?(actualFinish<=b?'on-time':'late'):isRunning?(b&&runningEnd&&runningEnd<=b?'on-time':'late'):'unassessed';
     const planLabel=`PLAN: ${t.start||'—'} – ${t.end||'—'} (${planDuration||'—'} HARI KALENDER)`;
-    const actualTone=actualFinish&&planDuration&&actualDuration?(actualDuration<=planDuration?'on-time':'late'):tone;
-    const actualLabel=actualFinish?`ACTUAL SELESAI: ${fmt(actualFinish)} · DURASI ACTUAL ${actualDuration} HARI`:
+    const actualTone=tone;
+    const actualLabel=actualFinish?(earlyDays>0?`ACTUAL SELESAI: ${fmt(actualFinish)} · SELESAI ${earlyDays} HARI LEBIH AWAL`:`ACTUAL SELESAI: ${fmt(actualFinish)}${actualFinish>b?` · TERLAMBAT ${Math.round((actualFinish-b)/86400000)} HARI`:''}${actualDuration?` · DURASI ACTUAL ${actualDuration} HARI`:''}`):
       isRunning?`DURASI BERJALAN: ${actualDuration} HARI · ${fmt(actualStart)} S.D. ${fmt(runningEnd)}`:'ACTUAL SELESAI: BELUM DIISI';
-    const actualTextColor=actualTone==='on-time'?'#087a35':actualTone==='late'?'#c62828':'#475569';
+    const actualTextColor=actualTone==='on-time'?'#16a34a':actualTone==='late'?'#dc2626':'#475569';
     const planBar=a&&b&&b>=a?`<i class="bar" style="left:${left*24}px;width:${width*24}px" title="${planLabel}"><span class="gantt-bar-duration ${tone}">${planDuration} HARI</span></i>`:'';
     let actualBar='';
-    if(actualStart&&actualEnd&&actualEnd>=actualStart){
-      const actualLeft=dayIndex(actualStart),actualWidth=Math.max(1,dayIndex(actualEnd)-actualLeft+1);
-      actualBar=`<i class="bar actual ${actualTone==='late'?'late':''}" style="left:${actualLeft*24}px;width:${actualWidth*24}px;top:31px;height:16px;background:${actualTone==='on-time'?'#e58b36':'#dc2626'}!important;box-shadow:none!important;opacity:1!important" title="${actualLabel}"><span class="gantt-bar-duration" style="color:#fff!important;text-shadow:none!important">${actualDuration} HARI</span></i>`;
+    if(actualFinish||isRunning){
+      const earlyBeforePlan=!!(actualFinish&&a&&actualFinish<a);
+      const barStart=earlyBeforePlan?actualFinish:(durationStart||(actualFinish?actualFinish:actualStart));
+      const barEnd=earlyBeforePlan?a:(actualFinish||runningEnd);
+      const actualLeft=dayIndex(barStart<barEnd?barStart:barEnd),actualWidth=Math.max(1,Math.abs(dayIndex(barEnd)-dayIndex(barStart))+(earlyBeforePlan?1:1));
+      const barDuration=earlyBeforePlan?dayCount(actualFinish,a):actualDuration;
+      const barText=barDuration?`${barDuration} HARI`:'';
+      actualBar=`<i class="bar actual ${actualTone==='late'?'late':''}" style="left:${actualLeft*24}px;width:${actualWidth*24}px;top:31px;height:16px;background:#e58b36!important;box-shadow:none!important;opacity:1!important" title="${actualLabel}"><span class="gantt-bar-duration" style="color:#16a34a!important;text-shadow:none!important">${barText}</span></i>`;
     }
     timeline.insertAdjacentHTML('beforeend',`<div class="gantt-rowlabel" style="grid-column:1;grid-row:auto"><span class="store">${t.num||''}. ${store}</span><span class="task">${t.activity||t.phase||'—'}</span><span class="dur"><span>${planLabel}</span><span style="color:${actualFinish?actualTextColor:'#475569'}!important;font-weight:${actualFinish?'800':'400'};text-shadow:none!important">${actualLabel}</span></span></div><div class="gantt-track" style="grid-column:2 / -1;grid-row:auto">${planBar}${actualBar}</div>`);
    });
