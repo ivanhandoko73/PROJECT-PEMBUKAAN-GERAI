@@ -737,20 +737,8 @@ footer{color:#8192a3!important}
 
 
 <style id="gpc-opening-gantt-performance-labels-and-bar-size">
-/* UJI TINGGI BAR 20px — khusus Gantt Pembukaan; lebar timeline/hari tetap. */
-#gantt .gantt-track:not(.gantt-store-group-track) .bar:not(.actual){
-  top:8px;
-  height:20px;
-}
-#gantt .gantt-track:not(.gantt-store-group-track) .bar.actual{
-  top:34px;
-  height:20px;
-}
 /* Label durasi memakai Poppins tebal; hijau = sesuai PLAN, merah = terlambat. */
 #ganttTimeline .gantt-bar-duration{
-  font-family:'Poppins',Arial,sans-serif!important;
-  font-size:10px!important;
-  font-weight:800!important;
   line-height:1!important;
   letter-spacing:0!important;
   text-align:center!important;
@@ -781,47 +769,6 @@ footer{color:#8192a3!important}
 #gantt .gantt-performance-dot.late{background:#dc2626!important;}
 #gantt .gantt-performance-key strong{font-weight:800!important;}
 </style>
-
-
-<style id="gpc-opening-gantt-final-bar-20px-font-10px">
-/* FINAL OVERRIDE: khusus Gantt Pembukaan. Menimpa aturan lama yang sebelumnya mengunci bar 14px dan font 7px. */
-#ganttTimeline .gantt-track .bar{
-  height:20px!important;
-  min-height:20px!important;
-  max-height:20px!important;
-  box-sizing:border-box!important;
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  overflow:hidden!important;
-}
-#ganttTimeline .gantt-track .bar:not(.actual){
-  top:3px!important;
-}
-#ganttTimeline .gantt-track .bar.actual{
-  top:29px!important;
-  height:20px!important;
-  min-height:20px!important;
-  max-height:20px!important;
-}
-#ganttTimeline .gantt-bar-duration{
-  display:block!important;
-  font-family:'Poppins',Arial,sans-serif!important;
-  font-size:10px!important;
-  font-weight:800!important;
-  line-height:1!important;
-  text-align:center!important;
-  white-space:nowrap!important;
-  overflow:hidden!important;
-  max-width:100%!important;
-  padding:0 1px!important;
-  pointer-events:none!important;
-}
-#ganttTimeline .gantt-bar-duration.on-time{color:#00e676!important;}
-#ganttTimeline .gantt-bar-duration.late{color:#ff3b30!important;}
-#ganttTimeline .gantt-bar-duration.unassessed{color:#ffffff!important;}
-</style>
-
 </head>
 <body>
 <header class="top">
@@ -6934,15 +6881,15 @@ iframe{max-width:100%;border-color:#dce5ee}
 /* Scoped only to the Opening Gantt bars: keep existing layout and colors. */
 #ganttTimeline .gantt-track .bar{
   display:flex!important;align-items:center!important;justify-content:center!important;
-  height:14px!important;overflow:hidden!important;box-sizing:border-box!important;
+  height:16px!important;overflow:hidden!important;box-sizing:border-box!important;
   color:#fff!important;text-align:center!important;text-decoration:none!important;
 }
-#ganttTimeline .gantt-track .bar:not(.actual){top:6px!important;}
-#ganttTimeline .gantt-track .bar.actual{top:26px!important;height:14px!important;}
+#ganttTimeline .gantt-track .bar:not(.actual){top:3px!important;}
+#ganttTimeline .gantt-track .bar.actual{top:25px!important;height:16px!important;}
 #ganttTimeline .gantt-bar-duration{
   display:block!important;max-width:100%!important;overflow:hidden!important;
-  padding:0 1px!important;color:#fff!important;font-size:7px!important;
-  font-weight:900!important;line-height:1!important;white-space:nowrap!important;
+  padding:0 1px!important;color:#fff!important;font-family:'Poppins',Arial,sans-serif!important;font-size:14px!important;
+  font-weight:800!important;line-height:1!important;white-space:nowrap!important;
   text-shadow:0 1px 1px rgba(0,0,0,.22)!important;pointer-events:none!important;
 }
 </style>
