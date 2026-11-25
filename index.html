@@ -3036,45 +3036,51 @@ function renderEquipmentGantt(){
  const out=document.getElementById('equipmentGanttContent');if(!out)return;
  const branchForStore=window.branchForStore||function(n){return (typeof branchMap!=='undefined'&&branchMap[n])||'';};
  const source=Array.isArray(MASTER_TIMELINE_DATA)?MASTER_TIMELINE_DATA:[];
- const all=source.flatMap(st=>(st.tasks||[]).map(t=>({...t,store:st.name,branch:branchForStore(st.name)})));
+ const all=source.flatMap(st=>(st.tasks||[]).map(t=>({...t,store:st.name,branch:st.cab||branchForStore(st.name)})));
  if(!all.length){out.innerHTML='<div class="card gantt-empty">DATA PERLENGKAPAN BELUM TERSEDIA. SILAKAN IMPORT EXCEL DATA PERLENGKAPAN.</div>';return;}
  const minDate=new Date(2026,10,1),maxDate=new Date(2027,11,31),days=[];
  for(let d=new Date(minDate);d<=maxDate;d.setDate(d.getDate()+1))days.push(new Date(d));
- const dateVal=v=>{if(!v)return null;const d=new Date(String(v).slice(0,10)+'T00:00:00');return Number.isNaN(d.getTime())?null:d;};
+ const dateVal=v=>{if(!v)return null;const s=String(v).trim();const m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m){const d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]));return d.getFullYear()===Number(m[1])&&d.getMonth()===Number(m[2])-1&&d.getDate()===Number(m[3])?d:null;}const d=new Date(s);return Number.isNaN(d.getTime())?null:new Date(d.getFullYear(),d.getMonth(),d.getDate());};
  const fmt=d=>d?d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase():'—';
  const dayIndex=d=>Math.max(0,Math.min(days.length-1,Math.round((d-minDate)/86400000)));
  const localToday=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
+ const dayCount=(a,b)=>a&&b&&b>=a?Math.round((b-a)/86400000)+1:0;
+ const actualStartOf=t=>dateVal(t.actualStart||t.actual_start||t.raw?.['ACTUAL START']||t.raw?.['ACTUAL MULAI']||'');
+ const actualFinishOf=t=>dateVal(t.actualFinish||t.actual_finish||t.raw?.['SELESAI']||t.raw?.['ACTUAL FINISH']||t.raw?.['ACTUAL SELESAI']||'');
  const monthGroups=[];days.forEach((d,i)=>{const key=d.getFullYear()+'-'+d.getMonth();if(!monthGroups.length||monthGroups[monthGroups.length-1].key!==key)monthGroups.push({key,label:d.toLocaleDateString('id-ID',{month:'long',year:'numeric'}).toUpperCase(),start:i,count:1});else monthGroups[monthGroups.length-1].count++;});
  const branches=[...new Set(all.map(x=>x.branch).filter(Boolean))].sort(),stores=[...new Set(all.map(x=>x.store))].sort(),statuses=[...new Set(all.map(x=>x.status||'Belum Mulai'))].sort();
  out.innerHTML=`<div class="card gantt-card"><div class="gantt-filters"><select id="equipGanttBranch"><option value="all">SEMUA CABANG</option>${branches.map(b=>`<option>${b}</option>`).join('')}</select><select id="equipGanttStore"><option value="all">SEMUA GERAI</option>${stores.map(x=>`<option>${x}</option>`).join('')}</select><input id="equipGanttSearch" placeholder="CARI GERAI / AKTIVITAS..."><select id="equipGanttStatus"><option value="all">SEMUA STATUS</option>${statuses.map(x=>`<option>${x}</option>`).join('')}</select><button id="equipGanttReset" class="filter-reset" type="button">↻ RESET</button></div><div class="gantt-summary" id="equipGanttKpis"></div><div class="gantt-legend"><span><i class="plan-key"></i> PLAN / TARGET</span><span><i class="actual-key"></i> PROGRESS AKTUAL / TANGGAL SELESAI</span><span>DURASI HARI TERCANTUM DI KOLOM KIRI</span><span class="gantt-performance-key"><b class="gantt-performance-dot on-time"></b><strong>SESUAI PLAN</strong></span><span class="gantt-performance-key"><b class="gantt-performance-dot late"></b><strong>TERLAMBAT</strong></span></div><div class="gantt-scroll"><div class="gantt-timeline" id="equipGanttTimeline" style="--dayw:24px;grid-template-columns:410px repeat(${days.length},24px);min-width:${410+days.length*24}px"><div class="gh" style="grid-row:1 / span 2;grid-column:1">GERAI / AKTIVITAS · PLAN & ACTUAL</div>${monthGroups.map(m=>`<div class="gh" style="grid-column:${m.start+2} / span ${m.count};grid-row:1">${m.label}</div>`).join('')}${days.map((d,i)=>`<div class="gh" style="grid-row:2;grid-column:${i+2}">${d.getDate()}</div>`).join('')}</div></div></div>`;
  const draw=()=>{
   const br=document.getElementById('equipGanttBranch').value,st=document.getElementById('equipGanttStore').value,q=document.getElementById('equipGanttSearch').value.toLowerCase(),ss=document.getElementById('equipGanttStatus').value;
   const filtered=all.filter(t=>(br==='all'||t.branch===br)&&(st==='all'||t.store===st)&&(ss==='all'||(t.status||'Belum Mulai')===ss)&&(!q||`${t.store} ${t.phase} ${t.activity} ${t.pic} ${t.note}`.toLowerCase().includes(q)));
-  const planDays=filtered.reduce((a,t)=>a+(Number(t.duration)||0),0),actualDays=filtered.reduce((a,t)=>a+(Number(t.duration)||0)*Math.max(0,Math.min(1,Number(t.progress)||0)),0),started=filtered.filter(t=>(Number(t.progress)||0)>0||String(t.status||'').toLowerCase()==='selesai'||String(t.status||'').toLowerCase().includes('proses')).length;
-  document.getElementById('equipGanttKpis').innerHTML=[['AKTIVITAS DITAMPILKAN',filtered.length],['TOTAL PLAN (HARI-AKTIVITAS)',planDays.toLocaleString('id-ID')],['TOTAL ACTUAL / BERJALAN',Math.round(actualDays).toLocaleString('id-ID')],['ACTUAL SUDAH DIMULAI',started]].map(x=>`<div class="gantt-metric"><small>${x[0]}</small><strong>${x[1]}</strong></div>`).join('');
+  const planDays=filtered.reduce((a,t)=>{const p=dateVal(t.start),e=dateVal(t.end);return a+dayCount(p,e);},0);
+  const today=dateVal(localToday());
+  const actualDays=filtered.reduce((sum,t)=>{const a=actualStartOf(t),f=actualFinishOf(t),status=String(t.status||'').toLowerCase();const end=f||((a&&(status.includes('proses')||status.includes('tertunda')))?today:null);return sum+dayCount(a,end);},0);
+  const started=filtered.filter(t=>!!actualStartOf(t)).length;
+  document.getElementById('equipGanttKpis').innerHTML=[['AKTIVITAS DITAMPILKAN',filtered.length],['TOTAL PLAN (HARI-AKTIVITAS)',planDays.toLocaleString('id-ID')],['TOTAL ACTUAL / BERJALAN',actualDays.toLocaleString('id-ID')],['ACTUAL SUDAH DIMULAI',started]].map(x=>`<div class="gantt-metric"><small>${x[0]}</small><strong>${x[1]}</strong></div>`).join('');
   const timeline=document.getElementById('equipGanttTimeline');
   timeline.innerHTML=`<div class="gh" style="grid-row:1 / span 2;grid-column:1">GERAI / AKTIVITAS · PLAN & ACTUAL</div>${monthGroups.map(m=>`<div class="gh" style="grid-column:${m.start+2} / span ${m.count};grid-row:1">${m.label}</div>`).join('')}${days.map((d,i)=>`<div class="gh" style="grid-row:2;grid-column:${i+2};padding:4px 1px;font-size:9px">${d.getDate()}</div>`).join('')}`;
   const byStore={};filtered.forEach(t=>(byStore[t.store]??=[]).push(t));
   Object.entries(byStore).forEach(([store,items])=>{
    timeline.insertAdjacentHTML('beforeend',`<div class="gantt-rowlabel gantt-store-group" style="grid-column:1;grid-row:auto"><span class="store">${store}</span><span class="task">${items.length} AKTIVITAS PERLENGKAPAN</span></div><div class="gantt-track gantt-store-group-track" style="grid-column:2 / -1;grid-row:auto;height:34px;background:#f8fafc"></div>`);
    items.forEach(t=>{
-    const a=dateVal(t.start),b=dateVal(t.end),actualFinish=dateVal(t.actualFinish);
+    const a=dateVal(t.start),b=dateVal(t.end),actualStart=actualStartOf(t),actualFinish=actualFinishOf(t);
     let left=0,width=1;if(a&&b&&b>=a){left=dayIndex(a);width=Math.max(1,dayIndex(b)-left+1);}
-    const prog=Math.max(0,Math.min(1,Number(t.progress)||0)),status=String(t.status||'').toLowerCase();
-    const planDuration=a&&b&&b>=a?Math.round((b-a)/86400000)+1:0;
-    const isRunning=!actualFinish&&(status.includes('proses')||status.includes('tertunda'));
-    const runningEnd=isRunning?dateVal(localToday()):null;
+    const status=String(t.status||'').toLowerCase();
+    const planDuration=dayCount(a,b);
+    const isRunning=!actualFinish&&!!actualStart&&(status.includes('proses')||status.includes('tertunda'));
+    const runningEnd=isRunning?today:null;
     const actualEnd=actualFinish||runningEnd;
-    const actualDuration=a&&actualEnd&&actualEnd>=a?Math.round((actualEnd-a)/86400000)+1:0;
-    const invalidActual=!!(actualFinish&&a&&actualFinish<a);
+    const actualDuration=dayCount(actualStart,actualEnd);
+    const invalidActual=!!(actualStart&&actualEnd&&actualEnd<actualStart);
     const tone=actualFinish&&b?(actualFinish<=b?'on-time':'late'):isRunning?(b&&runningEnd&&runningEnd<=b?'on-time':'late'):'unassessed';
     const planLabel=`PLAN: ${t.start||'—'} – ${t.end||'—'} (${planDuration||'—'} HARI KALENDER)`;
-    const actualLabel=actualFinish?`ACTUAL SELESAI: ${fmt(actualFinish)} · DURASI ${actualDuration||'TIDAK VALID'} HARI`:
-      isRunning?`DURASI BERJALAN: ${actualDuration} HARI · S.D. ${fmt(runningEnd)}`:
-      invalidActual?`TANGGAL ACTUAL LEBIH AWAL DARI TARGET MULAI`:'ACTUAL SELESAI: BELUM DIISI';
-    const actualMarker=actualFinish&&a&&actualFinish>=a?`<i class="actual-finish-marker ${tone==='late'?'late':''}" style="left:${dayIndex(actualFinish)*24}px" title="Tanggal selesai aktual: ${fmt(actualFinish)}"></i>`:'';
+    const actualLabel=actualFinish?`ACTUAL SELESAI: ${fmt(actualFinish)} · ${actualStart?`DURASI ${actualDuration||'TIDAK VALID'} HARI`:'DURASI TIDAK DAPAT DIHITUNG — TANGGAL ACTUAL MULAI BELUM TERSEDIA'}`:
+      isRunning?`DURASI BERJALAN: ${actualDuration} HARI · ${fmt(actualStart)} S.D. ${fmt(runningEnd)}`:
+      invalidActual?`TANGGAL ACTUAL SELESAI LEBIH AWAL DARI ACTUAL MULAI`:'ACTUAL SELESAI: BELUM DIISI';
+    const actualMarker=actualFinish?`<i class="actual-finish-marker ${tone==='late'?'late':''}" style="left:${dayIndex(actualFinish)*24}px" title="Tanggal selesai aktual: ${fmt(actualFinish)}"></i>`:'';
     const planBar=a&&b&&b>=a?`<i class="bar" style="left:${left*24}px;width:${width*24}px" title="${planLabel}"><span class="gantt-bar-duration ${tone}">${planDuration} HARI</span></i>`:'';
-    const actualLeft=a?dayIndex(a):0,actualWidth=actualEnd&&a&&actualEnd>=a?Math.max(1,dayIndex(actualEnd)-actualLeft+1):0;
+    const actualLeft=actualStart?dayIndex(actualStart):0,actualWidth=actualStart&&actualEnd&&actualEnd>=actualStart?Math.max(1,dayIndex(actualEnd)-actualLeft+1):0;
     const actualBar=actualWidth>0?`<i class="bar actual ${tone==='late'?'late':''}" style="left:${actualLeft*24}px;width:${actualWidth*24}px" title="${actualLabel}"><span class="gantt-bar-duration ${tone}">${actualDuration} HARI</span></i>`:'';
     timeline.insertAdjacentHTML('beforeend',`<div class="gantt-rowlabel" style="grid-column:1;grid-row:auto"><span class="store">${t.num||''}. ${store}</span><span class="task">${t.activity||t.phase||'—'}</span><span class="dur"><span>${planLabel}</span><span>${actualLabel}</span></span></div><div class="gantt-track" style="grid-column:2 / -1;grid-row:auto">${planBar}${actualBar}${actualMarker}</div>`);
    });
