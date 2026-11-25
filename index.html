@@ -737,19 +737,19 @@ footer{color:#8192a3!important}
 
 
 <style id="gpc-opening-gantt-performance-labels-and-bar-size">
-/* Hanya Gantt Pembukaan: kembalikan tinggi bar yang jelas, tanpa mengubah lebar timeline/hari. */
+/* UJI TINGGI BAR 20px — khusus Gantt Pembukaan; lebar timeline/hari tetap. */
 #gantt .gantt-track:not(.gantt-store-group-track) .bar:not(.actual){
-  top:29px!important;
-  height:10px!important;
+  top:8px;
+  height:20px;
 }
 #gantt .gantt-track:not(.gantt-store-group-track) .bar.actual{
-  top:44px!important;
-  height:10px!important;
+  top:34px;
+  height:20px;
 }
 /* Label durasi memakai Poppins tebal; hijau = sesuai PLAN, merah = terlambat. */
 #ganttTimeline .gantt-bar-duration{
   font-family:'Poppins',Arial,sans-serif!important;
-  font-size:8px!important;
+  font-size:10px!important;
   font-weight:800!important;
   line-height:1!important;
   letter-spacing:0!important;
