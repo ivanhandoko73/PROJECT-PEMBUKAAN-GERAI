@@ -3045,8 +3045,8 @@ function renderEquipmentGantt(){
  const dayIndex=d=>Math.max(0,Math.min(days.length-1,Math.round((d-minDate)/86400000)));
  const localToday=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
  const dayCount=(a,b)=>a&&b&&b>=a?Math.round((b-a)/86400000)+1:0;
- const actualStartOf=t=>dateVal(t.actualStart||t.actual_start||t.raw?.['ACTUAL START']||t.raw?.['ACTUAL MULAI']||'');
  const actualFinishOf=t=>dateVal(t.actualFinish||t.actual_finish||t.raw?.['SELESAI']||t.raw?.['ACTUAL FINISH']||t.raw?.['ACTUAL SELESAI']||'');
+ const actualStartOf=t=>dateVal(t.actualStart||t.actual_start||t.raw?.['ACTUAL START']||t.raw?.['ACTUAL MULAI']||(actualFinishOf(t)?t.start:''));
  const monthGroups=[];days.forEach((d,i)=>{const key=d.getFullYear()+'-'+d.getMonth();if(!monthGroups.length||monthGroups[monthGroups.length-1].key!==key)monthGroups.push({key,label:d.toLocaleDateString('id-ID',{month:'long',year:'numeric'}).toUpperCase(),start:i,count:1});else monthGroups[monthGroups.length-1].count++;});
  const branches=[...new Set(all.map(x=>x.branch).filter(Boolean))].sort(),stores=[...new Set(all.map(x=>x.store))].sort(),statuses=[...new Set(all.map(x=>x.status||'Belum Mulai'))].sort();
  out.innerHTML=`<div class="card gantt-card"><div class="gantt-filters"><select id="equipGanttBranch"><option value="all">SEMUA CABANG</option>${branches.map(b=>`<option>${b}</option>`).join('')}</select><select id="equipGanttStore"><option value="all">SEMUA GERAI</option>${stores.map(x=>`<option>${x}</option>`).join('')}</select><input id="equipGanttSearch" placeholder="CARI GERAI / AKTIVITAS..."><select id="equipGanttStatus"><option value="all">SEMUA STATUS</option>${statuses.map(x=>`<option>${x}</option>`).join('')}</select><button id="equipGanttReset" class="filter-reset" type="button">↻ RESET</button></div><div class="gantt-summary" id="equipGanttKpis"></div><div class="gantt-legend"><span><i class="plan-key"></i> PLAN / TARGET</span><span><i class="actual-key"></i> PROGRESS AKTUAL / TANGGAL SELESAI</span><span>DURASI HARI TERCANTUM DI KOLOM KIRI</span><span class="gantt-performance-key"><b class="gantt-performance-dot on-time"></b><strong>SESUAI PLAN</strong></span><span class="gantt-performance-key"><b class="gantt-performance-dot late"></b><strong>TERLAMBAT</strong></span></div><div class="gantt-scroll"><div class="gantt-timeline" id="equipGanttTimeline" style="--dayw:24px;grid-template-columns:410px repeat(${days.length},24px);min-width:${410+days.length*24}px"><div class="gh" style="grid-row:1 / span 2;grid-column:1">GERAI / AKTIVITAS · PLAN & ACTUAL</div>${monthGroups.map(m=>`<div class="gh" style="grid-column:${m.start+2} / span ${m.count};grid-row:1">${m.label}</div>`).join('')}${days.map((d,i)=>`<div class="gh" style="grid-row:2;grid-column:${i+2}">${d.getDate()}</div>`).join('')}</div></div></div>`;
@@ -3056,7 +3056,7 @@ function renderEquipmentGantt(){
   const planDays=filtered.reduce((a,t)=>{const p=dateVal(t.start),e=dateVal(t.end);return a+dayCount(p,e);},0);
   const today=dateVal(localToday());
   const actualDays=filtered.reduce((sum,t)=>{const a=actualStartOf(t),f=actualFinishOf(t),status=String(t.status||'').toLowerCase();const end=f||((a&&(status.includes('proses')||status.includes('tertunda')))?today:null);return sum+dayCount(a,end);},0);
-  const started=filtered.filter(t=>!!actualStartOf(t)).length;
+  const started=filtered.filter(t=>!!actualStartOf(t)||!!actualFinishOf(t)).length;
   document.getElementById('equipGanttKpis').innerHTML=[['AKTIVITAS DITAMPILKAN',filtered.length],['TOTAL PLAN (HARI-AKTIVITAS)',planDays.toLocaleString('id-ID')],['TOTAL ACTUAL / BERJALAN',actualDays.toLocaleString('id-ID')],['ACTUAL SUDAH DIMULAI',started]].map(x=>`<div class="gantt-metric"><small>${x[0]}</small><strong>${x[1]}</strong></div>`).join('');
   const timeline=document.getElementById('equipGanttTimeline');
   timeline.innerHTML=`<div class="gh" style="grid-row:1 / span 2;grid-column:1">GERAI / AKTIVITAS · PLAN & ACTUAL</div>${monthGroups.map(m=>`<div class="gh" style="grid-column:${m.start+2} / span ${m.count};grid-row:1">${m.label}</div>`).join('')}${days.map((d,i)=>`<div class="gh" style="grid-row:2;grid-column:${i+2};padding:4px 1px;font-size:9px">${d.getDate()}</div>`).join('')}`;
@@ -3075,18 +3075,17 @@ function renderEquipmentGantt(){
     const actualDuration=dayCount(actualStart,actualEnd);
     const tone=actualFinish&&b?(actualFinish<=b?'on-time':'late'):isRunning?(b&&runningEnd&&runningEnd<=b?'on-time':'late'):'unassessed';
     const planLabel=`PLAN: ${t.start||'—'} – ${t.end||'—'} (${planDuration||'—'} HARI KALENDER)`;
-    const actualLabel=actualFinish?`ACTUAL SELESAI: ${fmt(actualFinish)} · ${actualStart?`DURASI ${actualDuration||'TIDAK VALID'} HARI`:'DURASI BELUM DAPAT DIHITUNG — ACTUAL MULAI TIDAK TERSEDIA'}`:
+    const actualTone=actualFinish&&planDuration&&actualDuration?(actualDuration<=planDuration?'on-time':'late'):tone;
+    const actualLabel=actualFinish?`ACTUAL SELESAI: ${fmt(actualFinish)} · DURASI ACTUAL ${actualDuration} HARI`:
       isRunning?`DURASI BERJALAN: ${actualDuration} HARI · ${fmt(actualStart)} S.D. ${fmt(runningEnd)}`:'ACTUAL SELESAI: BELUM DIISI';
+    const actualTextColor=actualTone==='on-time'?'#087a35':actualTone==='late'?'#c62828':'#475569';
     const planBar=a&&b&&b>=a?`<i class="bar" style="left:${left*24}px;width:${width*24}px" title="${planLabel}"><span class="gantt-bar-duration ${tone}">${planDuration} HARI</span></i>`:'';
     let actualBar='';
     if(actualStart&&actualEnd&&actualEnd>=actualStart){
       const actualLeft=dayIndex(actualStart),actualWidth=Math.max(1,dayIndex(actualEnd)-actualLeft+1);
-      actualBar=`<i class="bar actual ${tone==='late'?'late':''}" style="left:${actualLeft*24}px;width:${actualWidth*24}px;top:31px;height:16px;background:linear-gradient(90deg,#e59a46,#f3b45f)!important" title="${actualLabel}"><span class="gantt-bar-duration ${tone}">${actualDuration} HARI</span></i>`;
-    }else if(actualFinish){
-      const finishLeft=dayIndex(actualFinish);
-      actualBar=`<i class="bar actual" style="left:${finishLeft*24}px;width:24px;top:31px;height:16px;background:#e59a46!important" title="${actualLabel}"><span class="gantt-bar-duration">SELESAI</span></i>`;
+      actualBar=`<i class="bar actual ${actualTone==='late'?'late':''}" style="left:${actualLeft*24}px;width:${actualWidth*24}px;top:31px;height:16px;background:${actualTone==='on-time'?'#16a34a':'#dc2626'}!important;box-shadow:none!important;opacity:1!important" title="${actualLabel}"><span class="gantt-bar-duration" style="color:#fff!important;text-shadow:none!important">${actualDuration} HARI</span></i>`;
     }
-    timeline.insertAdjacentHTML('beforeend',`<div class="gantt-rowlabel" style="grid-column:1;grid-row:auto"><span class="store">${t.num||''}. ${store}</span><span class="task">${t.activity||t.phase||'—'}</span><span class="dur"><span>${planLabel}</span><span>${actualLabel}</span></span></div><div class="gantt-track" style="grid-column:2 / -1;grid-row:auto">${planBar}${actualBar}</div>`);
+    timeline.insertAdjacentHTML('beforeend',`<div class="gantt-rowlabel" style="grid-column:1;grid-row:auto"><span class="store">${t.num||''}. ${store}</span><span class="task">${t.activity||t.phase||'—'}</span><span class="dur"><span>${planLabel}</span><span style="color:${actualFinish?actualTextColor:'#475569'}!important;font-weight:${actualFinish?'800':'400'};text-shadow:none!important">${actualLabel}</span></span></div><div class="gantt-track" style="grid-column:2 / -1;grid-row:auto">${planBar}${actualBar}</div>`);
    });
   });
   if(!filtered.length)timeline.insertAdjacentHTML('beforeend','<div class="gantt-empty">TIDAK ADA DATA YANG SESUAI FILTER.</div>');
