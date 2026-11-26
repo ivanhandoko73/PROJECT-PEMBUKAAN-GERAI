@@ -3072,10 +3072,10 @@ let HC_MPP=[];
 let HCTOTAL=[&quot;TOTAL&quot;,0,0,0,0,0,0,0,0,0];
 const icons=[&quot;🏢&quot;,&quot;👥&quot;,&quot;📄&quot;,&quot;🛠️&quot;,&quot;📣&quot;,&quot;🖥️&quot;,&quot;🎉&quot;];
 function categoryCards(groups,iconSet){return &#x27;&lt;div class=&quot;section-title&quot;&gt;&lt;h3&gt;Ringkasan per Kategori&lt;/h3&gt;&lt;span class=&quot;hint&quot;&gt;Klik kategori untuk melihat aktivitas&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;groups&quot;&gt;&#x27;+groups.map((g,i)=&gt;&#x27;&lt;details class=&quot;group&quot;&gt;&lt;summary&gt;&lt;span class=&quot;g-icon&quot;&gt;&#x27;+iconSet[i%iconSet.length]+&#x27;&lt;/span&gt;&lt;span class=&quot;g-name&quot;&gt;&#x27;+g[0]+&#x27;&lt;/span&gt;&lt;span class=&quot;count&quot;&gt;&#x27;+g[1].length+&#x27; aktivitas&lt;/span&gt;&lt;span class=&quot;chev&quot;&gt;⌄&lt;/span&gt;&lt;/summary&gt;&lt;ul class=&quot;items&quot;&gt;&#x27;+g[1].map(x=&gt;&#x27;&lt;li&gt;&#x27;+x+&#x27;&lt;/li&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/ul&gt;&lt;/details&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&#x27;}
-let OPENING_PROGRESS_ROWS=[], EQUIPMENT_PROGRESS_ROWS=[];
+let OPENING_PROGRESS_ROWS=[], EQUIPMENT_PROGRESS_ROWS=[], EQUIPMENT_PROGRESS_AVG_OVERRIDE=null;
 function progressRows(rows){return (rows||[]).map(x=&gt;{let p=Number(x.progress);if(!Number.isFinite(p))p=0;if(p&gt;1)p=p/100;const st=String(x.status||&#x27;&#x27;).toUpperCase();if(p===0&amp;&amp;/SELESAI|COMPLETE|DONE/.test(st))p=1;return {...x,progress:Math.max(0,Math.min(1,p))};});}
 function storeRank(rows){const a=progressRows(rows),m=new Map();a.forEach(x=&gt;{const name=x.store||x.storeName||x.gerai||&#x27;GERAI&#x27;;let z=m.get(name)||{name,n:0,sum:0,done:0};z.n++;z.sum+=x.progress; if(x.progress&gt;=1)z.done++;m.set(name,z);});return [...m.values()].map(x=&gt;({...x,pct:x.n?x.sum/x.n*100:0})).sort((a,b)=&gt;b.pct-a.pct||a.name.localeCompare(b.name));}
-function progressSummaryHtml(rows,title){const a=progressRows(rows),total=a.length,avg=total?a.reduce((s,x)=&gt;s+x.progress*100,0)/total:0,rank=storeRank(a),best=rank.slice(0,5),worst=[...rank].reverse().slice(0,5);const list=(items,label)=&gt;&#x27;&lt;div class=\&quot;exec-section\&quot;&gt;&lt;div class=\&quot;exec-section-title\&quot;&gt;&#x27;+label+&#x27;&lt;/div&gt;&lt;div class=\&quot;exec-list\&quot;&gt;&#x27;+items.map((x,i)=&gt;&#x27;&lt;div class=\&quot;exec-item\&quot;&gt;&lt;span class=\&quot;exec-rank\&quot;&gt;&#x27;+(i+1)+&#x27;&lt;/span&gt;&lt;div&gt;&lt;div class=\&quot;exec-item-name\&quot;&gt;&#x27;+x.name+&#x27;&lt;/div&gt;&lt;div class=\&quot;exec-item-detail\&quot;&gt;&#x27;+x.done+&#x27;/&#x27;+x.n+&#x27; aktivitas selesai&lt;/div&gt;&lt;/div&gt;&lt;span class=\&quot;exec-value\&quot;&gt;&#x27;+x.pct.toFixed(2)+&#x27;%&lt;/span&gt;&lt;/div&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&#x27;;return &#x27;&lt;div class=\&quot;exec-overview\&quot;&gt;&lt;div class=\&quot;exec-kpi-label\&quot;&gt;AKUMULASI &#x27;+title+&#x27;&lt;/div&gt;&lt;div class=\&quot;exec-kpi-value\&quot;&gt;&#x27;+avg.toFixed(2)+&#x27;%&lt;/div&gt;&lt;div class=\&quot;exec-kpi-sub\&quot;&gt;RATA-RATA PROGRESS · &#x27;+total+&#x27; AKTIVITAS · &#x27;+rank.length+&#x27; GERAI&lt;/div&gt;&lt;div class=\&quot;exec-progress-track\&quot;&gt;&lt;div class=\&quot;exec-progress-fill\&quot; style=\&quot;width:&#x27;+avg+&#x27;%\&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&#x27;+list(best,&#x27;TOP 5 PROGRESS TERBAIK&#x27;)+list(worst,&#x27;TOP 5 PROGRESS TERENDAH&#x27;);}
+function progressSummaryHtml(rows,title){const a=progressRows(rows),total=a.length,calculatedAvg=total?a.reduce((s,x)=&gt;s+x.progress*100,0)/total:0,avg=(String(title).toUpperCase().includes('PERLENGKAPAN')&&Number.isFinite(EQUIPMENT_PROGRESS_AVG_OVERRIDE))?EQUIPMENT_PROGRESS_AVG_OVERRIDE:calculatedAvg,rank=storeRank(a),best=rank.slice(0,5),worst=[...rank].reverse().slice(0,5);const list=(items,label)=&gt;&#x27;&lt;div class=\&quot;exec-section\&quot;&gt;&lt;div class=\&quot;exec-section-title\&quot;&gt;&#x27;+label+&#x27;&lt;/div&gt;&lt;div class=\&quot;exec-list\&quot;&gt;&#x27;+items.map((x,i)=&gt;&#x27;&lt;div class=\&quot;exec-item\&quot;&gt;&lt;span class=\&quot;exec-rank\&quot;&gt;&#x27;+(i+1)+&#x27;&lt;/span&gt;&lt;div&gt;&lt;div class=\&quot;exec-item-name\&quot;&gt;&#x27;+x.name+&#x27;&lt;/div&gt;&lt;div class=\&quot;exec-item-detail\&quot;&gt;&#x27;+x.done+&#x27;/&#x27;+x.n+&#x27; aktivitas selesai&lt;/div&gt;&lt;/div&gt;&lt;span class=\&quot;exec-value\&quot;&gt;&#x27;+x.pct.toFixed(2)+&#x27;%&lt;/span&gt;&lt;/div&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&#x27;;return &#x27;&lt;div class=\&quot;exec-overview\&quot;&gt;&lt;div class=\&quot;exec-kpi-label\&quot;&gt;AKUMULASI &#x27;+title+&#x27;&lt;/div&gt;&lt;div class=\&quot;exec-kpi-value\&quot;&gt;&#x27;+avg.toFixed(2)+&#x27;%&lt;/div&gt;&lt;div class=\&quot;exec-kpi-sub\&quot;&gt;RATA-RATA PROGRESS · &#x27;+total+&#x27; AKTIVITAS · &#x27;+rank.length+&#x27; GERAI&lt;/div&gt;&lt;div class=\&quot;exec-progress-track\&quot;&gt;&lt;div class=\&quot;exec-progress-fill\&quot; style=\&quot;width:&#x27;+avg+&#x27;%\&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&#x27;+list(best,&#x27;TOP 5 PROGRESS TERBAIK&#x27;)+list(worst,&#x27;TOP 5 PROGRESS TERENDAH&#x27;);}
 function updateProgressSummary(){render(&#x27;bpd&#x27;,document.getElementById(&#x27;view-bpd&#x27;));render(&#x27;ga&#x27;,document.getElementById(&#x27;view-ga&#x27;));}
 function render(view,target){let el=target||document.getElementById(&#x27;view&#x27;);
 const overview=(title,value,sub,status=&#x27;DATA STATUS&#x27;)=&gt;&#x27;&lt;div class=&quot;exec-overview&quot;&gt;&lt;div class=&quot;exec-overview-head&quot;&gt;&lt;div&gt;&lt;div class=&quot;exec-kpi-label&quot;&gt;&#x27;+title+&#x27;&lt;/div&gt;&lt;div class=&quot;exec-kpi-value&quot;&gt;&#x27;+value+&#x27;&lt;/div&gt;&lt;div class=&quot;exec-kpi-sub&quot;&gt;&#x27;+sub+&#x27;&lt;/div&gt;&lt;/div&gt;&lt;span class=&quot;exec-status&quot;&gt;&#x27;+status+&#x27;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&#x27;;
@@ -3102,7 +3102,7 @@ if(view===&#x27;bpd&#x27;){
  el.innerHTML=html;
 }
 }
-render(&#x27;bpd&#x27;,document.getElementById(&#x27;view-bpd&#x27;));render(&#x27;ga&#x27;,document.getElementById(&#x27;view-ga&#x27;));render(&#x27;hc&#x27;,document.getElementById(&#x27;view-hc&#x27;));window.addEventListener(&#x27;message&#x27;,e=&gt;{const msg=e.data||{};if(msg.type===&#x27;SUMMARY_PROGRESS_UPDATE&#x27;){OPENING_PROGRESS_ROWS=msg.opening||[];EQUIPMENT_PROGRESS_ROWS=msg.equipment||[];updateProgressSummary();}});
+render(&#x27;bpd&#x27;,document.getElementById(&#x27;view-bpd&#x27;));render(&#x27;ga&#x27;,document.getElementById(&#x27;view-ga&#x27;));render(&#x27;hc&#x27;,document.getElementById(&#x27;view-hc&#x27;));window.addEventListener(&#x27;message&#x27;,e=&gt;{const msg=e.data||{};if(msg.type===&#x27;SUMMARY_PROGRESS_UPDATE&#x27;){OPENING_PROGRESS_ROWS=msg.opening||[];EQUIPMENT_PROGRESS_ROWS=msg.equipment||[];EQUIPMENT_PROGRESS_AVG_OVERRIDE=Number.isFinite(Number(msg.equipmentProgressPct))?Number(msg.equipmentProgressPct):null;updateProgressSummary();}});
 
 window.addEventListener(&#x27;message&#x27;,e=&gt;{if(!e.data||e.data.type!==&#x27;MPP_UPDATE&#x27;)return;const d=e.data.detail||[],bs=[...new Set(d.map(x=&gt;x.cab))];HC_MPP=bs.map(b=&gt;[b,[...new Set(d.filter(x=&gt;x.cab===b).map(x=&gt;x.gerai||&#x27;GERAI BELUM DITENTUKAN&#x27;))].map(st=&gt;[st,d.filter(x=&gt;x.cab===b&amp;&amp;(x.gerai||&#x27;GERAI BELUM DITENTUKAN&#x27;)===st).map(x=&gt;[x.role,x.need,x.short,x.mpe,x.app,x.interview,x.interview2??x.follow,x.join,x.training,x.complete])])]);HCTOTAL=[&#x27;TOTAL&#x27;,...[&#x27;need&#x27;,&#x27;short&#x27;,&#x27;mpe&#x27;,&#x27;app&#x27;,&#x27;interview&#x27;,&#x27;interview2&#x27;,&#x27;join&#x27;,&#x27;training&#x27;,&#x27;complete&#x27;].map(k=&gt;d.reduce((s,x)=&gt;s+Number(x[k]||0),0))];render(&#x27;hc&#x27;,document.getElementById(&#x27;view-hc&#x27;));});
 &lt;/script&gt;&lt;script&gt;
@@ -3858,12 +3858,15 @@ window.GPC_SEND_SUMMARY_PROGRESS=function(){
   const frame=document.getElementById('summaryExactFrame');
   if(!frame||!frame.contentWindow)return false;
   const opening=Array.isArray(window.GANTT_SOURCE_DATA)?window.GANTT_SOURCE_DATA:(typeof GANTT_SOURCE_DATA!=='undefined'&&Array.isArray(GANTT_SOURCE_DATA)?GANTT_SOURCE_DATA:[]);
-  let equipment=[];
+  let equipment=[],equipmentProgressPct=0;
   try{
     const source=Array.isArray(window.MASTER_TIMELINE_DATA)?window.MASTER_TIMELINE_DATA:(typeof MASTER_TIMELINE_DATA!=='undefined'?MASTER_TIMELINE_DATA:[]);
     equipment=source.flatMap(st=>(st.tasks||[]).map(t=>({...t,store:st.name,progress:Number(t.progress)||0,status:t.status||''})));
+    // Match Dashboard Perlengkapan exactly: clamp each activity to 0..1, then average.
+    const progressValues=source.flatMap(st=>(st.tasks||[]).map(t=>Math.max(0,Math.min(1,Number(t.progress)||0))));
+    equipmentProgressPct=progressValues.length?progressValues.reduce((sum,v)=>sum+v,0)/progressValues.length*100:0;
   }catch(e){console.warn('GPC summary equipment binding:',e);}
-  try{frame.contentWindow.postMessage({type:'SUMMARY_PROGRESS_UPDATE',opening,equipment},'*');return true;}
+  try{frame.contentWindow.postMessage({type:'SUMMARY_PROGRESS_UPDATE',opening,equipment,equipmentProgressPct},'*');return true;}
   catch(e){console.warn('GPC summary progress send failed:',e);return false;}
 };
 // Summary iframe may finish loading after the first render. Re-send on load and
@@ -7963,6 +7966,86 @@ iframe{max-width:100%;border-color:#dce5ee}
   setTimeout(sync,0);
 })();
 </script>
+
+<script id="equipment-progress-inline-sync-fix">
+/*
+ * FIX TERBATAS: Dashboard Perlengkapan dan Progress Perlengkapan harus membaca
+ * MASTER_TIMELINE_DATA yang sama. Sebelumnya iframe Progress memiliki DATA
+ * bawaan sendiri (stale), sehingga hitungan statusnya berbeda dari dashboard.
+ */
+(function () {
+  function syncEquipmentProgressInline() {
+    const frame = document.getElementById('equipmentFrame');
+    const source = (typeof MASTER_TIMELINE_DATA !== 'undefined' && Array.isArray(MASTER_TIMELINE_DATA))
+      ? MASTER_TIMELINE_DATA
+      : (Array.isArray(window.MASTER_TIMELINE_DATA) ? window.MASTER_TIMELINE_DATA : null);
+    if (!frame || !frame.contentWindow || !source) return false;
+
+    const taskCount = source.reduce((n, st) => n + (Array.isArray(st.tasks) ? st.tasks.length : 0), 0);
+    if (source.length !== 15 || taskCount !== 495) return false;
+
+    const payload = {
+      type: 'MASTER_TIMELINE_IMPORTED',
+      data: source,
+      filename: 'MASTER_TIMELINE_DATA — sumber yang sama dengan Dashboard Perlengkapan',
+      storeCount: source.length,
+      taskCount
+    };
+
+    try {
+      if (typeof frame.contentWindow.updateEquipmentProgressData === 'function') {
+        const result = frame.contentWindow.updateEquipmentProgressData(
+          source,
+          payload.filename
+        );
+        return !!(result && result.ok);
+      }
+      frame.contentWindow.postMessage(payload, '*');
+      return true;
+    } catch (err) {
+      try {
+        frame.contentWindow.postMessage(payload, '*');
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+  }
+
+  window.GPC_SYNC_EQUIPMENT_PROGRESS_INLINE = syncEquipmentProgressInline;
+
+  const frame = document.getElementById('equipmentFrame');
+  if (frame && !frame.dataset.inlineSyncBound) {
+    frame.dataset.inlineSyncBound = '1';
+    frame.addEventListener('load', () => {
+      [0, 150, 500, 1200].forEach(ms => setTimeout(syncEquipmentProgressInline, ms));
+    });
+  }
+
+  // Synchronize once the embedded view has initialized, and whenever it is opened.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      [0, 250, 800, 1600].forEach(ms => setTimeout(syncEquipmentProgressInline, ms));
+    });
+  } else {
+    [0, 250, 800, 1600].forEach(ms => setTimeout(syncEquipmentProgressInline, ms));
+  }
+
+  const originalShowView = window.showView;
+  if (typeof originalShowView === 'function' && !originalShowView.__equipmentInlineSyncWrapped) {
+    const wrappedShowView = function (id) {
+      const result = originalShowView.apply(this, arguments);
+      if (id === 'equipment' || id === 'equipment-dashboard') {
+        [0, 100, 350].forEach(ms => setTimeout(syncEquipmentProgressInline, ms));
+      }
+      return result;
+    };
+    wrappedShowView.__equipmentInlineSyncWrapped = true;
+    window.showView = wrappedShowView;
+  }
+})();
+</script>
+
 </body></html>
 
 
