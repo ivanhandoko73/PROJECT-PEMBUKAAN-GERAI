@@ -2226,42 +2226,115 @@ renderMarkers();renderArrows();renderCaptions();loadLevel(currentLevel);
 document.body.classList.add(&#x27;presentation&#x27;);
 setTimeout(()=&gt;map.invalidateSize(),350);
 // Cloud Admin / Viewer support (additional feature; original map code preserved).
-const CLOUD_URL=&#x27;https://opbtmzhteepofqgeapzy.supabase.co&#x27;;
-const CLOUD_KEY=&#x27;sb_publishable_AEy4JBaYvqQdOheqY5cICg_O7qxqa5i&#x27;;
-const cloudClient=window.supabase?.createClient(CLOUD_URL,CLOUD_KEY);
-let cloudProjectId=localStorage.getItem(&#x27;peta_cloud_project_id&#x27;)||null;
+// Satu autentikasi untuk seluruh aplikasi: gunakan client Supabase milik halaman utama.
+function getMainSupabase(){
+  try{return window.parent&amp;&amp;window.parent.GPC_SUPABASE_STATE&amp;&amp;window.parent.GPC_SUPABASE_STATE.supabase||null;}
+  catch(_){return null;}
+}
+const cloudClient={
+  auth:{
+    getUser:(...args)=&gt;{const c=getMainSupabase();if(!c)throw new Error(&#x27;Koneksi Supabase utama belum siap.&#x27;);return c.auth.getUser(...args);},
+    getSession:(...args)=&gt;{const c=getMainSupabase();if(!c)throw new Error(&#x27;Koneksi Supabase utama belum siap.&#x27;);return c.auth.getSession(...args);}
+  },
+  from:(...args)=&gt;{const c=getMainSupabase();if(!c)throw new Error(&#x27;Koneksi Supabase utama belum siap.&#x27;);return c.from(...args);}
+};
+let cloudProjectId=localStorage.getItem(&#x27;gpc_map_cloud_project_id_v1&#x27;)||null;
 let cloudAdmin=false;
 function cloudStatus(msg){const el=document.getElementById(&#x27;cloudStatus&#x27;);if(el)el.textContent=msg;}
 const cloudLoginLogo=document.getElementById(&#x27;cloudLoginLogo&#x27;);const brandLogo=document.querySelector(&#x27;.brand-logo&#x27;);if(cloudLoginLogo&amp;&amp;brandLogo)cloudLoginLogo.src=brandLogo.src;
 function cloudModal(show){document.getElementById(&#x27;cloudLoginModal&#x27;).classList.toggle(&#x27;show&#x27;,!!show);if(show)setTimeout(()=&gt;document.getElementById(&#x27;cloudEmail&#x27;).focus(),100);}
-function cloudControls(admin){cloudAdmin=!!admin;document.getElementById(&#x27;cloudLoginBtn&#x27;).style.display=admin?&#x27;none&#x27;:&#x27;inline-block&#x27;;document.getElementById(&#x27;cloudLogoutBtn&#x27;).style.display=admin?&#x27;inline-block&#x27;:&#x27;none&#x27;;document.getElementById(&#x27;cloudSaveBtn&#x27;).disabled=!admin;document.getElementById(&#x27;cloudLoadBtn&#x27;).disabled=!admin;document.getElementById(&#x27;cloudLinkBtn&#x27;).disabled=!admin||!cloudProjectId;}
+function cloudControls(admin){
+  cloudAdmin=!!admin;
+  const loginBtn=document.getElementById(&#x27;cloudLoginBtn&#x27;);
+  const logoutBtn=document.getElementById(&#x27;cloudLogoutBtn&#x27;);
+  if(loginBtn)loginBtn.style.display=&#x27;none&#x27;;
+  // Logout hanya melalui tombol Logout utama aplikasi.
+  if(logoutBtn)logoutBtn.style.display=&#x27;none&#x27;;
+  const saveBtn=document.getElementById(&#x27;cloudSaveBtn&#x27;);
+  const loadBtn=document.getElementById(&#x27;cloudLoadBtn&#x27;);
+  const linkBtn=document.getElementById(&#x27;cloudLinkBtn&#x27;);
+  if(saveBtn)saveBtn.disabled=!cloudAdmin;
+  if(loadBtn)loadBtn.disabled=!cloudAdmin||!cloudProjectId;
+  if(linkBtn)linkBtn.disabled=!cloudAdmin;
+}
 function cloudProjectData(){return {version:3,paintData,markerData,arrowData,captions,locationScoreData:LOCATION_SCORE_DATA,view:{center:map.getCenter(),zoom:map.getZoom()},level:currentLevel,scoreColorMode};}
-async function cloudLogin(){if(!cloudClient){cloudStatus(&#x27;Library cloud tidak termuat&#x27;);return;}const email=document.getElementById(&#x27;cloudEmail&#x27;).value.trim(),password=document.getElementById(&#x27;cloudPassword&#x27;).value;if(!email||!password){cloudStatus(&#x27;Isi email dan password Admin&#x27;);return;}document.getElementById(&#x27;cloudLoginSubmit&#x27;).disabled=true;document.getElementById(&#x27;cloudLoginSubmit&#x27;).textContent=&#x27;Memeriksa…&#x27;;cloudStatus(&#x27;Login…&#x27;);const {data,error}=await cloudClient.auth.signInWithPassword({email,password});document.getElementById(&#x27;cloudLoginSubmit&#x27;).disabled=false;document.getElementById(&#x27;cloudLoginSubmit&#x27;).textContent=&#x27;Masuk ke Dashboard&#x27;;if(error){cloudStatus(&#x27;Login gagal: &#x27;+error.message);alert(&#x27;Login gagal. Periksa email dan password.&#x27;);return;}cloudControls(true);cloudModal(false);cloudStatus(&#x27;Login Admin berhasil&#x27;);document.getElementById(&#x27;cloudPassword&#x27;).value=&#x27;&#x27;;}
-document.getElementById(&#x27;cloudLoginBtn&#x27;).onclick=()=&gt;cloudModal(true);document.getElementById(&#x27;cloudLoginSubmit&#x27;).onclick=cloudLogin;document.getElementById(&#x27;cloudLoginCancel&#x27;).onclick=()=&gt;cloudModal(false);document.getElementById(&#x27;cloudLoginModal&#x27;).addEventListener(&#x27;click&#x27;,e=&gt;{if(e.target.id===&#x27;cloudLoginModal&#x27;)cloudModal(false);});document.getElementById(&#x27;cloudPassword&#x27;).addEventListener(&#x27;keydown&#x27;,e=&gt;{if(e.key===&#x27;Enter&#x27;)cloudLogin();});
-document.getElementById(&#x27;cloudLogoutBtn&#x27;).onclick=async()=&gt;{await cloudClient.auth.signOut();cloudControls(false);cloudStatus(&#x27;Logout&#x27;);};
-document.getElementById(&#x27;cloudSaveBtn&#x27;).onclick=async()=&gt;{if(!cloudAdmin)return;cloudStatus(&#x27;Menyimpan…&#x27;);try{const {data:userData,error:userError}=await cloudClient.auth.getUser();if(userError)throw userError;const user=userData?.user;if(!user?.id)throw new Error(&#x27;Sesi Admin tidak valid. Silakan logout lalu login kembali.&#x27;);const payload={name:&#x27;Peta Cabang &amp; Pembukaan Gerai&#x27;,data:cloudProjectData(),published:true,owner_id:user.id};if(cloudProjectId)payload.id=cloudProjectId;const {data,error}=await cloudClient.from(&#x27;map_projects&#x27;).upsert(payload).select(&#x27;id&#x27;).single();if(error)throw error;cloudProjectId=data.id;localStorage.setItem(&#x27;peta_cloud_project_id&#x27;,cloudProjectId);document.getElementById(&#x27;cloudLinkBtn&#x27;).disabled=false;cloudStatus(&#x27;Tersimpan di Cloud&#x27;);alert(&#x27;Data peta berhasil disimpan ke Cloud.&#x27;);}catch(e){console.error(e);cloudStatus(&#x27;Gagal simpan: &#x27;+e.message);alert(&#x27;Gagal menyimpan ke Cloud: &#x27;+e.message);}};
-document.getElementById(&#x27;cloudLoadBtn&#x27;).onclick=async()=&gt;{if(!cloudAdmin||!cloudProjectId)return;cloudStatus(&#x27;Memuat data…&#x27;);try{const {data,error}=await cloudClient.from(&#x27;map_projects&#x27;).select(&#x27;data&#x27;).eq(&#x27;id&#x27;,cloudProjectId).single();if(error)throw error;const d=data.data||{};paintData=d.paintData||{};markerData=d.markerData||[];arrowData=d.arrowData||[];captions=d.captions||[];if(Array.isArray(d.locationScoreData)){LOCATION_SCORE_DATA=d.locationScoreData;renderScoreSummary();}currentLevel=d.level||d.view?.level||currentLevel;localStorage.setItem(&#x27;jabodetabek_admin_paints_v2&#x27;,JSON.stringify(paintData));persistMarkers();persistArrows();persistCaptions();regionLayer.setStyle(styleFeature);refreshStats();refreshList();renderMarkers();renderArrows();renderCaptions();loadLevel(currentLevel);cloudStatus(&#x27;Data Cloud dimuat&#x27;);}catch(e){console.error(e);cloudStatus(&#x27;Gagal muat: &#x27;+e.message);alert(&#x27;Gagal mengambil data Cloud: &#x27;+e.message);}};
-document.getElementById(&#x27;cloudLinkBtn&#x27;).onclick=async()=&gt;{if(!cloudProjectId)return;let viewerBaseUrl;
-try{
-  // Peta berjalan di iframe srcdoc; gunakan URL halaman GitHub induk.
-  viewerBaseUrl=window.parent&amp;&amp;window.parent!==window?window.parent.location.href:window.location.href;
-}catch(_){viewerBaseUrl=window.location.href;}
-const viewerUrl=new URL(viewerBaseUrl);
-viewerUrl.search=&#x27;&#x27;;
-viewerUrl.hash=&#x27;&#x27;;
-viewerUrl.searchParams.set(&#x27;viewer&#x27;,cloudProjectId);
-const url=viewerUrl.toString();try{await navigator.clipboard.writeText(url);cloudStatus(&#x27;Link Viewer disalin&#x27;);alert(&#x27;Link Viewer berhasil disalin:\n&#x27;+url);}catch(e){prompt(&#x27;Salin Link Viewer ini:&#x27;,url);}};
+// Login dan logout Cloud terpisah sengaja tidak digunakan. Sesi mengikuti login utama.
+async function cloudLogin(){cloudStatus(&#x27;Gunakan tombol LOGIN utama aplikasi.&#x27;);}
+const cloudLoginBtn=document.getElementById(&#x27;cloudLoginBtn&#x27;);
+if(cloudLoginBtn)cloudLoginBtn.onclick=()=&gt;cloudStatus(&#x27;Gunakan tombol LOGIN utama aplikasi.&#x27;);
+const cloudLoginSubmit=document.getElementById(&#x27;cloudLoginSubmit&#x27;);
+if(cloudLoginSubmit)cloudLoginSubmit.onclick=cloudLogin;
+const cloudLoginCancel=document.getElementById(&#x27;cloudLoginCancel&#x27;);
+if(cloudLoginCancel)cloudLoginCancel.onclick=()=&gt;cloudModal(false);
+const cloudLoginModal=document.getElementById(&#x27;cloudLoginModal&#x27;);
+if(cloudLoginModal)cloudLoginModal.addEventListener(&#x27;click&#x27;,e=&gt;{if(e.target.id===&#x27;cloudLoginModal&#x27;)cloudModal(false);});
+const cloudPassword=document.getElementById(&#x27;cloudPassword&#x27;);
+if(cloudPassword)cloudPassword.addEventListener(&#x27;keydown&#x27;,e=&gt;{if(e.key===&#x27;Enter&#x27;)cloudLogin();});
+const cloudLogoutBtn=document.getElementById(&#x27;cloudLogoutBtn&#x27;);
+if(cloudLogoutBtn)cloudLogoutBtn.onclick=()=&gt;cloudStatus(&#x27;Logout dilakukan melalui tombol utama aplikasi.&#x27;);
+document.getElementById(&#x27;cloudSaveBtn&#x27;).onclick=async()=&gt;{if(!cloudAdmin)return;cloudStatus(&#x27;Menyimpan…&#x27;);try{const {data:userData,error:userError}=await cloudClient.auth.getUser();if(userError)throw userError;const user=userData?.user;if(!user?.id)throw new Error(&#x27;Sesi Admin tidak valid. Silakan logout lalu login kembali.&#x27;);const payload={name:&#x27;Peta Cabang &amp; Pembukaan Gerai&#x27;,data:cloudProjectData(),published:true,owner_id:user.id};if(cloudProjectId)payload.id=cloudProjectId;const {data,error}=await cloudClient.from(&#x27;map_projects&#x27;).upsert(payload).select(&#x27;id&#x27;).single();if(error)throw error;cloudProjectId=data.id;localStorage.setItem(&#x27;gpc_map_cloud_project_id_v1&#x27;,cloudProjectId);document.getElementById(&#x27;cloudLinkBtn&#x27;).disabled=false;cloudStatus(&#x27;Tersimpan di Cloud&#x27;);alert(&#x27;Data peta berhasil disimpan ke Cloud.&#x27;);}catch(e){console.error(e);cloudStatus(&#x27;Gagal simpan: &#x27;+e.message);alert(&#x27;Gagal menyimpan ke Cloud: &#x27;+e.message);}};
+document.getElementById(&#x27;cloudLoadBtn&#x27;).onclick=async()=&gt;{if(!cloudAdmin)return;cloudStatus(&#x27;Memuat data…&#x27;);try{if(!cloudProjectId){const {data:userData,error:userError}=await cloudClient.auth.getUser();if(userError)throw userError;const user=userData?.user;if(!user?.id)throw new Error(&#x27;Sesi Super Admin tidak ditemukan.&#x27;);const {data:latest,error:latestError}=await cloudClient.from(&#x27;map_projects&#x27;).select(&#x27;id&#x27;).eq(&#x27;owner_id&#x27;,user.id).order(&#x27;updated_at&#x27;,{ascending:false}).limit(1).maybeSingle();if(latestError)throw latestError;if(!latest?.id)throw new Error(&#x27;Belum ada proyek peta tersimpan di Cloud.&#x27;);cloudProjectId=latest.id;localStorage.setItem(&#x27;gpc_map_cloud_project_id_v1&#x27;,cloudProjectId);}const {data,error}=await cloudClient.from(&#x27;map_projects&#x27;).select(&#x27;data&#x27;).eq(&#x27;id&#x27;,cloudProjectId).single();if(error)throw error;const d=data.data||{};paintData=d.paintData||{};markerData=d.markerData||[];arrowData=d.arrowData||[];captions=d.captions||[];if(Array.isArray(d.locationScoreData)){LOCATION_SCORE_DATA=d.locationScoreData;renderScoreSummary();}currentLevel=d.level||d.view?.level||currentLevel;localStorage.setItem(&#x27;jabodetabek_admin_paints_v2&#x27;,JSON.stringify(paintData));persistMarkers();persistArrows();persistCaptions();regionLayer.setStyle(styleFeature);refreshStats();refreshList();renderMarkers();renderArrows();renderCaptions();loadLevel(currentLevel);cloudStatus(&#x27;Data Cloud dimuat&#x27;);}catch(e){console.error(e);cloudStatus(&#x27;Gagal muat: &#x27;+e.message);alert(&#x27;Gagal mengambil data Cloud: &#x27;+e.message);}};
+document.getElementById(&#x27;cloudLinkBtn&#x27;).onclick=async()=&gt;{let url=&#x27;https://ivanhandoko73.github.io/PROJECT-PEMBUKAAN-GERAI/&#x27;;try{url=window.parent&amp;&amp;window.parent!==window?window.parent.location.origin+window.parent.location.pathname:url;}catch(_){}try{await navigator.clipboard.writeText(url);cloudStatus(&#x27;Link aplikasi publik disalin&#x27;);alert(&#x27;Link aplikasi publik berhasil disalin:\n&#x27;+url);}catch(e){prompt(&#x27;Salin link aplikasi ini:&#x27;,url);}};
 async function cloudViewerStart(id){document.body.classList.add(&#x27;cloud-viewer&#x27;,&#x27;export-viewer&#x27;,&#x27;presentation&#x27;);cloudStatus(&#x27;Memuat Viewer…&#x27;);try{const {data,error}=await cloudClient.from(&#x27;map_projects&#x27;).select(&#x27;data&#x27;).eq(&#x27;id&#x27;,id).eq(&#x27;published&#x27;,true).single();if(error)throw error;const d=data.data||{};paintData=d.paintData||{};markerData=d.markerData||[];arrowData=d.arrowData||[];captions=d.captions||[];if(Array.isArray(d.locationScoreData))LOCATION_SCORE_DATA=d.locationScoreData;currentLevel=d.level||currentLevel;scoreColorMode=!!d.scoreColorMode;viewerFilterColor=null;localStorage.setItem(&#x27;jabodetabek_admin_paints_v2&#x27;,JSON.stringify(paintData));persistMarkers();persistArrows();persistCaptions();regionLayer.setStyle(styleFeature);refreshStats();refreshList();renderMarkers();renderArrows();renderCaptions();await loadLevel(currentLevel);if(d.view?.center&amp;&amp;d.view?.zoom)map.setView(d.view.center,d.view.zoom);
 // Final redraw after Cloud Viewer data, view and mobile viewport are all applied.
 requestAnimationFrame(()=&gt;{regionLayer.setStyle(styleFeature);map.invalidateSize({pan:false});renderMarkers();renderArrows();});
 setTimeout(()=&gt;{regionLayer.setStyle(styleFeature);map.invalidateSize({pan:false});renderMarkers();renderArrows();},450);
 cloudStatus(&#x27;Viewer&#x27;);}catch(e){console.error(e);cloudStatus(&#x27;Viewer gagal dimuat: &#x27;+e.message);alert(&#x27;Viewer Cloud tidak dapat dimuat. Periksa izin baca publik pada tabel map_projects.&#x27;);}}
-(async()=&gt;{if(!cloudClient){cloudStatus(&#x27;Cloud tidak tersedia: library Supabase gagal dimuat&#x27;);console.error(&#x27;Supabase JS tidak tersedia; data Viewer tidak dapat diambil.&#x27;);return;}let viewerId=new URLSearchParams(location.search).get(&#x27;viewer&#x27;);
-if(!viewerId){
-  // srcdoc tidak mewarisi query string URL induk pada location.search.
-  try{viewerId=new URLSearchParams(window.parent.location.search).get(&#x27;viewer&#x27;);}catch(_){}
+async function waitForMainSupabase(timeoutMs=20000){
+  const started=Date.now();
+  while(Date.now()-started&lt;timeoutMs){
+    const client=getMainSupabase();
+    if(client)return client;
+    await new Promise(resolve=&gt;setTimeout(resolve,100));
+  }
+  throw new Error(&#x27;Supabase utama belum siap. Muat ulang halaman setelah koneksi tersedia.&#x27;);
 }
-if(viewerId){await cloudViewerStart(viewerId);return;}const {data:{session}}=await cloudClient.auth.getSession();cloudControls(!!session);if(session)cloudStatus(&#x27;Sesi Admin aktif&#x27;);})();
+async function loadLatestPublishedMap(){
+  cloudStatus(&#x27;Memuat warna peta publik dari Cloud…&#x27;);
+  const {data,error}=await cloudClient.from(&#x27;map_projects&#x27;).select(&#x27;id&#x27;)
+    .eq(&#x27;published&#x27;,true).order(&#x27;updated_at&#x27;,{ascending:false}).limit(1).maybeSingle();
+  if(error)throw error;
+  if(!data?.id){cloudStatus(&#x27;Belum ada peta yang dipublikasikan di Cloud.&#x27;);return;}
+  cloudProjectId=data.id;
+  await cloudViewerStart(data.id);
+}
+(async()=&gt;{
+  try{
+    await waitForMainSupabase();
+    const viewerId=new URLSearchParams(window.parent.location.search).get(&#x27;viewer&#x27;)
+      ||new URLSearchParams(location.search).get(&#x27;viewer&#x27;);
+    if(viewerId){await cloudViewerStart(viewerId);return;}
+    const {data:{session},error:sessionError}=await cloudClient.auth.getSession();
+    if(sessionError)throw sessionError;
+    let isSuperAdmin=false;
+    if(session?.user?.id){
+      const {data:profile,error:profileError}=await cloudClient.from(&#x27;user_profiles&#x27;)
+        .select(&#x27;app_role,is_active&#x27;).eq(&#x27;user_id&#x27;,session.user.id).maybeSingle();
+      if(profileError)throw profileError;
+      isSuperAdmin=String(profile?.app_role||&#x27;&#x27;).toLowerCase()===&#x27;super_admin&#x27;&amp;&amp;profile?.is_active===true;
+    }
+    cloudControls(isSuperAdmin);
+    if(isSuperAdmin){
+      if(!cloudProjectId){
+        const {data:latest,error}=await cloudClient.from(&#x27;map_projects&#x27;).select(&#x27;id&#x27;)
+          .eq(&#x27;owner_id&#x27;,session.user.id).order(&#x27;updated_at&#x27;,{ascending:false}).limit(1).maybeSingle();
+        if(error)throw error;
+        if(latest?.id){cloudProjectId=latest.id;localStorage.setItem(&#x27;gpc_map_cloud_project_id_v1&#x27;,cloudProjectId);}
+      }
+      if(cloudProjectId){
+        const loadBtn=document.getElementById(&#x27;cloudLoadBtn&#x27;);
+        if(loadBtn){loadBtn.disabled=false;await loadBtn.onclick();}
+        cloudStatus(&#x27;ADMIN • EDITOR AKTIF&#x27;);
+      }else cloudStatus(&#x27;ADMIN • EDITOR AKTIF — belum ada data Cloud&#x27;);
+    }else{
+      // URL publik utama selalu menampilkan proyek peta terbit terbaru tanpa login.
+      await loadLatestPublishedMap();
+    }
+  }catch(e){
+    console.error(&#x27;GPC map cloud bootstrap failed:&#x27;,e);
+    cloudStatus(&#x27;Cloud peta gagal dimuat: &#x27;+(e.message||&#x27;Periksa koneksi dan izin map_projects.&#x27;));
+  }
+})();
 
 // Recalculate Leaflet sizing after device rotation / viewport changes.
 window.addEventListener(&#x27;resize&#x27;,()=&gt;{if(typeof map!==&#x27;undefined&#x27;)setTimeout(()=&gt;map.invalidateSize(),150);});
