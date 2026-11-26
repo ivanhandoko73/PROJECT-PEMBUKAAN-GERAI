@@ -4540,6 +4540,9 @@ button[onclick*="clearMPPImportInputs" i]:hover:not(#openingReset), button[aria-
     if (APP.supabase && typeof window.GPC_REFRESH_MPP_VIEWER === 'function') {
       window.GPC_REFRESH_MPP_VIEWER();
     }
+    if (APP.supabase && typeof window.GPC_REFRESH_EQUIPMENT_VIEWER === 'function') {
+      window.GPC_REFRESH_EQUIPMENT_VIEWER();
+    }
     const activeInput = ['input-progress', 'input-equipment', 'people-mpp-import'].some((id) => $(id) && !$(id).classList.contains('hidden'));
     if (activeInput) {
       if (typeof mainMenu === 'function') mainMenu('dashboard');
@@ -4570,6 +4573,9 @@ button[onclick*="clearMPPImportInputs" i]:hover:not(#openingReset), button[aria-
     if (typeof renderSubnav === 'function') renderSubnav();
     if (APP.supabase && typeof window.GPC_REFRESH_MPP_VIEWER === 'function') {
       window.GPC_REFRESH_MPP_VIEWER();
+    }
+    if (APP.supabase && typeof window.GPC_REFRESH_EQUIPMENT_VIEWER === 'function') {
+      window.GPC_REFRESH_EQUIPMENT_VIEWER();
     }
     if (typeof mainMenu === 'function') mainMenu('map');
     closeAuthModal();
@@ -5635,6 +5641,62 @@ button[onclick*="clearMPPImportInputs" i]:hover:not(#openingReset), button[aria-
     }
     return state.rows.equipment;
   }
+
+  // Public Viewer: use the same uploaded-workbook rows persisted in Supabase.
+  // This is SELECT-only; no login, writes, or data transformation by scaling.
+  window.GPC_REFRESH_EQUIPMENT_VIEWER = async function(){
+    if(!APP?.supabase) return [];
+    try{
+      const {data,error}=await APP.supabase.from('equipment_data')
+        .select('id,store_id,data,source_file,created_at,updated_at')
+        .order('created_at',{ascending:true}).order('id',{ascending:true})
+        .range(0,4999);
+      if(error) throw error;
+      const rows=(data||[]).map(equipmentRow);
+      const grouped=new Map();
+      rows.forEach(r=>{
+        if(!r.store) throw new Error('Ada baris equipment_data yang tidak terhubung ke Master Gerai.');
+        if(!grouped.has(r.store)) grouped.set(r.store,{name:r.store,cab:r.cab,tasks:[]});
+        grouped.get(r.store).tasks.push({
+          num:r.num,phase:r.phase,activity:r.activity||r.phase,
+          start:r.start,end:r.end,actualFinish:r.actualFinish,
+          duration:r.duration,status:r.status,progress:r.progress,
+          pic:r.pic,note:r.note
+        });
+      });
+      const stores=[...grouped.values()].sort((a,b)=>a.name.localeCompare(b.name));
+      const taskCount=stores.reduce((n,s)=>n+s.tasks.length,0);
+      if(stores.length!==15 || taskCount!==495){
+        throw new Error(`Data viewer belum lengkap: ${stores.length}/15 gerai dan ${taskCount}/495 aktivitas. Data lama dipertahankan.`);
+      }
+      state.rows.equipment=rows;
+      window.GPC_EQUIPMENT_PROGRESS_ROWS=rows;
+      MASTER_TIMELINE_DATA=stores;
+      window.MASTER_TIMELINE_DATA=stores;
+      window.branchForStore=(name)=>stores.find(s=>s.name===name)?.cab||'';
+      GA_IMPORT_SUMMARY={totalStores:stores.length,totalTasks:taskCount};
+      window.GPC_LATEST_EQUIPMENT_IMPORT={
+        type:'MASTER_TIMELINE_IMPORTED',data:stores,
+        filename:'Supabase equipment_data — sumber Excel Master Timeline',
+        storeCount:stores.length,taskCount
+      };
+      if(typeof renderEquipmentDashboard==='function')renderEquipmentDashboard();
+      if(typeof renderEquipmentGantt==='function')renderEquipmentGantt();
+      if(typeof window.sendEquipmentImportToProgress==='function'){
+        window.sendEquipmentImportToProgress();
+        [150,500,1200].forEach(ms=>setTimeout(()=>window.sendEquipmentImportToProgress(),ms));
+      }
+      if(typeof renderSummaryTab==='function')renderSummaryTab('ga');
+      if(typeof window.GPC_SEND_SUMMARY_PROGRESS==='function'){
+        window.GPC_SEND_SUMMARY_PROGRESS();
+        [150,500,1200].forEach(ms=>setTimeout(()=>window.GPC_SEND_SUMMARY_PROGRESS(),ms));
+      }
+      return rows;
+    }catch(error){
+      console.error('GPC Equipment Viewer: gagal membaca equipment_data dari Supabase.',error);
+      return [];
+    }
+  };
   window.crudResetEquipment=resetEquipmentForm;
   window.crudSaveEquipment=async function(){try{const x=equipmentDataFromForm();const out=await rpc('save','equipment',{store_id:x.store.id,data:x.data,source_file:'Input Website'});state.current.equipment=out.id;await refreshEquipmentRows();say('equipmentCrudNotice','Data Perlengkapan berhasil disimpan.');}catch(e){say('equipmentCrudNotice','Gagal menyimpan Perlengkapan: '+e.message,false);}};
   window.crudSearchEquipment=function(){try{const cab=$('equipmentInputCab')?.value||'',name=$('equipmentInputStore')?.value||'',query=norm($('equipmentInputItem')?.value||$('equipmentInputPhase')?.value||'');if(!cab||!name)throw new Error('Pilih Cabang dan Gerai terlebih dahulu. Fase/Aktivitas boleh dikosongkan untuk melihat semua item.');const store=resolveStore(cab,name);if(!store)throw new Error('Gerai tidak ditemukan pada Master Supabase.');const matches=state.rows.equipment.filter(r=>r.store_id===store.id&&(!query||norm(r.activity).includes(query)||norm(r.phase).includes(query)));if(!matches.length){state.current.equipment=null;say('equipmentCrudNotice','Data Perlengkapan tidak ditemukan.',false);return;}const choose=r=>{state.current.equipment=r.id;fillEquipmentForm(r);say('equipmentCrudNotice','Data ditemukan. Ubah kolom lalu klik EDIT.');};if(matches.length===1){choose(matches[0]);return;}const box=$('equipmentCrudMatches');box.innerHTML='<label>Pilih aktivitas:</label><select id="gpcV9EquipmentPick">'+matches.map(r=>`<option value="${esc(r.id)}">${esc(r.phase)} · ${esc(r.activity)} · ${esc(r.status)}</option>`).join('')+'</select><button type="button" class="crud-btn search" id="gpcV9EquipmentLoad">LOAD DATA</button>';box.classList.remove('hidden');$('gpcV9EquipmentLoad').onclick=()=>{const r=matches.find(v=>v.id===$('gpcV9EquipmentPick').value);if(r)choose(r);box.classList.add('hidden');};say('equipmentCrudNotice',matches.length+' data ditemukan. Pilih lalu LOAD DATA.');}catch(e){say('equipmentCrudNotice',e.message,false);}};
@@ -8057,75 +8119,6 @@ iframe{max-width:100%;border-color:#dce5ee}
 })();
 </script>
 
-
-<script id="gpc-viewer-equipment-progress-alignment">
-/*
- * Viewer-only alignment:
- * The public viewer has no authenticated Supabase session, so it falls back
- * to the embedded equipment snapshot. Normalize that snapshot to the same
- * 4.44% progress shown by the authenticated 495-row dataset.
- * Authenticated data is never modified.
- */
-(function () {
-  const TARGET_VIEWER_PROGRESS = 4.44;
-  let applied = false;
-
-  function alignViewerEquipmentProgress() {
-    if (applied || window.GPC_APP_PROFILE) return false;
-
-    const stores = Array.isArray(window.MASTER_TIMELINE_DATA)
-      ? window.MASTER_TIMELINE_DATA : null;
-    if (!stores || stores.length !== 15) return false;
-
-    const tasks = stores.flatMap(store =>
-      Array.isArray(store.tasks) ? store.tasks : []
-    );
-    if (tasks.length !== 495) return false;
-
-    // Do not touch the viewer snapshot if authenticated rows are already present.
-    if (Array.isArray(window.GPC_EQUIPMENT_PROGRESS_ROWS) &&
-        window.GPC_EQUIPMENT_PROGRESS_ROWS.length === 495) return false;
-
-    const currentAverage = tasks.reduce(
-      (sum, task) => sum + Math.max(0, Math.min(1, Number(task.progress) || 0)), 0
-    ) / tasks.length * 100;
-    if (!Number.isFinite(currentAverage) || currentAverage <= 0) return false;
-
-    const factor = TARGET_VIEWER_PROGRESS / currentAverage;
-    tasks.forEach(task => {
-      task.progress = Math.max(0, Math.min(1, (Number(task.progress) || 0) * factor));
-    });
-
-    applied = true;
-    window.MASTER_TIMELINE_DATA = stores;
-
-    // Refresh only the three equipment progress surfaces in viewer mode.
-    try { window.renderEquipmentDashboard?.(); } catch (e) {}
-    try { window.renderSummaryTab?.('ga'); } catch (e) {}
-
-    const payload = {
-      type: 'MASTER_TIMELINE_IMPORTED',
-      data: stores,
-      filename: 'Viewer snapshot — progress diselaraskan',
-      storeCount: 15,
-      taskCount: 495
-    };
-    window.GPC_LATEST_EQUIPMENT_IMPORT = payload;
-    try { window.sendEquipmentImportToProgress?.(); } catch (e) {}
-    try { window.GPC_SEND_SUMMARY_PROGRESS?.(); } catch (e) {}
-    return true;
-  }
-
-  // Retry briefly because the embedded master dataset is initialized by
-  // another inline script and the viewer iframe may load slightly later.
-  let attempts = 0;
-  const timer = setInterval(() => {
-    attempts += 1;
-    if (alignViewerEquipmentProgress() || attempts >= 40) clearInterval(timer);
-  }, 250);
-  window.addEventListener('load', alignViewerEquipmentProgress, { once: true });
-})();
-</script>
 
 </body></html>
 
