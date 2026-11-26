@@ -7938,3 +7938,19 @@ iframe{max-width:100%;border-color:#dce5ee}
 })();
 </script>
 </body></html>
+
+
+<style id="gpc-remove-duplicate-map-header-140px-gap6">
+/* MAP PAGE ONLY:
+   Crop the redundant embedded title/header (140px) because the main app
+   header already carries the brand/navigation. Preserve the iframe itself,
+   its scripts, map controls, search, legend and editor interactions.
+*/
+main:has(#map-page:not(.hidden)){
+  padding-top:6px!important;
+}
+#map-page .mapframe{
+  top:-140px!important;
+  height:calc(100% + 140px)!important;
+}
+</style>
