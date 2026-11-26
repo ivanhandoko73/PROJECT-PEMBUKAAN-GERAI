@@ -1673,12 +1673,10 @@ async function queryLayer(level){
   const ids=idJson.objectIds||[];
   if(!ids.length)return [];
   const out=[];
-  // Pada HP, kecilkan ukuran batch agar respons geometri BIG lebih ringan.
-  const batchSize=window.matchMedia(&#x27;(max-width: 700px)&#x27;).matches?8:35;
-  for(let i=0;i&lt;ids.length;i+=batchSize){
+  for(let i=0;i&lt;ids.length;i+=35){
     status(&#x27;Mengunduh batas &#x27;+(level===&#x27;village&#x27;?&#x27;kelurahan&#x27;:level===&#x27;district&#x27;?&#x27;kecamatan&#x27;:&#x27;kabupaten/kota&#x27;)+&#x27; &#x27;+Math.min(i+35,ids.length)+&#x27; dari &#x27;+ids.length+&#x27;…&#x27;);
     const q=new URLSearchParams({
-      objectIds:ids.slice(i,i+batchSize).join(&#x27;,&#x27;),
+      objectIds:ids.slice(i,i+35).join(&#x27;,&#x27;),
       outFields:&#x27;*&#x27;,returnGeometry:&#x27;true&#x27;,outSR:&#x27;4326&#x27;,f:&#x27;json&#x27;
     });
     const response=await jsonpRequest(base+&#x27;?&#x27;+q.toString(),90000);
@@ -2243,19 +2241,31 @@ document.getElementById(&#x27;cloudLoginBtn&#x27;).onclick=()=&gt;cloudModal(tru
 document.getElementById(&#x27;cloudLogoutBtn&#x27;).onclick=async()=&gt;{await cloudClient.auth.signOut();cloudControls(false);cloudStatus(&#x27;Logout&#x27;);};
 document.getElementById(&#x27;cloudSaveBtn&#x27;).onclick=async()=&gt;{if(!cloudAdmin)return;cloudStatus(&#x27;Menyimpan…&#x27;);try{const {data:userData,error:userError}=await cloudClient.auth.getUser();if(userError)throw userError;const user=userData?.user;if(!user?.id)throw new Error(&#x27;Sesi Admin tidak valid. Silakan logout lalu login kembali.&#x27;);const payload={name:&#x27;Peta Cabang &amp; Pembukaan Gerai&#x27;,data:cloudProjectData(),published:true,owner_id:user.id};if(cloudProjectId)payload.id=cloudProjectId;const {data,error}=await cloudClient.from(&#x27;map_projects&#x27;).upsert(payload).select(&#x27;id&#x27;).single();if(error)throw error;cloudProjectId=data.id;localStorage.setItem(&#x27;peta_cloud_project_id&#x27;,cloudProjectId);document.getElementById(&#x27;cloudLinkBtn&#x27;).disabled=false;cloudStatus(&#x27;Tersimpan di Cloud&#x27;);alert(&#x27;Data peta berhasil disimpan ke Cloud.&#x27;);}catch(e){console.error(e);cloudStatus(&#x27;Gagal simpan: &#x27;+e.message);alert(&#x27;Gagal menyimpan ke Cloud: &#x27;+e.message);}};
 document.getElementById(&#x27;cloudLoadBtn&#x27;).onclick=async()=&gt;{if(!cloudAdmin||!cloudProjectId)return;cloudStatus(&#x27;Memuat data…&#x27;);try{const {data,error}=await cloudClient.from(&#x27;map_projects&#x27;).select(&#x27;data&#x27;).eq(&#x27;id&#x27;,cloudProjectId).single();if(error)throw error;const d=data.data||{};paintData=d.paintData||{};markerData=d.markerData||[];arrowData=d.arrowData||[];captions=d.captions||[];if(Array.isArray(d.locationScoreData)){LOCATION_SCORE_DATA=d.locationScoreData;renderScoreSummary();}currentLevel=d.level||d.view?.level||currentLevel;localStorage.setItem(&#x27;jabodetabek_admin_paints_v2&#x27;,JSON.stringify(paintData));persistMarkers();persistArrows();persistCaptions();regionLayer.setStyle(styleFeature);refreshStats();refreshList();renderMarkers();renderArrows();renderCaptions();loadLevel(currentLevel);cloudStatus(&#x27;Data Cloud dimuat&#x27;);}catch(e){console.error(e);cloudStatus(&#x27;Gagal muat: &#x27;+e.message);alert(&#x27;Gagal mengambil data Cloud: &#x27;+e.message);}};
-document.getElementById(&#x27;cloudLinkBtn&#x27;).onclick=async()=&gt;{if(!cloudProjectId)return;const url=location.href.split(&#x27;?&#x27;)[0]+&#x27;?viewer=&#x27;+encodeURIComponent(cloudProjectId);try{await navigator.clipboard.writeText(url);cloudStatus(&#x27;Link Viewer disalin&#x27;);alert(&#x27;Link Viewer berhasil disalin:\n&#x27;+url);}catch(e){prompt(&#x27;Salin Link Viewer ini:&#x27;,url);}};
+document.getElementById(&#x27;cloudLinkBtn&#x27;).onclick=async()=&gt;{if(!cloudProjectId)return;let viewerBaseUrl;
+try{
+  // Peta berjalan di iframe srcdoc; gunakan URL halaman GitHub induk.
+  viewerBaseUrl=window.parent&amp;&amp;window.parent!==window?window.parent.location.href:window.location.href;
+}catch(_){viewerBaseUrl=window.location.href;}
+const viewerUrl=new URL(viewerBaseUrl);
+viewerUrl.search=&#x27;&#x27;;
+viewerUrl.hash=&#x27;&#x27;;
+viewerUrl.searchParams.set(&#x27;viewer&#x27;,cloudProjectId);
+const url=viewerUrl.toString();try{await navigator.clipboard.writeText(url);cloudStatus(&#x27;Link Viewer disalin&#x27;);alert(&#x27;Link Viewer berhasil disalin:\n&#x27;+url);}catch(e){prompt(&#x27;Salin Link Viewer ini:&#x27;,url);}};
 async function cloudViewerStart(id){document.body.classList.add(&#x27;cloud-viewer&#x27;,&#x27;export-viewer&#x27;,&#x27;presentation&#x27;);cloudStatus(&#x27;Memuat Viewer…&#x27;);try{const {data,error}=await cloudClient.from(&#x27;map_projects&#x27;).select(&#x27;data&#x27;).eq(&#x27;id&#x27;,id).eq(&#x27;published&#x27;,true).single();if(error)throw error;const d=data.data||{};paintData=d.paintData||{};markerData=d.markerData||[];arrowData=d.arrowData||[];captions=d.captions||[];if(Array.isArray(d.locationScoreData))LOCATION_SCORE_DATA=d.locationScoreData;currentLevel=d.level||currentLevel;scoreColorMode=!!d.scoreColorMode;viewerFilterColor=null;localStorage.setItem(&#x27;jabodetabek_admin_paints_v2&#x27;,JSON.stringify(paintData));persistMarkers();persistArrows();persistCaptions();regionLayer.setStyle(styleFeature);refreshStats();refreshList();renderMarkers();renderArrows();renderCaptions();await loadLevel(currentLevel);if(d.view?.center&amp;&amp;d.view?.zoom)map.setView(d.view.center,d.view.zoom);
 // Final redraw after Cloud Viewer data, view and mobile viewport are all applied.
 requestAnimationFrame(()=&gt;{regionLayer.setStyle(styleFeature);map.invalidateSize({pan:false});renderMarkers();renderArrows();});
 setTimeout(()=&gt;{regionLayer.setStyle(styleFeature);map.invalidateSize({pan:false});renderMarkers();renderArrows();},450);
 cloudStatus(&#x27;Viewer&#x27;);}catch(e){console.error(e);cloudStatus(&#x27;Viewer gagal dimuat: &#x27;+e.message);alert(&#x27;Viewer Cloud tidak dapat dimuat. Periksa izin baca publik pada tabel map_projects.&#x27;);}}
-(async()=&gt;{if(!cloudClient){cloudStatus(&#x27;Cloud tidak tersedia&#x27;);return;}const viewerId=new URLSearchParams(location.search).get(&#x27;viewer&#x27;);if(viewerId){await cloudViewerStart(viewerId);return;}const {data:{session}}=await cloudClient.auth.getSession();cloudControls(!!session);if(session)cloudStatus(&#x27;Sesi Admin aktif&#x27;);})();
+(async()=&gt;{if(!cloudClient){cloudStatus(&#x27;Cloud tidak tersedia: library Supabase gagal dimuat&#x27;);console.error(&#x27;Supabase JS tidak tersedia; data Viewer tidak dapat diambil.&#x27;);return;}let viewerId=new URLSearchParams(location.search).get(&#x27;viewer&#x27;);
+if(!viewerId){
+  // srcdoc tidak mewarisi query string URL induk pada location.search.
+  try{viewerId=new URLSearchParams(window.parent.location.search).get(&#x27;viewer&#x27;);}catch(_){}
+}
+if(viewerId){await cloudViewerStart(viewerId);return;}const {data:{session}}=await cloudClient.auth.getSession();cloudControls(!!session);if(session)cloudStatus(&#x27;Sesi Admin aktif&#x27;);})();
 
 // Recalculate Leaflet sizing after device rotation / viewport changes.
 window.addEventListener(&#x27;resize&#x27;,()=&gt;{if(typeof map!==&#x27;undefined&#x27;)setTimeout(()=&gt;map.invalidateSize(),150);});
-window.addEventListener(&#x27;orientationchange&#x27;,()=&gt;{if(typeof map!==&#x27;undefined&#x27;)setTimeout(()=&gt;map.invalidateSize({pan:false}),350);});
-window.addEventListener(&#x27;pageshow&#x27;,()=&gt;{if(typeof map!==&#x27;undefined&#x27;)setTimeout(()=&gt;map.invalidateSize({pan:false}),250);});
-if(window.visualViewport)window.visualViewport.addEventListener(&#x27;resize&#x27;,()=&gt;{if(typeof map!==&#x27;undefined&#x27;)requestAnimationFrame(()=&gt;map.invalidateSize({pan:false}));});
+window.addEventListener(&#x27;orientationchange&#x27;,()=&gt;{if(typeof map!==&#x27;undefined&#x27;)setTimeout(()=&gt;map.invalidateSize(),350);});
 })();
 &lt;/script&gt;
 &lt;style id=&quot;presentationControlsCompactV8&quot;&gt;
