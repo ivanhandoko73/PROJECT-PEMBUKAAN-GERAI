@@ -3847,7 +3847,7 @@ window.showView = function(id){
  if(id==='progress-opening'){window.GANTT_SOURCE_DATA=Array.isArray(GANTT_SOURCE_DATA)?GANTT_SOURCE_DATA:(window.GANTT_SOURCE_DATA||[]);renderOpeningProgress();}
  if(id==='equipment-gantt') renderEquipmentGantt();
  if(id==='equipment-dashboard') renderEquipmentDashboard();
- if(id==='summary'){renderSummaryTab('bpd');window.GPC_SEND_SUMMARY_PROGRESS?.();}
+ if(id==='summary'){renderSummaryTab('bpd');window.GPC_SEND_SUMMARY_PROGRESS?.();[150,500,1200].forEach(ms=>setTimeout(()=>window.GPC_SEND_SUMMARY_PROGRESS?.(),ms));}
  document.querySelectorAll('#subnav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));
 };
 </script>
@@ -3860,10 +3860,16 @@ window.GPC_SEND_SUMMARY_PROGRESS=function(){
   const opening=Array.isArray(window.GANTT_SOURCE_DATA)?window.GANTT_SOURCE_DATA:(typeof GANTT_SOURCE_DATA!=='undefined'&&Array.isArray(GANTT_SOURCE_DATA)?GANTT_SOURCE_DATA:[]);
   let equipment=[],equipmentProgressPct=0;
   try{
-    const source=Array.isArray(window.MASTER_TIMELINE_DATA)?window.MASTER_TIMELINE_DATA:(typeof MASTER_TIMELINE_DATA!=='undefined'?MASTER_TIMELINE_DATA:[]);
-    equipment=source.flatMap(st=>(st.tasks||[]).map(t=>({...t,store:st.name,progress:Number(t.progress)||0,status:t.status||''})));
-    // Match Dashboard Perlengkapan exactly: clamp each activity to 0..1, then average.
-    const progressValues=source.flatMap(st=>(st.tasks||[]).map(t=>Math.max(0,Math.min(1,Number(t.progress)||0))));
+    // Summary must use the same live 495 DB rows as Progress Perlengkapan,
+    // not the embedded 33-activity category template.
+    const dbRows=Array.isArray(window.GPC_EQUIPMENT_PROGRESS_ROWS)?window.GPC_EQUIPMENT_PROGRESS_ROWS:[];
+    if(dbRows.length===495){
+      equipment=dbRows.map(r=>({id:r.id,store:r.store||r.storeName||r.gerai||'',progress:Math.max(0,Math.min(1,Number(r.progress)||0)),status:r.status||''}));
+    }else{
+      const source=(typeof MASTER_TIMELINE_DATA!=='undefined' && Array.isArray(MASTER_TIMELINE_DATA))?MASTER_TIMELINE_DATA:(Array.isArray(window.MASTER_TIMELINE_DATA)?window.MASTER_TIMELINE_DATA:[]);
+      equipment=source.flatMap(st=>(st.tasks||[]).map(t=>({...t,store:st.name,progress:Number(t.progress)||0,status:t.status||''})));
+    }
+    const progressValues=equipment.map(r=>Math.max(0,Math.min(1,Number(r.progress)||0)));
     equipmentProgressPct=progressValues.length?progressValues.reduce((sum,v)=>sum+v,0)/progressValues.length*100:0;
   }catch(e){console.warn('GPC summary equipment binding:',e);}
   try{frame.contentWindow.postMessage({type:'SUMMARY_PROGRESS_UPDATE',opening,equipment,equipmentProgressPct},'*');return true;}
@@ -5618,10 +5624,15 @@ button[onclick*="clearMPPImportInputs" i]:hover:not(#openingReset), button[aria-
     $('equipmentInputStatus').value='Belum Mulai';state.current.equipment=null;refreshEquipmentCalculatedFields();
     clearSay('equipmentCrudNotice');if($('equipmentCrudMatches')){$('equipmentCrudMatches').innerHTML='';$('equipmentCrudMatches').classList.add('hidden');}
   }
-  async function refreshEquipmentRows(){const rows=await rpc('list','equipment',{});state.rows.equipment=(rows||[]).map(equipmentRow);const grouped=new Map();state.rows.equipment.forEach(r=>{if(!grouped.has(r.store))grouped.set(r.store,{name:r.store,cab:r.cab,tasks:[]});grouped.get(r.store).tasks.push({num:r.num,phase:r.phase,activity:r.activity||r.phase,start:r.start,end:r.end,actualFinish:r.actualFinish,duration:r.duration,status:r.status,progress:r.progress,pic:r.pic,note:r.note});});
+  async function refreshEquipmentRows(){const rows=await rpc('list','equipment',{});state.rows.equipment=(rows||[]).map(equipmentRow);window.GPC_EQUIPMENT_PROGRESS_ROWS=state.rows.equipment;const grouped=new Map();state.rows.equipment.forEach(r=>{if(!grouped.has(r.store))grouped.set(r.store,{name:r.store,cab:r.cab,tasks:[]});grouped.get(r.store).tasks.push({num:r.num,phase:r.phase,activity:r.activity||r.phase,start:r.start,end:r.end,actualFinish:r.actualFinish,duration:r.duration,status:r.status,progress:r.progress,pic:r.pic,note:r.note});});
     MASTER_TIMELINE_DATA=[...grouped.values()].sort((a,b)=>a.name.localeCompare(b.name)); window.branchForStore=(name)=>{const x=MASTER_TIMELINE_DATA.find(s=>s.name===name);return x?.cab||'';};
     GA_IMPORT_SUMMARY={totalStores:MASTER_TIMELINE_DATA.length,totalTasks:state.rows.equipment.length};
+    window.MASTER_TIMELINE_DATA=MASTER_TIMELINE_DATA;
     if(typeof renderEquipmentDashboard==='function')renderEquipmentDashboard();if(typeof renderEquipmentGantt==='function')renderEquipmentGantt();if(typeof renderSummaryTab==='function')renderSummaryTab('ga');
+    if(typeof window.GPC_SEND_SUMMARY_PROGRESS==='function'){
+      window.GPC_SEND_SUMMARY_PROGRESS();
+      [150,500,1200].forEach(ms=>setTimeout(()=>window.GPC_SEND_SUMMARY_PROGRESS(),ms));
+    }
     return state.rows.equipment;
   }
   window.crudResetEquipment=resetEquipmentForm;
