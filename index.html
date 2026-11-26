@@ -2484,7 +2484,40 @@ body.cloud-viewer.presentation #viewerMeasureControls{top:82px!important;left:8p
 &lt;/style&gt;
 
 &lt;script id=&quot;gpc-map-parent-access&quot;&gt;
-(function(){function setAccess(d){const ok=!!d&amp;&amp;d.type===&#x27;GPC_MAP_ACCESS&#x27;&amp;&amp;d.authenticated===true&amp;&amp;String(d.role||&#x27;&#x27;).toLowerCase()===&#x27;super_admin&#x27;;document.body.classList.toggle(&#x27;gpc-super-admin-editor&#x27;,ok);document.body.classList.toggle(&#x27;gpc-viewer-locked&#x27;,!ok);if(!ok){document.body.classList.add(&#x27;presentation&#x27;);try{cloudControls(false)}catch(e){}}else{document.body.classList.remove(&#x27;presentation&#x27;);try{cloudControls(true);cloudStatus(&#x27;ADMIN • EDITOR AKTIF&#x27;)}catch(e){}}}window.addEventListener(&#x27;message&#x27;,e=&gt;{if(e.source!==window.parent||!e.data||e.data.type!==&#x27;GPC_MAP_ACCESS&#x27;)return;setAccess(e.data)});setAccess(null);})();
+(function(){
+  let parentAccessReceived=false, readyAttempts=0, readyTimer=null;
+  function setAccess(d){
+    const ok=!!d&amp;&amp;d.type===&#x27;GPC_MAP_ACCESS&#x27;&amp;&amp;d.authenticated===true&amp;&amp;String(d.role||&#x27;&#x27;).toLowerCase()===&#x27;super_admin&#x27;;
+    document.body.classList.toggle(&#x27;gpc-super-admin-editor&#x27;,ok);
+    document.body.classList.toggle(&#x27;gpc-viewer-locked&#x27;,!ok);
+    if(!ok){
+      document.body.classList.add(&#x27;presentation&#x27;);
+      try{cloudControls(false)}catch(e){}
+    }else{
+      document.body.classList.remove(&#x27;presentation&#x27;);
+      try{cloudControls(true);cloudStatus(&#x27;ADMIN • EDITOR AKTIF&#x27;)}catch(e){}
+    }
+  }
+  window.addEventListener(&#x27;message&#x27;,e=&gt;{
+    if(e.source!==window.parent||!e.data||e.data.type!==&#x27;GPC_MAP_ACCESS&#x27;)return;
+    parentAccessReceived=true;
+    if(readyTimer){clearInterval(readyTimer);readyTimer=null;}
+    setAccess(e.data);
+  });
+  setAccess(null);
+  // Handshake: notify the parent when this iframe is ready to receive its
+  // current Super Admin/public state. Retry briefly to cover script/load races.
+  function announceReady(){
+    if(parentAccessReceived||readyAttempts&gt;=40){
+      if(readyTimer){clearInterval(readyTimer);readyTimer=null;}
+      return;
+    }
+    readyAttempts++;
+    try{window.parent.postMessage({type:&#x27;GPC_MAP_READY&#x27;},&#x27;*&#x27;)}catch(e){}
+  }
+  announceReady();
+  readyTimer=setInterval(announceReady,150);
+})();
 &lt;/script&gt;
 
 &lt;style id=&quot;gpc-public-presentation-toolbar-v1&quot;&gt;
