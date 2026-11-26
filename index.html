@@ -2247,7 +2247,7 @@ async function cloudViewerStart(id){document.body.classList.add(&#x27;cloud-view
 requestAnimationFrame(()=&gt;{regionLayer.setStyle(styleFeature);map.invalidateSize({pan:false});renderMarkers();renderArrows();});
 setTimeout(()=&gt;{regionLayer.setStyle(styleFeature);map.invalidateSize({pan:false});renderMarkers();renderArrows();},450);
 cloudStatus(&#x27;Viewer&#x27;);}catch(e){console.error(e);cloudStatus(&#x27;Viewer gagal dimuat: &#x27;+e.message);alert(&#x27;Viewer Cloud tidak dapat dimuat. Periksa izin baca publik pada tabel map_projects.&#x27;);}}
-(async()=&gt;{if(!cloudClient){cloudStatus(&#x27;Cloud tidak tersedia&#x27;);return;}const viewerId=new URLSearchParams(location.search).get(&#x27;viewer&#x27;);if(viewerId){await cloudViewerStart(viewerId);return;}const {data:{session}}=await cloudClient.auth.getSession();cloudControls(!!session);if(session)cloudStatus(&#x27;Sesi Admin aktif&#x27;);})();
+(async()=&gt;{if(!cloudClient){cloudStatus(&#x27;Cloud tidak tersedia&#x27;);return;}const viewerId=new URLSearchParams(location.search).get(&#x27;viewer&#x27;);if(viewerId){await cloudViewerStart(viewerId);return;}const {data:{session}}=await cloudClient.auth.getSession();cloudControls(!!session || document.body.classList.contains('gpc-super-admin-editor'));if(session)cloudStatus(&#x27;Sesi Admin aktif&#x27;);})();
 
 // Recalculate Leaflet sizing after device rotation / viewport changes.
 window.addEventListener(&#x27;resize&#x27;,()=&gt;{if(typeof map!==&#x27;undefined&#x27;)setTimeout(()=&gt;map.invalidateSize(),150);});
