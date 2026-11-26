@@ -934,6 +934,56 @@ body.gpc-map-super-admin-layout #map-page .mapframe{top:0!important;height:100%!
 @media(max-width:900px){#mapActionDock{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;padding-bottom:4px;}#mapActionDockStatus{margin-left:4px;}}
 @media(max-width:600px){#mapActionDock button{height:28px;min-height:28px;font-size:10px;padding:5px 8px;}}
 </style>
+
+<style id="gpc-admin-toolbar-visible-row-fix">
+/* Layout-only correction: keep every existing admin action reachable in the blue header. */
+.top{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  overflow:visible!important;
+}
+#mapActionDock{
+  order:99!important;
+  display:none;
+  flex:0 0 100%!important;
+  width:100%!important;
+  min-width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  overflow:visible!important;
+  gap:6px!important;
+  padding:7px 4px 3px!important;
+}
+#mapActionDock:not([hidden]){
+  display:flex!important;
+}
+#mapActionDock button{
+  flex:0 0 auto!important;
+  max-width:100%!important;
+  white-space:nowrap!important;
+}
+#mapActionDock .dock-separator{
+  display:none!important;
+}
+#mapActionDockStatus{
+  flex:1 1 100%!important;
+  width:100%!important;
+  margin:2px 0 0!important;
+  text-align:left!important;
+}
+@media(max-width:900px){
+  #mapActionDock{
+    flex-wrap:wrap!important;
+    overflow:visible!important;
+    max-height:none!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <header class="top">
@@ -2598,7 +2648,7 @@ body.cloud-viewer.presentation #viewerMeasureControls{top:82px!important;left:8p
   // Handshake: notify the parent when this iframe is ready to receive its
   // current Super Admin/public state. Retry briefly to cover script/load races.
   function announceReady(){
-    if(parentAccessReceived||readyAttempts&gt;=40){
+    if(parentAccessReceived||readyAttempts&gt;=120){
       if(readyTimer){clearInterval(readyTimer);readyTimer=null;}
       return;
     }
@@ -2606,7 +2656,7 @@ body.cloud-viewer.presentation #viewerMeasureControls{top:82px!important;left:8p
     try{window.parent.postMessage({type:&#x27;GPC_MAP_READY&#x27;},&#x27;*&#x27;)}catch(e){}
   }
   announceReady();
-  readyTimer=setInterval(announceReady,150);
+  readyTimer=setInterval(announceReady,250);
 })();
 &lt;/script&gt;
 
@@ -3429,7 +3479,7 @@ function sendEditorState(){
   if(f&&f.contentWindow)f.contentWindow.postMessage({type:'EDITOR_STATE',loggedIn:!!demoLoggedIn},'*');
   const mf=document.querySelector('iframe.mapframe');
   const state=window.GPC_SUPABASE_STATE||null;
-  const p=(state&&state.profile)||window.GPC_APP_PROFILE||null;
+  const p=window.GPC_APP_PROFILE||(state&&state.profile)||null;
   const role=String(p?.app_role||window.GPC_CURRENT_ROLE||'').toLowerCase();
   const authenticated=!!(p&&p.is_active===true&&role==='super_admin');
   if(typeof window.GPC_UPDATE_MAP_ACTION_DOCK==='function')window.GPC_UPDATE_MAP_ACTION_DOCK(authenticated);
