@@ -1673,10 +1673,12 @@ async function queryLayer(level){
   const ids=idJson.objectIds||[];
   if(!ids.length)return [];
   const out=[];
-  for(let i=0;i&lt;ids.length;i+=35){
+  // Pada HP, kecilkan ukuran batch agar respons geometri BIG lebih ringan.
+  const batchSize=window.matchMedia(&#x27;(max-width: 700px)&#x27;).matches?8:35;
+  for(let i=0;i&lt;ids.length;i+=batchSize){
     status(&#x27;Mengunduh batas &#x27;+(level===&#x27;village&#x27;?&#x27;kelurahan&#x27;:level===&#x27;district&#x27;?&#x27;kecamatan&#x27;:&#x27;kabupaten/kota&#x27;)+&#x27; &#x27;+Math.min(i+35,ids.length)+&#x27; dari &#x27;+ids.length+&#x27;…&#x27;);
     const q=new URLSearchParams({
-      objectIds:ids.slice(i,i+35).join(&#x27;,&#x27;),
+      objectIds:ids.slice(i,i+batchSize).join(&#x27;,&#x27;),
       outFields:&#x27;*&#x27;,returnGeometry:&#x27;true&#x27;,outSR:&#x27;4326&#x27;,f:&#x27;json&#x27;
     });
     const response=await jsonpRequest(base+&#x27;?&#x27;+q.toString(),90000);
@@ -2251,7 +2253,9 @@ cloudStatus(&#x27;Viewer&#x27;);}catch(e){console.error(e);cloudStatus(&#x27;Vie
 
 // Recalculate Leaflet sizing after device rotation / viewport changes.
 window.addEventListener(&#x27;resize&#x27;,()=&gt;{if(typeof map!==&#x27;undefined&#x27;)setTimeout(()=&gt;map.invalidateSize(),150);});
-window.addEventListener(&#x27;orientationchange&#x27;,()=&gt;{if(typeof map!==&#x27;undefined&#x27;)setTimeout(()=&gt;map.invalidateSize(),350);});
+window.addEventListener(&#x27;orientationchange&#x27;,()=&gt;{if(typeof map!==&#x27;undefined&#x27;)setTimeout(()=&gt;map.invalidateSize({pan:false}),350);});
+window.addEventListener(&#x27;pageshow&#x27;,()=&gt;{if(typeof map!==&#x27;undefined&#x27;)setTimeout(()=&gt;map.invalidateSize({pan:false}),250);});
+if(window.visualViewport)window.visualViewport.addEventListener(&#x27;resize&#x27;,()=&gt;{if(typeof map!==&#x27;undefined&#x27;)requestAnimationFrame(()=&gt;map.invalidateSize({pan:false}));});
 })();
 &lt;/script&gt;
 &lt;style id=&quot;presentationControlsCompactV8&quot;&gt;
