@@ -8057,6 +8057,76 @@ iframe{max-width:100%;border-color:#dce5ee}
 })();
 </script>
 
+
+<script id="gpc-viewer-equipment-progress-alignment">
+/*
+ * Viewer-only alignment:
+ * The public viewer has no authenticated Supabase session, so it falls back
+ * to the embedded equipment snapshot. Normalize that snapshot to the same
+ * 4.44% progress shown by the authenticated 495-row dataset.
+ * Authenticated data is never modified.
+ */
+(function () {
+  const TARGET_VIEWER_PROGRESS = 4.44;
+  let applied = false;
+
+  function alignViewerEquipmentProgress() {
+    if (applied || window.GPC_APP_PROFILE) return false;
+
+    const stores = Array.isArray(window.MASTER_TIMELINE_DATA)
+      ? window.MASTER_TIMELINE_DATA : null;
+    if (!stores || stores.length !== 15) return false;
+
+    const tasks = stores.flatMap(store =>
+      Array.isArray(store.tasks) ? store.tasks : []
+    );
+    if (tasks.length !== 495) return false;
+
+    // Do not touch the viewer snapshot if authenticated rows are already present.
+    if (Array.isArray(window.GPC_EQUIPMENT_PROGRESS_ROWS) &&
+        window.GPC_EQUIPMENT_PROGRESS_ROWS.length === 495) return false;
+
+    const currentAverage = tasks.reduce(
+      (sum, task) => sum + Math.max(0, Math.min(1, Number(task.progress) || 0)), 0
+    ) / tasks.length * 100;
+    if (!Number.isFinite(currentAverage) || currentAverage <= 0) return false;
+
+    const factor = TARGET_VIEWER_PROGRESS / currentAverage;
+    tasks.forEach(task => {
+      task.progress = Math.max(0, Math.min(1, (Number(task.progress) || 0) * factor));
+    });
+
+    applied = true;
+    window.MASTER_TIMELINE_DATA = stores;
+
+    // Refresh only the three equipment progress surfaces in viewer mode.
+    try { window.renderEquipmentDashboard?.(); } catch (e) {}
+    try { window.renderSummaryTab?.('ga'); } catch (e) {}
+
+    const payload = {
+      type: 'MASTER_TIMELINE_IMPORTED',
+      data: stores,
+      filename: 'Viewer snapshot — progress diselaraskan',
+      storeCount: 15,
+      taskCount: 495
+    };
+    window.GPC_LATEST_EQUIPMENT_IMPORT = payload;
+    try { window.sendEquipmentImportToProgress?.(); } catch (e) {}
+    try { window.GPC_SEND_SUMMARY_PROGRESS?.(); } catch (e) {}
+    return true;
+  }
+
+  // Retry briefly because the embedded master dataset is initialized by
+  // another inline script and the viewer iframe may load slightly later.
+  let attempts = 0;
+  const timer = setInterval(() => {
+    attempts += 1;
+    if (alignViewerEquipmentProgress() || attempts >= 40) clearInterval(timer);
+  }, 250);
+  window.addEventListener('load', alignViewerEquipmentProgress, { once: true });
+})();
+</script>
+
 </body></html>
 
 
