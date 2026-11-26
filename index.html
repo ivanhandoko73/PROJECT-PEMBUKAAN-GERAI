@@ -2549,9 +2549,9 @@ body.gpc-viewer-locked.presentation #map{height:100%!important;min-height:0!impo
 &lt;script&gt;
 const BPD=[[&quot;FSR &amp; Persetujuan&quot;, [&quot;FSR &amp; PERSETUJUAN : SURVEI LAPANGAN&quot;, &quot;FSR &amp; PERSETUJUAN : DRAFTING FSR + REKOMENDASI LOKASI KANTOR&quot;, &quot;FSR &amp; PERSETUJUAN : KOMITE&quot;, &quot;FSR &amp; PERSETUJUAN : PENETAPAN TITIK GERAI BARU &amp; TIMELINE&quot;]], [&quot;Recruitment &amp; OKARU&quot;, [&quot;RECRUITMENT ADMIN GERAI&quot;, &quot;RECRUITMENT MCS&quot;, &quot;RECRUITMENT MOH&quot;, &quot;OKARU ADMIN GERAI&quot;, &quot;OKARU MCS&quot;, &quot;OKARU MOH&quot;]], [&quot;Sewa &amp; Legalitas Gedung&quot;, [&quot;PENCAIRAN RUKO&quot;, &quot;KOMITE PENETAPAN RUKO&quot;, &quot;APROVAL SEWA RUKO&quot;, &quot;DRAFT PKS &amp; SIGN PKS&quot;, &quot;PAYMENT RUKO&quot;, &quot;SERA TERIMA RUKO&quot;]], [&quot;Renovasi&quot;, [&quot;PITCHING VENDOR&quot;, &quot;PENYUSUNAN RAB&quot;, &quot;APROVAL RENOVASI&quot;, &quot;RENOVASI&quot;]], [&quot;Advertising / Signboard&quot;, [&quot;PITCHING VENDOR LONG SIGNBOARD &amp; GIANT BANNER&quot;, &quot;APPROVAL LONG SIGNBOARD &amp; GIANT BANNER&quot;, &quot;PEMASANGAN LONG SIGNBOARD &amp; GIANT BANNER&quot;]], [&quot;Perlengkapan, Aset &amp; Internet&quot;, [&quot;PITCHING VENDOR PERLENGKAPAN &amp; ASET KANTOR&quot;, &quot;APPROVAL PERLENGKAPAN &amp; ASET KANTOR&quot;, &quot;PEMBELIAN PERLENGKAPAN &amp; ASET KANTOR&quot;, &quot;REQUEST PENGADAAN JARINGAN INTERNET&quot;, &quot;PEMASANGAN JARINGAN OLEH IT&quot;]], [&quot;Aktivasi &amp; Grand Opening&quot;, [&quot;ACTIVATE SYSTEM GERAI&quot;, &quot;ACTIVATE LOGIN PEOPLE&quot;, &quot;GRAND OPENING&quot;]]];
 const GA=[[&quot;Gedung &amp; Legalitas&quot;, [&quot;Pencarian Gedung&quot;, &quot;Pengumpulan Dokumen Legalitas&quot;, &quot;Scoring - Komite - Approval Gedung&quot;]], [&quot;Sewa Gedung&quot;, [&quot;Drafting Perjanjian Sewa Gedung&quot;, &quot;Review Perjanjian Sewa Gedung&quot;, &quot;Penandatanganan Perjanjian Sewa Gedung&quot;, &quot;Pembayaran Sewa Gedung&quot;, &quot;Proses Serah Terima Gedung&quot;]], [&quot;Renovasi / Fit-out &amp; Advertising&quot;, [&quot;Informasi &amp; Penerbitan SPK ke Vendor Renovasi&quot;, &quot;Proses Renovasi Fit-out Gerai - Facade&quot;, &quot;Proses Renovasi Fit-out Gerai - Partisi &amp; Pengecatan&quot;, &quot;Proses Renovasi Fit-out Gerai - Standarisasi Toilet&quot;, &quot;Proses Renovasi Fit-out Gerai - Pemasangan Vynil&quot;, &quot;Proses Renovasi Fit-out Gerai - HVAC&quot;, &quot;Proses Renovasi Fit-out Gerai - CCTV&quot;, &quot;Proses Renovasi Fit-out Gerai &amp; Advertising&quot;]], [&quot;Aset &amp; Inventaris&quot;, [&quot;Pengadaan Infrastruktur - Aset/Inventaris - Brankas&quot;, &quot;Pengadaan Infrastruktur - Aset/Inventaris - Meja Kerja&quot;, &quot;Pengadaan Infrastruktur - Aset/Inventaris - Kursi Kerja&quot;, &quot;Pengadaan Infrastruktur - Aset/Inventaris - Komputer&quot;, &quot;Pengadaan Infrastruktur - Aset/Inventaris - Printer&quot;, &quot;Pengadaan Infrastruktur - Aset/Inventaris - AC&quot;, &quot;Pengadaan Infrastruktur - Aset/Inventaris - CCTV &amp; Monitor&quot;, &quot;Pengadaan Infrastruktur - Aset/Inventaris - Lampu UV&quot;, &quot;Pengadaan Infrastruktur - Aset/Inventaris - Dispenser&quot;, &quot;Pengadaan Infrastruktur - Aset/Inventaris - Kursi Tamu&quot;, &quot;Pengadaan Infrastruktur - Aset/Inventaris - Kursi Tunggu&quot;, &quot;Pengadaan Infrastruktur - Aset/Inventaris - Tempat sampah&quot;]], [&quot;Internet &amp; Listrik&quot;, [&quot;Persiapan Infrastruktur - Internet &amp; Listrik - Registrasi ISP&quot;, &quot;Persiapan Infrastruktur - Internet &amp; Listrik - Mikrotik&quot;, &quot;Persiapan Infrastruktur - Internet &amp; Listrik - Penambahan Daya PLN&quot;]], [&quot;Grand Opening&quot;, [&quot;Permohonan Biaya Grand Opening&quot;, &quot;Pelaksanaan Grand Opening&quot;]]];
-let HC_MPP=[[&quot;BEKASI&quot;,[[&quot;BEKASI TIMUR&quot;,[[&quot;ADMIN&quot;,1,0,10,8,5,1,1,1],[&quot;MCS&quot;,2,1,5,4,4,1,1,1],[&quot;MOH&quot;,1,0,1,1,1,1,1,1]]],[&quot;TAMBUN SELATAN&quot;,[[&quot;ADMIN&quot;,1,0,4,4,3,1,1,1],[&quot;MCS&quot;,2,1,3,2,2,1,1,1],[&quot;MOH&quot;,1,0,1,1,1,1,1,1]]]]],[&quot;BSD&quot;,[[&quot;PAGEDANGAN&quot;,[[&quot;ADMIN&quot;,1,0,10,8,5,1,1,1],[&quot;MCS&quot;,2,1,5,4,4,1,1,1],[&quot;MOH&quot;,1,0,1,1,1,1,1,1]]],[&quot;CIPUTAT&quot;,[[&quot;ADMIN&quot;,1,0,4,4,3,1,1,1],[&quot;MCS&quot;,2,1,3,2,2,1,1,1],[&quot;MOH&quot;,1,0,1,1,1,1,1,1]]]]],[&quot;CIKUPA&quot;,[[&quot;SINDANG JAYA 1 - TELAGA BESTARI&quot;,[[&quot;ADMIN&quot;,1,0,4,4,3,1,1,1],[&quot;MCS&quot;,2,1,3,2,2,1,1,1],[&quot;MOH&quot;,1,0,1,1,1,1,1,0]]],[&quot;SINDANG JAYA 1 - BITUNG&quot;,[[&quot;ADMIN&quot;,1,0,4,4,3,1,1,1],[&quot;MCS&quot;,2,1,3,2,2,1,1,1],[&quot;MOH&quot;,1,1,1,1,1,0,0,0]]]]],[&quot;DEPOK&quot;,[[&quot;PASAR REBO&quot;,[[&quot;ADMIN&quot;,1,0,4,4,2,1,1,0],[&quot;MCS&quot;,2,1,2,2,2,1,1,1],[&quot;MOH&quot;,1,1,1,1,1,0,0,0]]],[&quot;PASAR MINGGU&quot;,[[&quot;ADMIN&quot;,1,1,4,3,2,0,0,0],[&quot;MCS&quot;,2,1,2,2,2,1,1,1],[&quot;MOH&quot;,1,1,1,1,1,0,0,0]]],[&quot;SAWANGAN&quot;,[[&quot;ADMIN&quot;,1,1,4,3,2,0,0,0],[&quot;MCS&quot;,2,1,2,2,2,1,1,1],[&quot;MOH&quot;,1,1,1,1,1,0,0,0]]]]],[&quot;JAKBAR&quot;,[[&quot;KEMBANGAN&quot;,[[&quot;ADMIN&quot;,1,1,4,3,2,0,0,0],[&quot;MCS&quot;,2,1,2,2,2,1,1,1],[&quot;MOH&quot;,1,1,1,1,1,0,0,0]]],[&quot;KEBON JERUK&quot;,[[&quot;ADMIN&quot;,1,1,4,3,2,0,0,0],[&quot;MCS&quot;,2,2,2,2,2,0,0,0],[&quot;MOH&quot;,1,1,0,0,0,0,0,0]]]]],[&quot;KELAPA GADING&quot;,[[&quot;KOJA&quot;,[[&quot;ADMIN&quot;,1,1,4,3,2,0,0,0],[&quot;MCS&quot;,2,2,2,1,1,0,0,0],[&quot;MOH&quot;,1,1,0,0,0,0,0,0]]],[&quot;JOHAR BARU&quot;,[[&quot;ADMIN&quot;,1,1,4,3,2,0,0,0],[&quot;MCS&quot;,2,2,2,1,1,0,0,0],[&quot;MOH&quot;,1,1,0,0,0,0,0,0]]]]],[&quot;TANGERANG&quot;,[[&quot;KELAPA DUA&quot;,[[&quot;ADMIN&quot;,1,1,3,3,2,0,0,0],[&quot;MCS&quot;,2,2,2,1,1,0,0,0],[&quot;MOH&quot;,1,1,0,0,0,0,0,0]]],[&quot;PASAR KEMIS&quot;,[[&quot;ADMIN&quot;,1,1,3,3,2,0,0,0],[&quot;MCS&quot;,2,2,2,1,1,0,0,0],[&quot;MOH&quot;,1,1,0,0,0,0,0,0]]]]]];
-HC_MPP=HC_MPP.map(b=&gt;[b[0],b[1].map(st=&gt;[st[0],st[1].map(r=&gt;[r[0],r[1],r[2],0,...r.slice(3)])])]);
-let HCTOTAL=[&quot;TOTAL&quot;, 60, 38, 0, 120, 100, 80, 22, 22, 20];
+let HC_MPP=[];
+
+let HCTOTAL=[&quot;TOTAL&quot;,0,0,0,0,0,0,0,0,0];
 const icons=[&quot;🏢&quot;,&quot;👥&quot;,&quot;📄&quot;,&quot;🛠️&quot;,&quot;📣&quot;,&quot;🖥️&quot;,&quot;🎉&quot;];
 function categoryCards(groups,iconSet){return &#x27;&lt;div class=&quot;section-title&quot;&gt;&lt;h3&gt;Ringkasan per Kategori&lt;/h3&gt;&lt;span class=&quot;hint&quot;&gt;Klik kategori untuk melihat aktivitas&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;groups&quot;&gt;&#x27;+groups.map((g,i)=&gt;&#x27;&lt;details class=&quot;group&quot;&gt;&lt;summary&gt;&lt;span class=&quot;g-icon&quot;&gt;&#x27;+iconSet[i%iconSet.length]+&#x27;&lt;/span&gt;&lt;span class=&quot;g-name&quot;&gt;&#x27;+g[0]+&#x27;&lt;/span&gt;&lt;span class=&quot;count&quot;&gt;&#x27;+g[1].length+&#x27; aktivitas&lt;/span&gt;&lt;span class=&quot;chev&quot;&gt;⌄&lt;/span&gt;&lt;/summary&gt;&lt;ul class=&quot;items&quot;&gt;&#x27;+g[1].map(x=&gt;&#x27;&lt;li&gt;&#x27;+x+&#x27;&lt;/li&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/ul&gt;&lt;/details&gt;&#x27;).join(&#x27;&#x27;)+&#x27;&lt;/div&gt;&#x27;}
 let OPENING_PROGRESS_ROWS=[], EQUIPMENT_PROGRESS_ROWS=[];
@@ -3990,6 +3990,9 @@ button[onclick*="clearMPPImportInputs" i]:hover:not(#openingReset), button[aria-
     if (btn) btn.textContent = 'LOGIN';
     if (typeof sendEditorState === 'function') sendEditorState();
     if (typeof renderSubnav === 'function') renderSubnav();
+    if (APP.supabase && typeof window.GPC_REFRESH_MPP_VIEWER === 'function') {
+      window.GPC_REFRESH_MPP_VIEWER();
+    }
     const activeInput = ['input-progress', 'input-equipment', 'people-mpp-import'].some((id) => $(id) && !$(id).classList.contains('hidden'));
     if (activeInput) {
       if (typeof mainMenu === 'function') mainMenu('dashboard');
@@ -4018,6 +4021,9 @@ button[onclick*="clearMPPImportInputs" i]:hover:not(#openingReset), button[aria-
     if (btn) btn.textContent = 'Logout';
     if (typeof sendEditorState === 'function') sendEditorState();
     if (typeof renderSubnav === 'function') renderSubnav();
+    if (APP.supabase && typeof window.GPC_REFRESH_MPP_VIEWER === 'function') {
+      window.GPC_REFRESH_MPP_VIEWER();
+    }
     if (typeof mainMenu === 'function') mainMenu('map');
     closeAuthModal();
     if (typeof window.gpcInitModule === 'function') window.gpcInitModule(role).catch((e) => console.error('GPC V9 module init failed:', e));
@@ -4945,6 +4951,25 @@ button[onclick*="clearMPPImportInputs" i]:hover:not(#openingReset), button[aria-
     body.innerHTML=html;
   }
   async function refreshMppRows(){const rows=await rpc('list','mpp',{});state.rows.mpp=rows||[];refreshMppUi(rows||[]);return rows||[];}
+  window.GPC_REFRESH_MPP_VIEWER=async function(){
+    if(!APP?.supabase)return [];
+    try{
+      const {data,error}=await APP.supabase.from('mpp_data')
+        .select('id,store_id,data,source_file,created_at,updated_at')
+        .order('created_at',{ascending:true}).order('id',{ascending:true});
+      if(error)throw error;
+      const rows=data||[];
+      state.rows.mpp=rows;
+      refreshMppUi(rows);
+      return rows;
+    }catch(error){
+      console.error('GPC MPP Viewer: gagal membaca mpp_data dari Supabase.',error);
+      refreshMppUi([]);
+      return [];
+    }
+  };
+  const mppSummaryFrame=$('summaryExactFrame');
+  if(mppSummaryFrame)mppSummaryFrame.addEventListener('load',()=>{if(!APP?.profile)window.GPC_REFRESH_MPP_VIEWER?.();});
   function getManualMpp(){
     const cab=$('manualMPPCab')?.value||'',gerai=$('manualMPPGerai')?.value||'',role=$('manualMPPRole')?.value||'';
     if(!cab||!gerai||!role)throw new Error('Pilih Cabang, Gerai, dan PIC.');
